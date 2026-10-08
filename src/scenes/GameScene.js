@@ -11,6 +11,7 @@ import { Obstacles } from '../systems/Obstacles.js';
 import { Background } from '../systems/Background.js';
 import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
+import { Effects } from '../systems/Effects.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -29,6 +30,7 @@ export class GameScene extends Phaser.Scene {
     createTextures(this);
     this.background = new Background(this);
     this.hud = new Hud(this);
+    this.effects = new Effects(this);
     this.hud.showMessage("Robin's colors", 'Chargement…');
     this.state = 'loading';
     this.beat = 0;
@@ -45,10 +47,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.obstacles = new Obstacles(this, this.level);
-    this.player = new Player(this);
+    this.player = new Player(this, (name) => this.onPlayerEvent(name));
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
       fastFall: () => this.player.pressFastFall(),
+      switchColor: () => this.state === 'playing' && this.player.toggleColor(),
       restart: () => this.state !== 'loading' && this.startRun(),
       togglePitch: () => this.audio.setKeepPitch(!this.audio.keepPitch),
     });
@@ -73,6 +76,7 @@ export class GameScene extends Phaser.Scene {
     this.time.removeAllEvents();
     this.attempts++;
     this.player.reset();
+    this.background.setTheme(this.player.color);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
     this.audio.play(this.level.beatToTime(this.startBeat));
@@ -98,6 +102,11 @@ export class GameScene extends Phaser.Scene {
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
+      if (this.player.dashing && Math.floor(this.beat * 16) !== this.lastGhost) {
+        this.lastGhost = Math.floor(this.beat * 16);
+        this.effects.ghost(this.player.sprite, this.player.tint);
+      }
+
       if (this.player.dead) this.onDeath();
       else if (this.beat > this.level.endBeat || this.audio.getTime() > this.audio.duration) this.onFinish();
     }
@@ -121,7 +130,7 @@ export class GameScene extends Phaser.Scene {
     this.state = 'dead';
     this.audio.stop();
     this.player.sprite.setVisible(false);
-    this.explode();
+    this.effects.burst(this.player.sprite.x, this.player.sprite.y, this.player.tint, 18, 80, 500);
     this.cameras.main.shake(150, 0.006);
     this.time.delayedCall(700, () => this.startRun());
   }
@@ -132,22 +141,20 @@ export class GameScene extends Phaser.Scene {
     this.hud.showMessage('Niveau terminé !', 'Z / Espace pour rejouer');
   }
 
-  // Petite explosion de pixels à la mort.
-  explode() {
+  // Retours visuels des actions de Robin.
+  onPlayerEvent(name) {
     const { x, y } = this.player.sprite;
-    for (let i = 0; i < 18; i++) {
-      const p = this.add.image(x, y, 'pixel').setDepth(30).setTint(this.player.tint ?? 0x3a8bff);
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 40 + Math.random() * 60;
-      this.tweens.add({
-        targets: p,
-        x: x + Math.cos(angle) * dist,
-        y: y + Math.sin(angle) * dist,
-        alpha: 0,
-        duration: 500,
-        ease: 'Quad.easeOut',
-        onComplete: () => p.destroy(),
-      });
+    const tint = this.player.tint;
+    if (name === 'color') {
+      this.background.setTheme(this.player.color);
+      this.effects.ring(x, y, tint, 40);
+      this.effects.burst(x, y, tint, 10, 40, 300);
+    } else if (name === 'doubleJump') {
+      this.effects.ring(x, y + 14, tint, 26);
+    } else if (name === 'dash') {
+      this.effects.burst(x - 10, y, tint, 8, 30, 250);
+    } else if (name === 'land') {
+      this.effects.dust(this.player.h);
     }
   }
 }

@@ -20,6 +20,7 @@ export class Controls {
       [K.UP]: 'jump',
       [K.S]: 'fastFall',
       [K.DOWN]: 'fastFall',
+      [K.SHIFT]: 'switchColor',
       [K.R]: 'restart',
       [K.P]: 'togglePitch',
     };

@@ -24,6 +24,22 @@
     { "beat": 56.75, "type": "ceiling", "length": 2 },
     { "beat": 60, "type": "spike" },
     { "beat": 61, "type": "spike" },
-    { "beat": 62, "type": "spike" }
+    { "beat": 62, "type": "spike" },
+    { "beat": 66, "type": "wall", "color": "blue" },
+    { "beat": 70, "type": "wall", "color": "blue" },
+    { "beat": 73, "type": "spike" },
+    { "beat": 74, "type": "wall", "color": "blue" },
+    { "beat": 76, "type": "hole", "color": "blue" },
+    { "beat": 80, "type": "barrier", "color": "red" },
+    { "beat": 84, "type": "hole", "color": "red" },
+    { "beat": 88, "type": "barrier", "color": "red" },
+    { "beat": 90, "type": "spike", "color": "red" },
+    { "beat": 92, "type": "hole", "color": "red" },
+    { "beat": 96, "type": "wall", "color": "blue" },
+    { "beat": 100, "type": "barrier", "color": "red" },
+    { "beat": 104, "type": "wall", "color": "blue" },
+    { "beat": 106, "type": "hole", "color": "red" },
+    { "beat": 110, "type": "spike" },
+    { "beat": 111, "type": "spike" }
   ]
 }

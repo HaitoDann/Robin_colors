@@ -20,7 +20,7 @@ const TOP = 2000; // "infini" vers le haut
 // Valeurs par défaut selon le type et la couleur (longueurs en beats).
 const DEFAULTS = {
   spike: { length: 0 },
-  wall: { length: 0.3, height: { gray: 50, blue: 150, red: 90 } },
+  wall: { length: 0.3, height: { gray: 50, blue: 130, red: 90 } },
   hole: { length: { gray: 0.6, blue: 1.4, red: 2.25 } },
   ceiling: { length: 2, height: 44 }, // height = espace libre sous le plafond
   barrier: { length: 0 },

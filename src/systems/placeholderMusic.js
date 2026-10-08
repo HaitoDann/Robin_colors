@@ -14,42 +14,48 @@ const CHORDS = [
 
 const midiToHz = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
+const LOOP_BEATS = 32; // 8 mesures
+
+// Rend une boucle de 8 mesures puis la répète sur toute la durée du niveau
+// (beaucoup plus rapide que de tout synthétiser).
 export async function renderPlaceholderMusic({ bpm, offset = 0, beats }) {
   const spb = 60 / bpm;
-  const duration = offset + beats * spb + 1;
-  const ctx = new OfflineAudioContext(2, Math.ceil(duration * SAMPLE_RATE), SAMPLE_RATE);
+  const loop = await renderLoop(spb);
+  const loopLen = Math.round(LOOP_BEATS * spb * SAMPLE_RATE);
+  const start = Math.round(Math.max(0, offset) * SAMPLE_RATE);
+  const length = start + Math.ceil((beats * spb + 1) * SAMPLE_RATE);
+  const out = new AudioBuffer({ length, numberOfChannels: 2, sampleRate: SAMPLE_RATE });
+  for (let c = 0; c < 2; c++) {
+    const src = loop.getChannelData(c);
+    const dst = out.getChannelData(c);
+    for (let i = start; i < length; i++) dst[i] = src[(i - start) % loopLen];
+  }
+  return out;
+}
 
+async function renderLoop(spb) {
+  const ctx = new OfflineAudioContext(2, Math.round(LOOP_BEATS * spb * SAMPLE_RATE), SAMPLE_RATE);
   const master = ctx.createGain();
   master.gain.value = 0.5;
   master.connect(ctx.destination);
-
   const noise = makeNoiseBuffer(ctx);
 
-  for (let b = 0; b < beats; b++) {
-    const t = offset + b * spb;
-    const bar = Math.floor(b / 4);
-    const chord = CHORDS[bar % CHORDS.length];
-    const intro = b < 8; // 2 mesures d'intro plus légères
-
+  for (let b = 0; b < LOOP_BEATS; b++) {
+    const t = b * spb;
+    const chord = CHORDS[Math.floor(b / 4) % CHORDS.length];
     kick(ctx, master, t);
-    if (!intro) {
-      if (b % 2 === 1) clap(ctx, master, noise, t);
-      hat(ctx, master, noise, t + spb / 2);
-      // Basse en croches, octave basse de la fondamentale.
-      bass(ctx, master, midiToHz(chord[0] - 24), t, spb * 0.45);
-      bass(ctx, master, midiToHz(chord[0] - 12), t + spb / 2, spb * 0.45);
-    }
+    if (b % 2 === 1) clap(ctx, master, noise, t);
+    hat(ctx, master, noise, t + spb / 2);
+    // Basse en croches, octave basse de la fondamentale.
+    bass(ctx, master, midiToHz(chord[0] - 24), t, spb * 0.45);
+    bass(ctx, master, midiToHz(chord[0] - 12), t + spb / 2, spb * 0.45);
     // Arpège en doubles croches.
-    if (b >= 16) {
-      for (let i = 0; i < 4; i++) {
-        const note = chord[(b * 4 + i) % 3] + 12;
-        lead(ctx, master, midiToHz(note), t + (i * spb) / 4, spb / 4);
-      }
+    for (let i = 0; i < 4; i++) {
+      const note = chord[(b * 4 + i) % 3] + 12;
+      lead(ctx, master, midiToHz(note), t + (i * spb) / 4, spb / 4);
     }
-    // Crash toutes les 8 mesures.
-    if (b % 32 === 0 && b > 0) crash(ctx, master, noise, t);
   }
-
+  crash(ctx, master, noise, 0);
   return ctx.startRendering();
 }
 

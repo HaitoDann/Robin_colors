@@ -25,6 +25,8 @@ export const PLAYER = {
   coyoteBeats: 0.08, // on peut encore sauter juste après avoir quitté le sol
   jumpBufferBeats: 0.12, // un appui juste avant l'atterrissage est mémorisé
   spinDegPerBeat: 180,
+  // Rouge : dash horizontal sans gravité, traverse les obstacles rouges.
+  dashBeats: 1.5,
 };
 
 export const COLORS = {
