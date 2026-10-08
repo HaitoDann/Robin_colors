@@ -2,17 +2,22 @@
 // Bleu : le 2e appui sur Z en l'air = double saut.
 // Rouge : le 2e appui sur Z en l'air = dash (traverse les obstacles rouges).
 
-import { PLAYER, PLAYER_X, GROUND_Y } from '../config.js';
+import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
 
-const S = PLAYER.size;
+const W = PLAYER.width;
+const H = PLAYER.height;
 
 export class Player {
   // onEvent(name) : prévient la scène ('jump', 'doubleJump', 'dash', 'color', 'land')
   constructor(scene, onEvent = () => {}) {
     this.scene = scene;
     this.onEvent = onEvent;
-    this.sprite = scene.add.image(PLAYER_X, GROUND_Y - S / 2, 'robin_blue').setDepth(20);
+    // Sprites dessinés si disponibles, sinon le cube généré en code.
+    this.useSheet = scene.textures.exists('robin_sheet_blue');
+    this.sprite = scene.add.image(PLAYER_X, GROUND_Y, this.textureFor('blue')).setDepth(20);
+    this.halfHeight = this.sprite.height / 2;
+    this.idle = false; // pose debout (écran titre, éditeur)
     this.reset();
   }
 
@@ -26,6 +31,7 @@ export class Player {
     this.airJump = false; // action aérienne (double saut / dash) disponible
     this.dashTimer = 0;
     this.angle = 0;
+    this.flipTimer = 0;
     this.dead = false;
     this.setColor(color);
     this.sprite.setVisible(true);
@@ -41,7 +47,11 @@ export class Player {
 
   setColor(color) {
     this.color = color;
-    this.sprite.setTexture(`robin_${color}`);
+    this.sprite.setTexture(this.textureFor(color), this.useSheet ? ROBIN_SHEET.idle : undefined);
+  }
+
+  textureFor(color) {
+    return this.useSheet ? `robin_sheet_${color}` : `robin_${color}`;
   }
 
   // --- Actions déclenchées par les contrôles ---
@@ -86,6 +96,7 @@ export class Player {
   doubleJump() {
     this.vy = PLAYER.jumpVelocity;
     this.fastFalling = false;
+    this.flipTimer = PLAYER.flipBeats;
     this.onEvent('doubleJump');
   }
 
@@ -98,7 +109,7 @@ export class Player {
 
   // Boîte de collision en coordonnées monde.
   getHitbox(worldX) {
-    return { x0: worldX - S / 2 + 2, x1: worldX + S / 2 - 2, y0: this.h, y1: this.h + S };
+    return { x0: worldX - W / 2, x1: worldX + W / 2, y0: this.h, y1: this.h + H };
   }
 
   // Un obstacle rouge est traversable pendant le dash.
@@ -125,8 +136,8 @@ export class Player {
       this.h += this.vy * dt;
     }
 
-    const x0 = worldX - S / 2;
-    const x1 = worldX + S / 2;
+    const x0 = worldX - W / 2;
+    const x1 = worldX + W / 2;
     const near = obstacles.query(x0, x1);
     const overHole = obstacles.isOverHole(x0, x1);
 
@@ -159,14 +170,12 @@ export class Player {
     // 3) Chute dans un trou, ou rentrer dans le bord d'un trou.
     if (this.h < -60 || (this.h < -6 && !overHole)) return this.die();
 
-    if (!this.onGround && !this.dashing) this.angle += PLAYER.spinDegPerBeat * dt;
+    this.flipTimer = Math.max(0, this.flipTimer - dt);
   }
 
   land() {
-    if (!this.onGround) {
-      this.angle = Math.round(this.angle / 90) * 90;
-      this.onEvent('land');
-    }
+    if (!this.onGround) this.onEvent('land');
+    this.flipTimer = 0;
     this.onGround = true;
     this.fastFalling = false;
     this.airJump = false;
@@ -178,10 +187,26 @@ export class Player {
     this.dashTimer = 0;
   }
 
-  render() {
-    this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - S / 2);
+  // beat : sert à caler la course sur la musique (un pas par beat).
+  render(beat = 0) {
+    this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - this.halfHeight);
+    // Salto pendant le double saut, sinon Robin reste droit.
+    this.angle = this.flipTimer > 0 ? 360 * (1 - this.flipTimer / PLAYER.flipBeats) : 0;
     this.sprite.setAngle(this.angle);
-    // Pendant le dash, Robin s'étire un peu vers l'avant.
-    this.sprite.setScale(this.dashing ? 1.25 : 1, this.dashing ? 0.8 : 1);
+    if (this.useSheet) {
+      this.sprite.setFrame(this.currentFrame(beat));
+      this.sprite.setScale(1);
+    } else {
+      this.sprite.setScale(this.dashing ? 1.25 : 1, this.dashing ? 0.8 : 1);
+    }
+  }
+
+  currentFrame(beat) {
+    if (this.idle) return ROBIN_SHEET.idle;
+    if (this.dashing) return ROBIN_SHEET.dash;
+    if (!this.onGround) return this.vy > 0 ? ROBIN_SHEET.jump : ROBIN_SHEET.fall;
+    const run = ROBIN_SHEET.run;
+    const i = Math.floor(beat * ROBIN_SHEET.runFramesPerBeat);
+    return run[((i % run.length) + run.length) % run.length];
   }
 }

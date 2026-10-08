@@ -115,6 +115,23 @@ Le temps de jeu vient de l'horloge audio (`AudioContext.currentTime`) : la
 position de chaque obstacle et la physique de Robin sont calculées en beats,
 donc la synchro tient à toutes les vitesses.
 
-Pour passer aux sprites : charger les images dans `GameScene.preload()` avec
-les mêmes clés que `gfx/textures.js` (`robin_blue`, `robin_red`…), et remplacer
-les fonctions `drawSpikes` / `drawBlock` / `drawBarrier` de `Obstacles.js`.
+## Sprites de Robin
+
+Les images d'origine (générées avec ChatGPT) sont dans `art/`. Le script
+`tools/process_sprites.py` les nettoie (fond en damier retiré, vraie grille de
+pixels d'environ 32 px de haut, palette réduite) et produit les planches
+`public/sprites/robin_blue.png` et `robin_red.png`. Chaque planche contient
+12 images de 32×36 : course 1-8, saut, chute, dash, debout.
+
+```bash
+pip install pillow numpy
+python3 tools/process_sprites.py
+```
+
+Pour remplacer une pose, mets une nouvelle image dans `art/` et adapte
+`main()` dans le script. La course avance de 4 images par beat, donc Robin
+pose un pied sur chaque temps. Si les planches manquent, le jeu reprend le
+cube généré dans `gfx/textures.js`.
+
+Les obstacles sont encore dessinés en code (`drawSpikes` / `drawBlock` /
+`drawBarrier` dans `Obstacles.js`).

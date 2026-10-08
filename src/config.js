@@ -14,7 +14,9 @@ export const PLAYER_X = 220;
 export const PIXELS_PER_BEAT = 150;
 
 export const PLAYER = {
-  size: 28,
+  // Boîte de collision (plus petite que le sprite, pour rester indulgent).
+  width: 20,
+  height: 30,
   // Saut simple : hauteur max ~100 px, durée totale 1 beat.
   jumpVelocity: 400, // px / beat
   gravity: 800, // px / beat²
@@ -24,9 +26,22 @@ export const PLAYER = {
   // Petites tolérances pour que le jeu reste agréable.
   coyoteBeats: 0.08, // on peut encore sauter juste après avoir quitté le sol
   jumpBufferBeats: 0.12, // un appui juste avant l'atterrissage est mémorisé
-  spinDegPerBeat: 180,
+  // Salto pendant le double saut.
+  flipBeats: 0.5,
   // Rouge : dash horizontal sans gravité, traverse les obstacles rouges.
   dashBeats: 1.5,
+};
+
+// Planche de sprites de Robin (générée par tools/process_sprites.py).
+export const ROBIN_SHEET = {
+  frameWidth: 32,
+  frameHeight: 36,
+  run: [0, 1, 2, 3, 4, 5, 6, 7],
+  jump: 8,
+  fall: 9,
+  dash: 10,
+  idle: 11,
+  runFramesPerBeat: 4, // un pas sur chaque beat
 };
 
 export const COLORS = {

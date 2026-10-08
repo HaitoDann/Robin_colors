@@ -2,7 +2,7 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
@@ -30,6 +30,16 @@ export class GameScene extends Phaser.Scene {
     this.startBeat = Math.max(0, Number(params.get('beat')) || 0);
     // ?color=red : couleur de départ (utile pour tester une section rouge).
     this.startColor = params.get('color') === 'red' ? 'red' : 'blue';
+  }
+
+  preload() {
+    // Sprites de Robin ; si absents, on garde le cube généré en code.
+    for (const color of ['blue', 'red']) {
+      this.load.spritesheet(`robin_sheet_${color}`, `sprites/robin_${color}.png`, {
+        frameWidth: ROBIN_SHEET.frameWidth,
+        frameHeight: ROBIN_SHEET.frameHeight,
+      });
+    }
   }
 
   async create() {
@@ -139,7 +149,10 @@ export class GameScene extends Phaser.Scene {
     const cameraX = this.beat * PPB;
     this.background.update(cameraX);
     if (this.obstacles) this.obstacles.draw(cameraX, this.beat);
-    if (this.player) this.player.render();
+    if (this.player) {
+      this.player.idle = this.state === 'title' || this.state === 'editor';
+      this.player.render(this.beat);
+    }
     if (this.hitboxes) this.hitboxes.draw(this.beat, this.player, this.obstacles);
     if (this.editor) this.editor.draw();
     this.hud.setInfo(

@@ -47,7 +47,7 @@ export class Effects {
   // Image fantôme laissée derrière Robin pendant le dash.
   ghost(sprite, tint) {
     const img = this.scene.add
-      .image(sprite.x, sprite.y, sprite.texture.key)
+      .image(sprite.x, sprite.y, sprite.texture.key, sprite.frame.name)
       .setDepth(19)
       .setTint(tint)
       .setAlpha(0.5)
