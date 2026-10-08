@@ -34,7 +34,7 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 
 | Touche | Action |
 | --- | --- |
-| Z (ou Espace / ↑ / clic) | Sauter |
+| Z (ou Espace / ↑ / clic) | Sauter (maintenu : ressaute à chaque atterrissage) |
 | S (ou ↓) | Fast-fall : redescendre très vite |
 | Maj | Changer de couleur bleu ⇄ rouge |
 | Z en l'air (bleu) | Double saut |
@@ -137,3 +137,21 @@ cube généré dans `gfx/textures.js`.
 
 Les obstacles sont encore dessinés en code (`drawSpikes` / `drawBlock` /
 `drawBarrier` dans `Obstacles.js`).
+
+## Régler la physique
+
+Tout est dans `PLAYER` (`src/config.js`) :
+
+| Réglage | Effet |
+| --- | --- |
+| `jumpVelocity`, `gravity` | Force du saut et gravité en montée |
+| `fallGravityMul` | > 1 : on retombe plus vite qu'on ne monte (saut nerveux) |
+| `apexHangSpeed`, `apexHangMul` | Petit flottement au sommet du saut |
+| `fastFallVelocity`, `fastFallGravityMul` | Puissance du fast-fall (S) |
+| `dashBeats` | Durée du dash |
+| `holdToRejump` | Z maintenu = sauts enchaînés |
+| `squashBeats`, `squashAmount`, `airTiltDeg` | Déformation et inclinaison (visuel seulement) |
+
+Attention : la hauteur (~100 px) et la durée (~1 beat) du saut définissent la
+difficulté des niveaux. Si tu les changes, rejoue les niveaux pour vérifier
+qu'ils restent faisables.
