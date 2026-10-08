@@ -3,7 +3,7 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE, MUSIC_RATE } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
@@ -145,6 +145,7 @@ export class GameScene extends Phaser.Scene {
     this.coins.reset(this.startBeat * PPB);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
+    this.audio.setRate(1);
     this.audio.play(this.level.beatToTime(this.startBeat));
     this.hud.hideMessage();
     this.state = 'playing';
@@ -168,8 +169,10 @@ export class GameScene extends Phaser.Scene {
     if (this.state === 'playing') {
       // Q/D : vitesse de Robin (mode 'player') ou du jeu entier (mode 'music').
       this.speedFactor = this.controls.getSpeed();
-      this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
-      const playerFactor = SPEED_MODE === 'player' ? this.speedFactor : 1;
+      // 'run' : la musique suit la vitesse réelle de Robin (inertie, dash…).
+      if (SPEED_MODE === 'run') this.audio.setRate(Phaser.Math.Clamp(this.player.speed / PPB, MUSIC_RATE.min, MUSIC_RATE.max));
+      else this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
+      const playerFactor = SPEED_MODE === 'music' ? 1 : this.speedFactor;
       // Touches tenues : servent au saut, double saut et dash adaptatifs.
       this.player.jumpHeld = this.controls.isJumpHeld() || this.pointerHeld;
       this.player.airHeld = this.controls.isAirHeld();
@@ -275,6 +278,7 @@ export class GameScene extends Phaser.Scene {
   enterEditor(beat) {
     this.time.removeAllEvents();
     this.audio.stop();
+    this.audio.setRate(1);
     this.previewing = false;
     this.hud.hideMessage();
     this.state = 'editor';

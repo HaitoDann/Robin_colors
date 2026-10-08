@@ -146,10 +146,11 @@ export class AudioSystem {
   }
 
   // Change la vitesse de lecture (et donc du jeu) sans saut de position.
+  // Peut être appelé à chaque image (vitesse de Robin) : on ré-ancre sur la
+  // position réelle (non lissée) et on garde le lissage en cours.
   setRate(rate) {
-    if (rate === this.rate) return;
-    this.anchorSong = this.getTime();
-    this.smoothTime = null;
+    if (Math.abs(rate - this.rate) < 0.002) return;
+    if (this.playing) this.anchorSong += (this.ctx.currentTime - this.anchorCtx) * this.rate;
     this.anchorCtx = this.ctx.currentTime;
     this.rate = rate;
     if (this.source) this.source.playbackRate.setValueAtTime(rate, this.ctx.currentTime);

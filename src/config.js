@@ -62,6 +62,7 @@ export const PLAYER = {
   minOffset: -150, // limites de déplacement à l'écran (px)
   maxOffset: 280,
   dashSpeedFactor: 1.6, // le dash propulse vraiment vers l'avant
+  overspeedDecel: 400, // px / beat² : après un dash, on revient vite à sa vitesse de course
   // Petites tolérances pour que le jeu reste agréable.
   coyoteBeats: 0.08, // on peut encore sauter juste après avoir quitté le sol
   jumpBufferBeats: 0.12, // un appui juste avant l'atterrissage est mémorisé
@@ -102,7 +103,11 @@ export const PHYSICS_STEP = 1 / 64;
 
 // Vitesses (Q maintenu = lent, D maintenu = rapide).
 export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
-// 'player' : Q/D changent la vitesse de Robin (la musique reste à x1).
-// 'music'  : Q/D changent la vitesse du jeu et de la musique (ancien mode).
-export const SPEED_MODE = 'player';
+// 'run'    : Robin a sa propre vitesse (inertie, dash…) et la musique est jouée
+//            à cette vitesse : il "court sur la partition", tout reste calé.
+// 'player' : Robin avance / recule à l'écran, la musique reste à x1.
+// 'music'  : Q/D changent directement la vitesse du jeu et de la musique.
+export const SPEED_MODE = 'run';
+// Vitesse de la musique autorisée en mode 'run' (le dash monte jusqu'à x1,6).
+export const MUSIC_RATE = { min: 0.7, max: 1.6 };
 

@@ -2,7 +2,7 @@
 // Z : saut. Espace en l'air : double saut (bleu) ou dash (rouge, traverse les
 // obstacles rouges). Les trois sont adaptatifs : plus on tient, plus c'est fort.
 
-import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB } from '../config.js';
+import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
 
 const W = PLAYER.width;
@@ -154,7 +154,19 @@ export class Player {
   step(dt, cameraX, obstacles, speedFactor = 1) {
     if (this.dead) return;
     if (this.x === null) this.x = cameraX;
-    this.stepHorizontal(dt, cameraX, speedFactor, obstacles);
+    if (SPEED_MODE === 'run') {
+      // Mode "course sur la partition" : dt est le temps du morceau (en beats),
+      // qui avance à la vitesse de Robin. Le corps de Robin (saut, dash,
+      // tolérances) vit en temps réel : dt / vitesse. Plus il court vite,
+      // plus un saut couvre de beats.
+      this.x = cameraX;
+      this.offset = 0;
+      if (this.onGround) this.runPhase += dt;
+      dt /= this.speed / PPB;
+      this.stepSpeed(dt, speedFactor, obstacles);
+    } else {
+      this.stepHorizontal(dt, cameraX, speedFactor, obstacles);
+    }
     const worldX = this.x;
     this.coyote = Math.max(0, this.coyote - dt);
     this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
@@ -231,26 +243,7 @@ export class Player {
   // Vitesse horizontale avec inertie (façon Sonic) : on accélère vers la
   // vitesse cible, vite au sol, peu en l'air (l'élan du saut est conservé).
   stepHorizontal(dt, cameraX, speedFactor, obstacles) {
-    let target = PPB * speedFactor;
-    if (speedFactor === 1) target -= this.offset * PLAYER.recenter; // retour en place
-    // Angle du sol sous Robin (0 = plat ; prêt pour de futures pentes).
-    const angle = this.onGround ? (obstacles.groundAngleAt?.(this.x) ?? 0) : 0;
-
-    if (this.dashing) {
-      this.speed = PPB * PLAYER.dashSpeedFactor;
-    } else {
-      // Choix du taux façon Sonic : accélérer, freiner ou simple friction.
-      let rate;
-      if (!this.onGround) rate = PLAYER.airAccel;
-      else if (speedFactor > 1) rate = this.speed < target ? PLAYER.groundAccel : PLAYER.groundFriction;
-      else if (speedFactor < 1) rate = this.speed > target ? PLAYER.groundDecel : PLAYER.groundFriction;
-      else rate = PLAYER.groundFriction;
-      const dv = target - this.speed;
-      this.speed += Math.sign(dv) * Math.min(Math.abs(dv), rate * dt);
-      // Pente : la gravité freine en montée et accélère en descente.
-      if (this.onGround && angle) this.speed -= PLAYER.slopeFactor * Math.sin(angle) * dt;
-    }
-    this.vx = this.speed * Math.cos(angle);
+    this.stepSpeed(dt, speedFactor, obstacles);
     this.x += this.vx * dt;
     // Robin ne peut pas sortir de la zone de jeu : il "pousse" contre le bord.
     this.offset = this.x - cameraX;
@@ -260,6 +253,31 @@ export class Player {
       this.speed = this.vx = PPB;
     }
     if (this.onGround) this.runPhase += (dt * this.vx) / PPB;
+  }
+
+  // Vitesse au sol façon Sonic : accélérer, freiner, friction, pentes.
+  stepSpeed(dt, speedFactor, obstacles) {
+    let target = PPB * speedFactor;
+    if (speedFactor === 1 && SPEED_MODE !== 'run') target -= this.offset * PLAYER.recenter; // retour en place
+    // Angle du sol sous Robin (0 = plat ; prêt pour de futures pentes).
+    const angle = this.onGround ? (obstacles.groundAngleAt?.(this.x) ?? 0) : 0;
+
+    if (this.dashing) {
+      this.speed = PPB * PLAYER.dashSpeedFactor;
+    } else {
+      // Choix du taux façon Sonic : accélérer, freiner ou simple friction.
+      let rate;
+      if (this.speed > PPB * PLAYER.fastFactor) rate = PLAYER.overspeedDecel; // fin de dash
+      else if (!this.onGround) rate = PLAYER.airAccel;
+      else if (speedFactor > 1) rate = this.speed < target ? PLAYER.groundAccel : PLAYER.groundFriction;
+      else if (speedFactor < 1) rate = this.speed > target ? PLAYER.groundDecel : PLAYER.groundFriction;
+      else rate = PLAYER.groundFriction;
+      const dv = target - this.speed;
+      this.speed += Math.sign(dv) * Math.min(Math.abs(dv), rate * dt);
+      // Pente : la gravité freine en montée et accélère en descente.
+      if (this.onGround && angle) this.speed -= PLAYER.slopeFactor * Math.sin(angle) * dt;
+    }
+    this.vx = this.speed * Math.cos(angle);
   }
 
   land() {

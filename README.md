@@ -43,8 +43,8 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | Espace (en l'air) | Bleu : double saut / Rouge : dash — plus on tient, plus c'est haut / long |
 | S (ou ↓) | Fast-fall : redescendre très vite |
 | Maj | Changer de couleur bleu ⇄ rouge |
-| Q (ou ←) maintenu | Robin ralentit (recule à l'écran) |
-| D (ou →) maintenu | Robin accélère (avance à l'écran, sauts plus longs) |
+| Q (ou ←) maintenu | Robin ralentit, la musique aussi |
+| D (ou →) maintenu | Robin accélère, la musique aussi (sauts plus longs) |
 | Échap | Pause (Échap/Z reprendre, R recommencer, M menu) |
 | R | Recommencer |
 | H | Afficher les hitboxes |
@@ -186,6 +186,23 @@ Attention : la hauteur (~100 px) et la durée (~1 beat) du saut définissent la
 difficulté des niveaux. Si tu les changes, rejoue les niveaux pour vérifier
 qu'ils restent faisables.
 
-`SPEED_MODE` (`src/config.js`) : `'player'` (Q/D changent la vitesse de Robin,
-la musique reste à x1) ou `'music'` (ancien mode : tout le jeu et la musique
-accélèrent ou ralentissent).
+`SPEED_MODE` (`src/config.js`) :
+- `'run'` (par défaut) : Robin a sa propre vitesse (inertie, dash…) et la
+  musique est jouée à cette vitesse, comme s'il courait sur la partition. Le
+  corps de Robin (sauts, dash) vit en temps réel : plus il va vite, plus un
+  saut couvre de beats. `MUSIC_RATE` borne la vitesse de la musique.
+- `'player'` : Robin avance / recule à l'écran, la musique reste à x1.
+- `'music'` : Q/D changent directement la vitesse du jeu et de la musique.
+
+## Patterns de pièces (niveau 1)
+
+| Pattern | Forme | Ce qu'il demande |
+| --- | --- | --- |
+| Pièces au sol | hauteur 25 | rien : on les prend en courant |
+| Sauts en rythme | 1 pièce par temps, hauteur 70 | sauter sur chaque temps |
+| Mini-sauts | 8 pièces bleues, une par demi-temps, hauteur 55 | **petits sauts** en croches (un grand saut passe au-dessus) |
+| Traînée rouge | 8 pièces rouges serrées (1/8 de temps), hauteur 140 | **dash** (en sautant on en rate forcément) |
+| Pièce haute | 1 pièce bleue, hauteur 190 | **double saut** bleu |
+
+Ces formes ont été vérifiées par simulation : la mécanique indiquée est la
+seule qui permet de toutes les prendre.
