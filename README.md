@@ -27,4 +27,10 @@ Choisir un niveau : `http://localhost:5173/?level=level1`.
 | --- | --- |
 | Z (ou Espace / ↑ / clic) | Sauter |
 | S (ou ↓) | Fast-fall : redescendre très vite |
+| Q (ou ←) maintenu | Ralentir jeu + musique (x0.8) |
+| D (ou →) maintenu | Accélérer jeu + musique (x1.2) |
+| P | Garder / libérer la tonalité quand la vitesse change |
 | R | Recommencer |
+
+Option d'URL `?pitch=keep` : démarrer en gardant la tonalité (sinon la
+musique monte/descend comme un vinyle, avec une horloge un peu plus précise).

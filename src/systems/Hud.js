@@ -18,6 +18,20 @@ export class Hud {
     this.info = scene.add
       .text(12, 10, '', { fontFamily: FONT, fontSize: '14px', color: '#8c8cb0' })
       .setDepth(100);
+    this.speed = scene.add
+      .text(16, HEIGHT - 16, 'x1', { fontFamily: FONT, fontSize: '22px', color: '#8c8cb0', fontStyle: 'bold' })
+      .setOrigin(0, 1)
+      .setDepth(100);
+  }
+
+  // Indicateur de vitesse en bas à gauche.
+  setSpeed(rate) {
+    if (rate === this.lastRate) return;
+    this.lastRate = rate;
+    const label = rate < 1 ? `◀◀ x${rate}` : rate > 1 ? `x${rate} ▶▶` : 'x1';
+    const color = rate < 1 ? '#7fd3ff' : rate > 1 ? '#ffd166' : '#8c8cb0';
+    this.speed.setText(label).setColor(color);
+    this.scene.tweens.add({ targets: this.speed, scale: { from: 1.3, to: 1 }, duration: 120 });
   }
 
   showMessage(title, subtitle = '') {

@@ -20,6 +20,8 @@ export class GameScene extends Phaser.Scene {
   init() {
     const params = new URLSearchParams(window.location.search);
     this.levelId = params.get('level') ?? 'level1';
+    // ?pitch=keep : garder la tonalité quand on change de vitesse.
+    this.keepPitch = params.get('pitch') === 'keep';
     this.startBeat = 0;
   }
 
@@ -32,7 +34,7 @@ export class GameScene extends Phaser.Scene {
     this.beat = 0;
     this.attempts = 0;
 
-    this.audio = new AudioSystem();
+    this.audio = new AudioSystem({ keepPitch: this.keepPitch });
     try {
       this.level = await LevelSystem.load(this.levelId);
       await this.audio.load(this.level);
@@ -48,6 +50,7 @@ export class GameScene extends Phaser.Scene {
       jump: () => this.onJump(),
       fastFall: () => this.player.pressFastFall(),
       restart: () => this.state !== 'loading' && this.startRun(),
+      togglePitch: () => this.audio.setKeepPitch(!this.audio.keepPitch),
     });
     this.input.on('pointerdown', () => this.onJump());
 
@@ -81,6 +84,8 @@ export class GameScene extends Phaser.Scene {
     if (this.state === 'loading') return;
 
     if (this.state === 'playing') {
+      // La vitesse s'applique à la musique ; le jeu suit l'horloge audio.
+      this.audio.setRate(this.controls.getSpeed());
       this.beat = this.level.timeToBeat(this.audio.getTime());
       // Avance de la physique en petits pas, en temps "beat".
       let remaining = Phaser.Math.Clamp(this.beat - this.lastBeat, 0, 0.5);
@@ -105,7 +110,11 @@ export class GameScene extends Phaser.Scene {
     this.background.update(cameraX);
     if (this.obstacles) this.obstacles.draw(cameraX, this.beat);
     if (this.player) this.player.render();
-    this.hud.setInfo(`${this.level?.name ?? ''}  beat ${this.beat.toFixed(1)}  essai ${this.attempts}`);
+    this.hud.setInfo(
+      `${this.level?.name ?? ''}  beat ${this.beat.toFixed(1)}  essai ${this.attempts}` +
+        `  [P] tonalité ${this.audio.keepPitch ? 'conservée' : 'libre'}`,
+    );
+    this.hud.setSpeed(this.audio.rate);
   }
 
   onDeath() {

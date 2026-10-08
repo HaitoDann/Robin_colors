@@ -116,3 +116,34 @@ function lead(ctx, dest, freq, t, len) {
   osc.start(t);
   osc.stop(t + len + 0.02);
 }
+
+// Encode un AudioBuffer en WAV 16 bits (utilisé par le mode "garder la tonalité").
+export function audioBufferToWavBlob(buffer) {
+  const channels = buffer.numberOfChannels;
+  const length = buffer.length * channels * 2;
+  const view = new DataView(new ArrayBuffer(44 + length));
+  const writeStr = (o, s) => [...s].forEach((c, i) => view.setUint8(o + i, c.charCodeAt(0)));
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + length, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, buffer.sampleRate, true);
+  view.setUint32(28, buffer.sampleRate * channels * 2, true);
+  view.setUint16(32, channels * 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, 'data');
+  view.setUint32(40, length, true);
+  const data = [...Array(channels)].map((_, c) => buffer.getChannelData(c));
+  let o = 44;
+  for (let i = 0; i < buffer.length; i++) {
+    for (let c = 0; c < channels; c++) {
+      const s = Math.max(-1, Math.min(1, data[c][i]));
+      view.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      o += 2;
+    }
+  }
+  return new Blob([view], { type: 'audio/wav' });
+}

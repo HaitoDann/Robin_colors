@@ -38,3 +38,6 @@ export const COLORS = {
 
 // Taille d'un pas de physique (en beats) pour des collisions stables.
 export const PHYSICS_STEP = 1 / 64;
+
+// Vitesses de jeu (Q maintenu = lent, D maintenu = rapide).
+export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
