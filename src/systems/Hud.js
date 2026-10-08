@@ -19,6 +19,27 @@ export class Hud {
     this.info = scene.add
       .text(12, 10, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '14px', color: '#8c8cb0' })
       .setDepth(100);
+    // Compteurs de pièces (bleues / rouges), en haut à droite.
+    this.coins = ['blue', 'red'].map((c, i) =>
+      scene.add
+        .text(WIDTH - 16, 10 + i * 20, '', {
+          fontFamily: FONT,
+          resolution: RENDER_SCALE,
+          fontSize: '15px',
+          color: c === 'blue' ? '#5aa8ff' : '#ff5a78',
+          fontStyle: 'bold',
+        })
+        .setOrigin(1, 0)
+        .setDepth(100),
+    );
+  }
+
+  // counts : { blue: [ramassées, total], red: [...] } ; rien si aucune pièce.
+  setCoins(counts) {
+    ['blue', 'red'].forEach((c, i) => {
+      const [got, total] = counts[c];
+      this.coins[i].setText(total ? `◆ ${got}/${total}` : '');
+    });
   }
 
   showMessage(title, subtitle = '') {

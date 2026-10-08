@@ -11,10 +11,74 @@ export class LevelSystem {
     this.sortObstacles();
   }
 
-  static async load(id) {
+  // Charge un niveau. preferDraft : en éditeur, on reprend le brouillon
+  // sauvegardé automatiquement s'il existe. Sans fichier, on prend le brouillon.
+  static async load(id, { preferDraft = false } = {}) {
+    const draft = LevelSystem.loadDraft(id);
+    if (preferDraft && draft) return new LevelSystem(draft);
     const res = await fetch(`levels/${id}.json`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Niveau introuvable : levels/${id}.json`);
-    return new LevelSystem(await res.json());
+    if (res.ok) return new LevelSystem(await res.json());
+    if (draft) return new LevelSystem(draft);
+    throw new Error(`Niveau introuvable : levels/${id}.json`);
+  }
+
+  static draftKey(id) {
+    return `robins-colors:draft:${id}`;
+  }
+
+  static loadDraft(id) {
+    try {
+      const raw = localStorage.getItem(LevelSystem.draftKey(id));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  saveDraft(id) {
+    try {
+      localStorage.setItem(LevelSystem.draftKey(id), JSON.stringify(this.toJSON()));
+    } catch (e) {
+      /* stockage indisponible */
+    }
+  }
+
+  static deleteDraft(id) {
+    try {
+      localStorage.removeItem(LevelSystem.draftKey(id));
+    } catch (e) {
+      /* stockage indisponible */
+    }
+  }
+
+  // Liste des niveaux : levels/index.json + niveaux créés dans l'éditeur.
+  static async list() {
+    let levels = [];
+    try {
+      const res = await fetch('levels/index.json', { cache: 'no-store' });
+      if (res.ok) levels = await res.json();
+    } catch (e) {
+      /* pas d'index */
+    }
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const m = /^robins-colors:draft:(.+)$/.exec(key);
+        if (!m || levels.some((l) => l.id === m[1])) continue;
+        const data = JSON.parse(localStorage.getItem(key));
+        levels.push({ id: m[1], name: data.name ?? m[1], draftOnly: true });
+      }
+    } catch (e) {
+      /* stockage indisponible */
+    }
+    return levels;
+  }
+
+  // Texte JSON lisible (un obstacle par ligne).
+  toText() {
+    const data = this.toJSON();
+    const lines = data.obstacles.map((o) => '    ' + JSON.stringify(o).replace(/,"/g, ', "').replace(/":/g, '": ')).join(',\n');
+    return JSON.stringify({ ...data, obstacles: [] }, null, 2).replace('"obstacles": []', `"obstacles": [\n${lines}\n  ]`) + '\n';
   }
 
   get secondsPerBeat() {

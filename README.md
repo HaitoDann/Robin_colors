@@ -26,7 +26,7 @@ au bon BPM. Ajuste `"offset"` (en secondes) pour caler le beat 0 sur la piste.
 | `?level=level1` | Charger `public/levels/level1.json` |
 | `?beat=32` | Démarrer directement au beat 32 |
 | `?color=red` | Couleur de départ de Robin |
-| `?pitch=keep` | Garder la tonalité quand la vitesse change |
+| `?edit` | Ouvrir directement l'éditeur (avec `?level=`) |
 
 Exemple : `http://localhost:5173/?beat=80&color=red`
 
@@ -40,9 +40,8 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | Maj | Changer de couleur bleu ⇄ rouge |
 | Q (ou ←) maintenu | Robin ralentit (recule à l'écran) |
 | D (ou →) maintenu | Robin accélère (avance à l'écran, sauts plus longs) |
-| P | Garder / libérer la tonalité quand la vitesse change |
-| R | Recommencer (depuis le beat de départ) |
-| E | Mode éditeur (pause) / rejouer depuis le beat affiché |
+| Échap | Pause (Échap/Z reprendre, R recommencer, M menu) |
+| R | Recommencer |
 | H | Afficher les hitboxes |
 
 Option d'URL `?pitch=keep` : démarrer en gardant la tonalité (sinon la
@@ -57,6 +56,7 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 | `hole` | Trou dans le sol | gris 0,6 / bleu 1,4 / rouge 2,25 beats |
 | `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 54 px de passage |
 | `barrier` | Barrière pleine hauteur (rouge par défaut) | |
+| `coin` | Pièce bleue ou rouge : seul Robin de la même couleur la ramasse. `height` = hauteur en px | 60 px |
 
 Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
 - **Bleu** : murs hauts / trous moyens, qui demandent le double saut.
@@ -64,21 +64,45 @@ Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
 
 Champs optionnels : `length` (en beats), `height` (en px).
 
-## Mode éditeur (E)
+## Menu
 
-- Le jeu se met en pause et affiche la grille de beats (numéros sous le sol,
-  ligne forte toutes les 4 temps). La ligne jaune = position de Robin.
-- **Clic** : poser l'obstacle choisi sur la grille, ou supprimer celui sous la
-  souris (surligné en blanc). **Clic droit** : supprimer.
-- **1-5** ou **T** : type (spike, wall, hole, ceiling, barrier) ; **C** : couleur ;
-  **G** : pas de grille (1, 1/2, 1/4 beat) ; **↑ / ↓** : longueur.
-- **← / →** ou molette : défiler (Maj = 4 beats). **Maj** : couleur de départ de Robin.
-- **X** : exporter le JSON (téléchargement + presse-papiers + console).
-  Remplace ensuite `public/levels/<niveau>.json` par le fichier exporté.
-- Chaque modification est aussi sauvegardée en brouillon dans le navigateur :
-  **L** recharge ce brouillon après un rechargement de page.
-- **E** à nouveau : rejoue depuis le beat affiché ; R et les morts recommencent
-  ensuite depuis ce beat.
+Au lancement : **Jouer** (choix du niveau), **Éditeur de niveaux** et
+**Réglages** (volume, décalage audio, hitboxes, tonalité). Les niveaux listés
+viennent de `public/levels/index.json`, plus ceux créés dans l'éditeur.
+Navigation : ↑↓ (ou Z/S), Entrée, ←→ (ou Q/D) pour les réglages, Échap, souris.
+
+**Décalage audio** : si les obstacles semblent arriver avant ou après le son
+(casque Bluetooth…), règle ce décalage par pas de 10 ms.
+
+## Éditeur de niveaux
+
+Depuis le menu : *Éditeur de niveaux* → un niveau, ou **+ Nouveau niveau**.
+On parcourt le niveau librement, sans jouer :
+
+| Touche / souris | Action |
+| --- | --- |
+| ← → / molette (Maj = 4 beats) | Défiler |
+| Début / Fin, clic sur la barre du bas | Aller au début / à la fin / à un endroit |
+| Espace | Écouter la musique à partir d'ici (la vue suit), Espace pour arrêter |
+| Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
+| Clic droit | Supprimer |
+| 1-6 ou T | Type : pic, mur, trou, plafond, barrière, pièce |
+| C | Couleur : gris, bleu, rouge (pièce : bleue ou rouge) |
+| G | Pas de la grille : 1, 1/2, 1/4 de beat |
+| ↑ ↓ | Longueur de l'élément (trous, plafonds, rangées de pics…) |
+| Ctrl+Z | Annuler |
+| Maj | Couleur de départ de Robin pour le test |
+| Entrée | **Tester depuis la ligne jaune** (Échap pour revenir à l'éditeur) |
+| N | Nom, BPM, fichier musique et offset du niveau |
+| Ctrl+S | **Enregistrer** dans `public/levels/<niveau>.json` (avec `npm run dev`) |
+| X | Exporter (téléchargement + presse-papiers) |
+| F1 | Afficher / masquer l'aide |
+| Échap | Retour au menu |
+
+Les pièces se placent à la hauteur de la souris. Chaque modification est
+gardée en brouillon dans le navigateur : rien n'est perdu si tu fermes la page,
+et l'éditeur reprend le brouillon à l'ouverture. Ctrl+S écrit le fichier dans
+le projet (et l'ajoute au menu) ; pense ensuite à le committer.
 
 ## Organisation du code
 
@@ -86,7 +110,8 @@ Champs optionnels : `length` (en beats), `height` (en px).
 src/
   main.js              configuration Phaser
   config.js            constantes (physique en beats, vitesses)
-  scenes/GameScene.js  relie tous les systèmes
+  scenes/MenuScene.js  menu, choix des niveaux, réglages
+  scenes/GameScene.js  jeu et éditeur : relie tous les systèmes
   systems/
     AudioSystem.js     musique, horloge audio, vitesse, tonalité
     placeholderMusic.js musique électro générée si le mp3 manque
@@ -94,7 +119,9 @@ src/
     Player.js          Robin : physique, couleurs, double saut, dash
     Obstacles.js       géométrie, collisions et dessin des obstacles et du sol
     Controls.js        clavier
-    Editor.js          mode éditeur
+    Editor.js          éditeur de niveaux
+    Coins.js           pièces bleues / rouges
+    Settings.js        réglages sauvegardés
     Hitboxes.js        affichage des hitboxes
     Background.js      décor en parallaxe teinté selon la couleur
     Effects.js         particules et traînées

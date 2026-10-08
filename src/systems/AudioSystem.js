@@ -65,6 +65,19 @@ export class AudioSystem {
     this.element.webkitPreservesPitch = true;
   }
 
+  // Volume de 0 à 1.
+  setVolume(v) {
+    this.gain.gain.value = v;
+    if (this.element) this.element.volume = v;
+  }
+
+  // Une seule instance pour tout le jeu (les navigateurs limitent le nombre
+  // d'AudioContext) ; elle est réutilisée d'une scène à l'autre.
+  static shared(game) {
+    if (!game.registry.get('audio')) game.registry.set('audio', new AudioSystem());
+    return game.registry.get('audio');
+  }
+
   // À appeler depuis un geste utilisateur (politique d'autoplay des navigateurs).
   unlock() {
     if (this.ctx.state !== 'running') return this.ctx.resume();

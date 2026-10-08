@@ -25,6 +25,8 @@ export class Controls {
       [K.P]: 'togglePitch',
       [K.E]: 'editor',
       [K.H]: 'hitboxes',
+      [K.ESC]: 'back',
+      [K.ENTER]: 'confirm',
     };
 
     // Touches maintenues pour la vitesse.

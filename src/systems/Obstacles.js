@@ -4,7 +4,7 @@
 
 import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } from '../config.js';
 
-export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier'];
+export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
 
 export const PALETTE = {
@@ -24,13 +24,15 @@ const DEFAULTS = {
   hole: { length: { gray: 0.6, blue: 1.4, red: 2.25 } },
   ceiling: { length: 2, height: 54 }, // height = espace libre sous le plafond
   barrier: { length: 0 },
+  coin: { height: 60 }, // hauteur du centre de la pièce au-dessus du sol
 };
 
 const pick = (v, color) => (typeof v === 'object' && v !== null ? v[color] : v);
 
 // Transforme une entrée JSON en géométrie exploitable.
 export function buildGeometry(o) {
-  const color = o.color ?? (o.type === 'barrier' ? 'red' : 'gray');
+  let color = o.color ?? (o.type === 'barrier' ? 'red' : 'gray');
+  if (o.type === 'coin' && color === 'gray') color = 'blue'; // pièce : bleue ou rouge
   const d = DEFAULTS[o.type] ?? DEFAULTS.spike;
   const length = o.length ?? pick(d.length, color) ?? 0;
   const bx = o.beat * PPB;
@@ -76,6 +78,16 @@ export function buildGeometry(o) {
       g.hit = { x0: g.x0 + 4, x1: g.x1 - 4, y0: 0, y1: TOP };
       break;
     }
+    case 'coin': {
+      // Pièce à ramasser : pas mortelle, ramassable seulement par la bonne couleur.
+      const h = o.height ?? d.height;
+      g.x0 = bx - 10;
+      g.x1 = bx + 10;
+      g.y0 = h - 10;
+      g.y1 = h + 10;
+      g.isCoin = true;
+      break;
+    }
     default:
       console.warn('Type d’obstacle inconnu :', o.type);
   }
@@ -95,6 +107,7 @@ export class Obstacles {
   rebuild() {
     this.items = this.level.obstacles.map(buildGeometry);
     this.holes = this.items.filter((g) => g.isHole);
+    this.coins = this.items.filter((g) => g.isCoin);
   }
 
   // Obstacles qui chevauchent l'intervalle horizontal [x0, x1].
@@ -128,7 +141,7 @@ export class Obstacles {
     const viewX0 = cameraX - PLAYER_X - 50;
     const viewX1 = viewX0 + WIDTH + 100;
     for (const o of this.query(viewX0, viewX1)) {
-      if (o.isHole) continue;
+      if (o.isHole || o.isCoin) continue; // les pièces sont dessinées par Coins
       const sx = this.toScreenX(o.x0, cameraX);
       const w = o.x1 - o.x0;
       const pal = PALETTE[o.color] ?? PALETTE.gray;

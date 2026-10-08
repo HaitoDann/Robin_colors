@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { WIDTH, HEIGHT, COLORS, RENDER_SCALE } from './config.js';
+import { MenuScene } from './scenes/MenuScene.js';
 import { GameScene } from './scenes/GameScene.js';
 
 const game = new Phaser.Game({
@@ -13,7 +14,7 @@ const game = new Phaser.Game({
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   // L'audio est géré par notre propre AudioContext (AudioSystem).
   audio: { noAudio: true },
-  scene: [GameScene],
+  scene: [MenuScene, GameScene],
 });
 
 // Accès console pratique pendant le développement.

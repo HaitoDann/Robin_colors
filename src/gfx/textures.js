@@ -102,6 +102,7 @@ export const ROBIN_TINTS = {
 };
 
 export function createTextures(scene) {
+  if (scene.textures.exists('pixel')) return; // déjà créées par une autre scène
   makeRobin(scene, 'robin_blue', ROBIN_TINTS.blue);
   makeRobin(scene, 'robin_red', ROBIN_TINTS.red);
   makeSquare(scene, 'pixel', 4, 0xffffff);
