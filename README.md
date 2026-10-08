@@ -85,7 +85,7 @@ Champs optionnels : `length` (en beats), `height` (en px).
 ```
 src/
   main.js              configuration Phaser
-  config.js            constantes (physique en beats, vitesses, score)
+  config.js            constantes (physique en beats, vitesses)
   scenes/GameScene.js  relie tous les systèmes
   systems/
     AudioSystem.js     musique, horloge audio, vitesse, tonalité
@@ -94,7 +94,6 @@ src/
     Player.js          Robin : physique, couleurs, double saut, dash
     Obstacles.js       géométrie, collisions et dessin des obstacles et du sol
     Controls.js        clavier
-    Score.js           score, multiplicateur, record
     Editor.js          mode éditeur
     Hitboxes.js        affichage des hitboxes
     Background.js      décor en parallaxe teinté selon la couleur
