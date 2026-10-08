@@ -2,7 +2,7 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
@@ -117,8 +117,10 @@ export class GameScene extends Phaser.Scene {
     if (this.state === 'editor') this.beat = this.editor.viewBeat;
 
     if (this.state === 'playing') {
-      // La vitesse s'applique à la musique ; le jeu suit l'horloge audio.
-      this.audio.setRate(this.controls.getSpeed());
+      // Q/D : vitesse de Robin (mode 'player') ou du jeu entier (mode 'music').
+      this.speedFactor = this.controls.getSpeed();
+      this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
+      const playerFactor = SPEED_MODE === 'player' ? this.speedFactor : 1;
       // Saut maintenu : seulement après avoir relâché la touche de départ.
       const held = this.controls.isJumpHeld();
       if (!held) this.jumpLock = false;
@@ -131,10 +133,10 @@ export class GameScene extends Phaser.Scene {
         const dt = Math.min(PHYSICS_STEP, remaining);
         b += dt;
         remaining -= dt;
-        this.player.step(dt, b * PPB, this.obstacles);
+        this.player.step(dt, b * PPB, this.obstacles, playerFactor);
       }
       if (!this.player.dead) {
-        this.score.update(Math.max(0, this.beat - this.lastBeat), this.audio.rate, this.beat * PPB);
+        this.score.update(Math.max(0, this.beat - this.lastBeat), this.speedFactor, this.player.x);
         for (const gain of this.score.events) this.hud.popGain(this.player.sprite.x, this.player.sprite.y - 30, gain);
         this.score.events.length = 0;
       }
@@ -167,8 +169,9 @@ export class GameScene extends Phaser.Scene {
         (this.startBeat > 0 ? `  départ beat ${this.startBeat}` : '') +
         `  [P] tonalité ${this.audio.keepPitch ? 'conservée' : 'libre'}`,
     );
-    this.hud.setSpeed(this.audio.rate);
-    if (this.score) this.hud.setScore(this.score.points, this.score.multiplier(this.audio.rate), this.score.best);
+    const factor = this.state === 'playing' ? this.speedFactor : 1;
+    this.hud.setSpeed(factor);
+    if (this.score) this.hud.setScore(this.score.points, this.score.multiplier(factor), this.score.best);
   }
 
   // E : pause + éditeur ; E à nouveau : rejouer depuis le beat affiché.

@@ -2,7 +2,7 @@
 // Bleu : le 2e appui sur Z en l'air = double saut.
 // Rouge : le 2e appui sur Z en l'air = dash (traverse les obstacles rouges).
 
-import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET } from '../config.js';
+import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
 
 const W = PLAYER.width;
@@ -25,6 +25,12 @@ export class Player {
   reset(color = 'blue') {
     this.h = 0; // hauteur au-dessus du sol (px)
     this.vy = 0; // vitesse verticale (px / beat)
+    this.x = null; // position monde (px) ; placée au 1er pas sur le défilement
+    this.vx = PPB; // vitesse horizontale (px / beat) ; PPB = vitesse du défilement
+    this.offset = 0; // avance (+) ou retard (-) sur le défilement, en px
+    this.runPhase = 0;
+    this.jumpHoldActive = false;
+    this.jumpTime = 0;
     this.onGround = true;
     this.fastFalling = false;
     this.coyote = 0;
@@ -77,6 +83,7 @@ export class Player {
     if (this.dead || this.onGround) return;
     this.dashTimer = 0;
     this.fastFalling = true;
+    this.jumpHoldActive = false;
     this.vy = Math.min(this.vy, -PLAYER.fastFallVelocity);
   }
 
@@ -89,6 +96,8 @@ export class Player {
 
   jump() {
     this.vy = PLAYER.jumpVelocity;
+    this.jumpHoldActive = true;
+    this.jumpTime = 0;
     this.onGround = false;
     this.coyote = 0;
     this.jumpBuffer = 0;
@@ -99,6 +108,8 @@ export class Player {
 
   doubleJump() {
     this.vy = PLAYER.jumpVelocity;
+    this.jumpHoldActive = true;
+    this.jumpTime = 0;
     this.fastFalling = false;
     this.flipTimer = PLAYER.flipBeats;
     this.onEvent('doubleJump');
@@ -107,6 +118,7 @@ export class Player {
   dash() {
     this.dashTimer = PLAYER.dashBeats;
     this.vy = 0;
+    this.jumpHoldActive = false;
     this.fastFalling = false;
     this.onEvent('dash');
   }
@@ -121,10 +133,15 @@ export class Player {
     return o.color === 'red' && this.dashing;
   }
 
-  // --- Physique : dt en beats, worldX = position horizontale de Robin ---
+  // --- Physique : dt en beats ---
+  // cameraX : position du défilement (calée sur la musique) ;
+  // speedFactor : vitesse demandée (Q = lent, D = rapide, 1 = normal).
 
-  step(dt, worldX, obstacles) {
+  step(dt, cameraX, obstacles, speedFactor = 1) {
     if (this.dead) return;
+    if (this.x === null) this.x = cameraX;
+    this.stepHorizontal(dt, cameraX, speedFactor);
+    const worldX = this.x;
     this.coyote = Math.max(0, this.coyote - dt);
     this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
 
@@ -135,11 +152,17 @@ export class Player {
       this.dashTimer = Math.max(0, this.dashTimer - dt);
       this.vy = 0;
     } else {
+      // Saut adaptatif : relâcher Z (ou tenir trop longtemps) coupe le bonus.
+      this.jumpTime += dt;
+      if (!this.jumpHeld || this.vy <= 0 || this.jumpTime > PLAYER.jumpHoldBeats) this.jumpHoldActive = false;
       let gravity = PLAYER.gravity;
+      if (this.jumpHoldActive) gravity *= PLAYER.jumpHoldGravityMul;
       if (this.vy < 0) gravity *= PLAYER.fallGravityMul;
       if (Math.abs(this.vy) < PLAYER.apexHangSpeed && !this.fastFalling) gravity *= PLAYER.apexHangMul;
       if (this.fastFalling) gravity *= PLAYER.fastFallGravityMul;
       this.vy -= gravity * dt;
+      const maxFall = this.fastFalling ? PLAYER.fastFallMaxSpeed : PLAYER.maxFallSpeed;
+      this.vy = Math.max(this.vy, -maxFall);
       this.h += this.vy * dt;
     }
 
@@ -183,6 +206,26 @@ export class Player {
     this.squash = this.squash > 0 ? Math.max(0, this.squash - decay) : Math.min(0, this.squash + decay);
   }
 
+  // Vitesse horizontale avec inertie (façon Sonic) : on accélère vers la
+  // vitesse cible, vite au sol, peu en l'air (l'élan du saut est conservé).
+  stepHorizontal(dt, cameraX, speedFactor) {
+    let target = PPB * speedFactor;
+    if (speedFactor === 1) target -= this.offset * PLAYER.recenter; // retour en place
+    if (this.dashing) target = PPB * PLAYER.dashSpeedFactor;
+    const accel = this.dashing ? Infinity : this.onGround ? PLAYER.groundAccel : PLAYER.airAccel;
+    const dv = target - this.vx;
+    this.vx += Math.sign(dv) * Math.min(Math.abs(dv), accel * dt);
+    this.x += this.vx * dt;
+    // Robin ne peut pas sortir de la zone de jeu : il "pousse" contre le bord.
+    this.offset = this.x - cameraX;
+    if (this.offset > PLAYER.maxOffset || this.offset < PLAYER.minOffset) {
+      this.offset = Math.max(PLAYER.minOffset, Math.min(PLAYER.maxOffset, this.offset));
+      this.x = cameraX + this.offset;
+      this.vx = PPB;
+    }
+    if (this.onGround) this.runPhase += (dt * this.vx) / PPB;
+  }
+
   land() {
     if (!this.onGround) {
       this.onEvent('land');
@@ -213,7 +256,7 @@ export class Player {
     this.sprite.setScale(sx, sy);
     // Les pieds restent au sol malgré la déformation.
     const half = (this.halfHeight * sy) / base;
-    this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - half);
+    this.sprite.setPosition(PLAYER_X + this.offset, GROUND_Y - this.h - half);
 
     if (this.flipTimer > 0) {
       // Salto pendant le double saut.
@@ -240,7 +283,10 @@ export class Player {
       if (this.vy > PLAYER.jumpVelocity * 0.5) return ROBIN_SHEET.jump[0];
       return this.vy > 0 ? ROBIN_SHEET.jump[1] : ROBIN_SHEET.fall;
     }
-    return loop(ROBIN_SHEET.run, ROBIN_SHEET.runFramesPerBeat);
+    // La course suit la vitesse réelle de Robin (pas plus vite qu'un pas par beat à x1).
+    const i = Math.floor(this.runPhase * ROBIN_SHEET.runFramesPerBeat);
+    const run = ROBIN_SHEET.run;
+    return run[((i % run.length) + run.length) % run.length];
   }
 
   // Animation de mort (planche de sprites) ; renvoie false sans sprites.

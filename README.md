@@ -34,13 +34,13 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 
 | Touche | Action |
 | --- | --- |
-| Z (ou Espace / ↑ / clic) | Sauter (maintenu : ressaute à chaque atterrissage) |
+| Z (ou Espace / ↑ / clic) | Sauter : appui bref = petit saut, maintenu = saut haut (et ressaute à l'atterrissage) |
 | S (ou ↓) | Fast-fall : redescendre très vite |
 | Maj | Changer de couleur bleu ⇄ rouge |
 | Z en l'air (bleu) | Double saut |
 | Z en l'air (rouge) | Dash horizontal (1,5 beat, sans gravité) |
-| Q (ou ←) maintenu | Ralentir jeu + musique (x0.8) |
-| D (ou →) maintenu | Accélérer jeu + musique (x1.2) |
+| Q (ou ←) maintenu | Robin ralentit (recule à l'écran) — score x0.5 |
+| D (ou →) maintenu | Robin accélère (avance à l'écran, sauts plus longs) — score x2 |
 | P | Garder / libérer la tonalité quand la vitesse change |
 | R | Recommencer (depuis le beat de départ) |
 | E | Mode éditeur (pause) / rejouer depuis le beat affiché |
@@ -145,6 +145,11 @@ Tout est dans `PLAYER` (`src/config.js`) :
 | Réglage | Effet |
 | --- | --- |
 | `jumpVelocity`, `gravity` | Force du saut et gravité en montée |
+| `jumpHoldGravityMul`, `jumpHoldBeats` | Saut adaptatif : gravité réduite tant que Z est tenu |
+| `maxFallSpeed` | Vitesse de chute maximale |
+| `slowFactor`, `fastFactor` | Vitesse de Robin avec Q / D |
+| `groundAccel`, `airAccel` | Inertie au sol / en l'air |
+| `recenter`, `minOffset`, `maxOffset` | Retour en place et limites à l'écran |
 | `fallGravityMul` | > 1 : on retombe plus vite qu'on ne monte (saut nerveux) |
 | `apexHangSpeed`, `apexHangMul` | Petit flottement au sommet du saut |
 | `fastFallVelocity`, `fastFallGravityMul` | Puissance du fast-fall (S) |
@@ -155,3 +160,7 @@ Tout est dans `PLAYER` (`src/config.js`) :
 Attention : la hauteur (~100 px) et la durée (~1 beat) du saut définissent la
 difficulté des niveaux. Si tu les changes, rejoue les niveaux pour vérifier
 qu'ils restent faisables.
+
+`SPEED_MODE` (`src/config.js`) : `'player'` (Q/D changent la vitesse de Robin,
+la musique reste à x1) ou `'music'` (ancien mode : tout le jeu et la musique
+accélèrent ou ralentissent).

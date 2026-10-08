@@ -34,7 +34,7 @@ export class Hitboxes {
       g.strokeRect(sx(o.hit.x0), sy(o.hit.y1), o.hit.x1 - o.hit.x0, sy(o.hit.y0) - sy(o.hit.y1));
     }
 
-    const box = player.getHitbox(camX);
+    const box = player.getHitbox(player.x ?? camX);
     g.lineStyle(2, player.dashing ? 0x66ff99 : 0x00ffff, 1);
     g.strokeRect(sx(box.x0), sy(box.y1), box.x1 - box.x0, box.y1 - box.y0);
   }
