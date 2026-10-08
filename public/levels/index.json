@@ -1,5 +1,4 @@
 [
   { "id": "level1", "name": "Niveau 1 — First Light" },
-  { "id": "level1-auto", "name": "Niveau 1 — ébauche auto" },
-  { "id": "test", "name": "Niveau de test" }
+  { "id": "level2", "name": "Niveau 2 — Hollow Circuit" }
 ]

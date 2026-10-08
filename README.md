@@ -17,7 +17,9 @@ Build de production : `npm run build` (sortie dans `dist/`).
 Caler une musique : dans l'éditeur, active le métronome (M) et écoute (Espace).
 Si les clics tombent avant ou après les coups de la musique, ajuste avec J / K
 (puis U / I pour affiner) jusqu'à ce qu'ils soient confondus. C'est l'offset.
-Le niveau 1 utilise `First_Light.mp3` : 150 BPM, offset 0 (mesuré).
+Niveaux :
+- Niveau 1 — `First_Light.mp3` : 150 BPM, offset 0 (mesuré). Apprentissage des mécaniques.
+- Niveau 2 — `Hollow_Circuit.mp3` : 178,18 BPM, offset 0,047 s (mesuré ; pas 175). Plus difficile.
 
 Les niveaux sont dans `public/levels/*.json` et les mp3 dans `public/music/`.
 Mets ta piste dans `public/music/track1.mp3` (le nom indiqué par `"music"` dans
