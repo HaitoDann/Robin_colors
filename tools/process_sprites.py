@@ -33,6 +33,8 @@ FRAMES = [
 # Taille d'un "pixel" dans l'image des poses, réglée pour que la tête fasse
 # la même largeur que dans la course (20 px).
 POSES_SCALE = 7.1
+# Hauteur de la pose debout (robin.png) pour une tête de 20 px de large.
+IDLE_HEIGHT = 35
 
 
 def background_mask_checker(rgb):
@@ -164,7 +166,9 @@ def idle_frames():
         sub_fg = fg_all[:, x0:x1]
         ys = np.nonzero(sub_fg.any(1))[0]
         y0, y1 = ys.min(), ys.max() + 1
-        scale = (y1 - y0) / ART_HEIGHT
+        # Robin.png a une tête plus petite par rapport au corps : on règle la
+        # hauteur pour que la tête fasse 20 px de large, comme dans la course.
+        scale = (y1 - y0) / IDLE_HEIGHT
         out[color] = crop_alpha(downsample(img[y0:y1, x0:x1, :3], sub_fg[y0:y1], scale))
     return out
 
