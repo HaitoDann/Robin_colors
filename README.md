@@ -90,6 +90,8 @@ On parcourt le niveau librement, sans jouer :
 | Début / Fin, clic sur la barre du bas | Aller au début / à la fin / à un endroit |
 | Espace | Écouter la musique à partir d'ici (la vue suit), Espace pour arrêter |
 | M | Métronome : un clic sur chaque beat (aigu sur le 1er temps de la mesure) |
+| R | **Enregistrer** : la musique joue, tu tapes en rythme — Z pièce à sauter, S pièce au sol, D pièce haute, Espace élément choisi. Chaque appui est arrondi à la grille (G). R ou Échap pour arrêter, Ctrl+Z annule tout l'enregistrement |
+| Suppr | Effacer tout ce qui est visible à l'écran (pour refaire un passage) |
 | J / K | Décaler la musique par rapport à la grille de 10 ms (U / I : 1 ms) |
 | Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
 | Clic droit | Supprimer |

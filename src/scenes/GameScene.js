@@ -93,6 +93,8 @@ export class GameScene extends Phaser.Scene {
       onMetronome: () => this.editor.toast(`Métronome ${this.metronome.toggle() ? 'activé' : 'coupé'}`),
       onOffset: () => this.onOffsetChanged(),
       isMetronomeOn: () => this.metronome.enabled,
+      onRecord: () => this.toggleRecording(),
+      songBeat: () => this.level.timeToBeat(this.songTime()),
     });
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
@@ -314,6 +316,17 @@ export class GameScene extends Phaser.Scene {
     this.previewing = true;
     this.metronome.reset();
     this.audio.unlock().then(() => this.audio.play(this.level.beatToTime(this.editor.viewBeat)));
+  }
+
+  // R dans l'éditeur : la musique joue et chaque appui pose un élément.
+  toggleRecording() {
+    if (this.editor.recording) {
+      this.editor.stopRecording();
+      if (this.previewing) this.togglePreview();
+      return;
+    }
+    if (!this.previewing) this.togglePreview();
+    this.editor.startRecording();
   }
 
   // J/K : l'offset a changé ; pendant l'écoute, on relance pour l'entendre.

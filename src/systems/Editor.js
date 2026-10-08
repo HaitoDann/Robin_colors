@@ -16,7 +16,8 @@ const HISTORY_MAX = 100;
 
 export class Editor {
   // callbacks : { onChange, onTest(beat), onPreview(), onExit(), onSave(),
-  //               onMetronome(), onOffset(), isMetronomeOn() }
+  //               onMetronome(), onOffset(), isMetronomeOn(),
+  //               onRecord(), songBeat() }
   constructor(scene, level, levelId, callbacks) {
     this.scene = scene;
     this.level = level;
@@ -169,6 +170,7 @@ export class Editor {
 
   onKey(e) {
     const key = e.key.toLowerCase();
+    if (this.recording) return this.onRecordKey(e, key);
     const digit = /^(Digit|Numpad)([1-6])$/.exec(e.code);
     if ((e.ctrlKey || e.metaKey) && key === 'z') this.undo();
     else if ((e.ctrlKey || e.metaKey) && key === 's') {
@@ -190,6 +192,8 @@ export class Editor {
     else if (e.key === 'Enter') this.callbacks.onTest(this.viewBeat);
     else if (e.key === 'Escape') this.callbacks.onExit();
     else if (key === 'm') this.callbacks.onMetronome();
+    else if (key === 'r') this.callbacks.onRecord();
+    else if (e.key === 'Delete') this.clearVisible();
     else if (key === 'j' || key === 'k') this.nudgeOffset(key === 'j' ? -0.01 : 0.01);
     else if (key === 'u' || key === 'i') this.nudgeOffset(key === 'u' ? -0.001 : 0.001);
     else if (key === 'x') this.exportJSON();
@@ -198,6 +202,51 @@ export class Editor {
       e.preventDefault();
       this.showHelp = !this.showHelp;
     }
+  }
+
+  // --- Enregistrement : on tape en rythme pendant que la musique joue ---
+
+  startRecording() {
+    this.recording = true;
+    this.remember(); // tout l'enregistrement s'annule d'un seul Ctrl+Z
+    this.toast('● Enregistrement : tape en rythme !  (R ou Échap pour arrêter)');
+  }
+
+  stopRecording() {
+    this.recording = false;
+  }
+
+  onRecordKey(e, key) {
+    if (e.repeat) return;
+    if (key === 'r' || e.key === 'Escape') return this.callbacks.onRecord();
+    // Beat entendu au moment de l'appui, arrondi à la grille (G).
+    const beat = this.snapBeat(this.callbacks.songBeat());
+    const color = this.color === 'red' ? 'red' : 'blue';
+    let o = null;
+    if (key === 'z') o = { beat, type: 'coin', color, height: 70 }; // pièce à sauter
+    else if (key === 's') o = { beat, type: 'coin', color, height: 25 }; // pièce au sol
+    else if (key === 'd') o = { beat, type: 'coin', color: 'blue', height: 190 }; // double saut
+    else if (e.key === ' ') o = this.makeObstacle(beat, GROUND_Y - 70); // élément choisi
+    if (!o) return;
+    e.preventDefault?.();
+    const same = this.level.obstacles.some((x) => x.beat === o.beat && x.type === o.type && x.height === o.height);
+    if (same) return;
+    this.level.obstacles.push(o);
+    this.level.sortObstacles();
+    this.changed();
+    this.flash = { beat, time: this.scene.time.now };
+  }
+
+  // Suppr : efface tout ce qui est visible à l'écran (pour refaire un passage).
+  clearVisible() {
+    const b0 = this.screenToBeat(0);
+    const b1 = this.screenToBeat(WIDTH);
+    const keep = this.level.obstacles.filter((o) => o.beat < b0 || o.beat > b1);
+    if (keep.length === this.level.obstacles.length) return;
+    this.remember();
+    this.level.obstacles = keep;
+    this.changed();
+    this.toast(`Passage effacé (beats ${Math.max(0, Math.ceil(b0))} à ${Math.floor(b1)}) — Ctrl+Z pour annuler`);
   }
 
   // --- Historique (Ctrl+Z) ---
@@ -282,6 +331,18 @@ export class Editor {
     const head =
       `ÉDITEUR — ${this.level.name} — beat ${this.viewBeat.toFixed(2)}${previewing ? '  ▶ lecture' : ''}\n` +
       `${this.level.bpm} BPM   offset ${this.level.offset.toFixed(3)} s   métronome [M] : ${metro}`;
+    if (this.recording) {
+      this.panel.setText(
+        [
+          `● ENREGISTREMENT — beat ${this.viewBeat.toFixed(2)}   grille 1/${1 / this.snap} [G avant]`,
+          `Tape en rythme sur ce que tu entends :`,
+          `  Z : pièce à sauter   S : pièce au sol   D : pièce haute (double saut)`,
+          `  Espace : élément choisi (${TYPE_LABELS[this.type]} ${COLOR_LABELS[this.color]})`,
+          `R ou Échap : arrêter   Ctrl+Z ensuite : annuler tout l'enregistrement`,
+        ].join('\n'),
+      );
+      return;
+    }
     const lines = this.showHelp
       ? [
           head,
@@ -289,7 +350,8 @@ export class Editor {
           `Couleur [C] : ${COLOR_LABELS[this.color]}   Grille [G] : 1/${1 / this.snap}   Longueur [↑↓] : ${len}`,
           `Clic : poser / supprimer   Clic droit : supprimer   Ctrl+Z : annuler`,
           `←→ / molette : défiler (Maj x4)   Début/Fin   Clic sur la barre du bas : aller à`,
-          `Espace : écouter / pause   M : métronome   J / K : décaler la musique (U / I : fin)`,
+          `Espace : écouter / pause   R : ENREGISTRER en tapant en rythme   M : métronome`,
+          `J / K : décaler la musique (U / I : fin)   Suppr : effacer le passage visible`,
           `Entrée : tester ici   Maj : couleur de départ de Robin`,
           `Ctrl+S : enregistrer   X : exporter   N : nom / BPM / musique   Échap : menu   F1 : aide`,
         ]
