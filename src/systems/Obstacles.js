@@ -4,10 +4,11 @@
 
 import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } from '../config.js';
 
-export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin'];
+export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
 
 export const PALETTE = {
+  crystal: { fill: 0x1a5a5a, line: 0x7ff5e6 },
   gray: { fill: 0x4a4a66, line: 0xb4b4d0 },
   blue: { fill: 0x123a7a, line: 0x5aa8ff },
   red: { fill: 0x6a1426, line: 0xff5a78 },
@@ -25,6 +26,7 @@ const DEFAULTS = {
   ceiling: { length: 2, height: 54 }, // height = espace libre sous le plafond
   barrier: { length: 0 },
   coin: { height: 60 }, // hauteur du centre de la pièce au-dessus du sol
+  crystal: { height: 100 }, // cristal : recharge le double saut / dash
 };
 
 const pick = (v, color) => (typeof v === 'object' && v !== null ? v[color] : v);
@@ -88,6 +90,17 @@ export function buildGeometry(o) {
       g.isCoin = true;
       break;
     }
+    case 'crystal': {
+      // Cristal : en le touchant, Robin récupère son action aérienne.
+      const h = o.height ?? d.height;
+      g.x0 = bx - 12;
+      g.x1 = bx + 12;
+      g.y0 = h - 14;
+      g.y1 = h + 14;
+      g.color = 'crystal';
+      g.isCrystal = true;
+      break;
+    }
     default:
       console.warn('Type d’obstacle inconnu :', o.type);
   }
@@ -108,6 +121,7 @@ export class Obstacles {
     this.items = this.level.obstacles.map(buildGeometry);
     this.holes = this.items.filter((g) => g.isHole);
     this.coins = this.items.filter((g) => g.isCoin);
+    this.crystals = this.items.filter((g) => g.isCrystal);
   }
 
   // Obstacles qui chevauchent l'intervalle horizontal [x0, x1].
@@ -141,7 +155,7 @@ export class Obstacles {
     const viewX0 = cameraX - PLAYER_X - 50;
     const viewX1 = viewX0 + WIDTH + 100;
     for (const o of this.query(viewX0, viewX1)) {
-      if (o.isHole || o.isCoin) continue; // les pièces sont dessinées par Coins
+      if (o.isHole || o.isCoin || o.isCrystal) continue; // dessinés par Coins / Crystals
       const sx = this.toScreenX(o.x0, cameraX);
       const w = o.x1 - o.x0;
       const pal = PALETTE[o.color] ?? PALETTE.gray;

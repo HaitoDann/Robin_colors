@@ -7,7 +7,7 @@ import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obsta
 
 const SNAPS = [1, 0.5, 0.25, 0.125];
 const FONT = 'monospace';
-const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce' };
+const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal' };
 const COLOR_LABELS = { gray: 'gris', blue: 'bleu', red: 'rouge' };
 const MINIMAP_Y = HEIGHT - 14;
 const MINIMAP_X0 = 60;
@@ -183,7 +183,10 @@ export class Editor {
   makeObstacle(beat, y) {
     const o = { beat: Math.round(beat * 1000) / 1000, type: this.type };
     if (this.color !== 'gray' || this.type === 'barrier') o.color = this.color;
-    if (this.type === 'coin') {
+    if (this.type === 'crystal') {
+      delete o.color;
+      o.height = Math.max(20, Math.round((GROUND_Y - y) / 10) * 10);
+    } else if (this.type === 'coin') {
       // Hauteur de la pièce = position de la souris, arrondie à 10 px.
       o.height = Math.max(15, Math.round((GROUND_Y - y) / 10) * 10);
     } else if (this.length != null) {
@@ -195,7 +198,7 @@ export class Editor {
   onKey(e) {
     const key = e.key.toLowerCase();
     if (this.recording) return this.onRecordKey(e, key);
-    const digit = /^(Digit|Numpad)([1-6])$/.exec(e.code);
+    const digit = /^(Digit|Numpad)([1-7])$/.exec(e.code);
     if ((e.ctrlKey || e.metaKey) && key === 'z') this.undo();
     else if ((e.ctrlKey || e.metaKey) && key === 's') {
       e.preventDefault();
@@ -370,7 +373,7 @@ export class Editor {
     const lines = this.showHelp
       ? [
           head,
-          `Type [1-6/T] : ${types}`,
+          `Type [1-7/T] : ${types}`,
           `Couleur [C] : ${COLOR_LABELS[this.color]}   Grille [G] : 1/${1 / this.snap}   Longueur [↑↓] : ${len}`,
           `Clic : poser / supprimer — maintenir et glisser : poser / effacer en série`,
           `Clic droit (glisser) : effacer   Ctrl+Z : annuler`,

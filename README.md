@@ -47,6 +47,10 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | Maj | Changer de couleur bleu ⇄ rouge |
 | Q (ou ←) maintenu | Robin ralentit, la musique aussi |
 | D (ou →) maintenu | Robin accélère, la musique aussi (sauts plus longs) |
+
+La musique suit Robin de façon atténuée (`MUSIC_RATE` dans `src/config.js`) :
+course x1, D x1,1, dash x1,3, Q x0,9. Baisser `base` (ex. 0,95) ralentit la course normale.
+
 | Échap | Pause (Échap/Z reprendre, R recommencer, M menu) |
 | R | Recommencer |
 | H | Afficher les hitboxes |
@@ -63,6 +67,7 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 | `hole` | Trou dans le sol | gris 0,6 / bleu 1,4 / rouge 2,25 beats |
 | `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 54 px de passage |
 | `barrier` | Barrière pleine hauteur (rouge par défaut) | |
+| `crystal` | Cristal : en l'air, recharge le double saut / dash (`height`) | — |
 | `coin` | Pièce bleue ou rouge : seul Robin de la même couleur la ramasse. `height` = hauteur en px | 60 px |
 
 Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
@@ -98,7 +103,7 @@ On parcourt le niveau librement, sans jouer :
 | Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
 | Clic maintenu + glisser | Poser en série : un élément par case de grille traversée (pièces à la même hauteur). Commencé sur un élément : efface tout sur le passage |
 | Clic droit | Supprimer |
-| 1-6 ou T | Type : pic, mur, trou, plafond, barrière, pièce |
+| 1-7 ou T | Type : pic, mur, trou, plafond, barrière, pièce, cristal |
 | C | Couleur : gris, bleu, rouge (pièce : bleue ou rouge) |
 | G | Pas de la grille : 1, 1/2, 1/4, 1/8 de beat |
 | ↑ ↓ | Longueur de l'élément (trous, plafonds, rangées de pics…) |
@@ -133,6 +138,7 @@ src/
     Controls.js        clavier
     Editor.js          éditeur de niveaux
     Coins.js           pièces bleues / rouges
+    Crystals.js        cristaux (recharge du pouvoir)
     Settings.js        réglages sauvegardés
     Hitboxes.js        affichage des hitboxes
     Background.js      décor en parallaxe teinté selon la couleur

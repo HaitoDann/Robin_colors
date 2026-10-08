@@ -2,7 +2,7 @@
 // Z : saut. Espace en l'air : double saut (bleu) ou dash (rouge, traverse les
 // obstacles rouges). Les trois sont adaptatifs : plus on tient, plus c'est fort.
 
-import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE } from '../config.js';
+import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE, musicRateFor } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
 
 const W = PLAYER.width;
@@ -68,6 +68,14 @@ export class Player {
   }
 
   // --- Actions déclenchées par les contrôles ---
+
+  // Cristal : on récupère l'action aérienne (et un dash en cours s'arrête
+  // pour pouvoir en relancer un nouveau tout de suite).
+  refreshAir() {
+    if (this.onGround) return;
+    this.airJump = true;
+    this.fastFalling = false;
+  }
 
   // Z : saut depuis le sol (mémorisé un court instant si on est en l'air).
   pressJump() {
@@ -162,7 +170,7 @@ export class Player {
       this.x = cameraX;
       this.offset = 0;
       if (this.onGround) this.runPhase += dt;
-      dt /= this.speed / PPB;
+      dt /= musicRateFor(this.speed / PPB);
       this.stepSpeed(dt, speedFactor, obstacles);
     } else {
       this.stepHorizontal(dt, cameraX, speedFactor, obstacles);

@@ -3,13 +3,14 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE, MUSIC_RATE } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE, musicRateFor } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
 import { Player } from '../systems/Player.js';
 import { Obstacles } from '../systems/Obstacles.js';
 import { Coins } from '../systems/Coins.js';
+import { Crystals } from '../systems/Crystals.js';
 import { Background } from '../systems/Background.js';
 import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
 
     this.obstacles = new Obstacles(this, this.level);
     this.coins = new Coins(this, this.obstacles);
+    this.crystals = new Crystals(this, this.obstacles);
     this.hitboxes = new Hitboxes(this);
     if (Settings.hitboxes) this.hitboxes.toggle();
     this.player = new Player(this, (name) => this.onPlayerEvent(name));
@@ -145,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     this.player.reset(this.startColor);
     this.background.setTheme(this.player.color);
     this.coins.reset(this.startBeat * PPB);
+    this.crystals.reset();
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
     this.audio.setRate(1);
@@ -172,7 +175,7 @@ export class GameScene extends Phaser.Scene {
       // Q/D : vitesse de Robin (mode 'player') ou du jeu entier (mode 'music').
       this.speedFactor = this.controls.getSpeed();
       // 'run' : la musique suit la vitesse réelle de Robin (inertie, dash…).
-      if (SPEED_MODE === 'run') this.audio.setRate(Phaser.Math.Clamp(this.player.speed / PPB, MUSIC_RATE.min, MUSIC_RATE.max));
+      if (SPEED_MODE === 'run') this.audio.setRate(musicRateFor(this.player.speed / PPB));
       else this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
       const playerFactor = SPEED_MODE === 'music' ? 1 : this.speedFactor;
       // Touches tenues : servent au saut, double saut et dash adaptatifs.
@@ -188,6 +191,7 @@ export class GameScene extends Phaser.Scene {
         remaining -= dt;
         this.player.step(dt, b * PPB, this.obstacles, playerFactor);
         for (const c of this.coins.update(this.player)) this.onCoin(c);
+        if (this.crystals.update(this.player).length) this.onCrystal();
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
@@ -208,6 +212,7 @@ export class GameScene extends Phaser.Scene {
     this.background.update(cameraX);
     this.obstacles.draw(cameraX, this.beat);
     this.coins.draw(cameraX, this.beat, this.player.color);
+    this.crystals.draw(cameraX, this.beat);
     this.player.idle = this.state === 'title' || this.state === 'editor';
     this.player.render(this.beat);
     this.hitboxes.draw(this.beat, this.player, this.obstacles);
@@ -226,6 +231,12 @@ export class GameScene extends Phaser.Scene {
     const { x, y } = this.player.sprite;
     this.effects.ring(x, y - 10, this.player.tint, 22);
     this.effects.burst(x, y - 10, this.player.tint, 8, 30, 300);
+  }
+
+  onCrystal() {
+    const { x, y } = this.player.sprite;
+    this.effects.ring(x, y, 0x7ff5e6, 34);
+    this.effects.burst(x, y, 0x7ff5e6, 12, 45, 350);
   }
 
   onDeath() {
