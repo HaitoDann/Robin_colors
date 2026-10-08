@@ -101,6 +101,7 @@ export class GameScene extends Phaser.Scene {
     this.time.removeAllEvents();
     this.attempts++;
     this.player.reset(this.startColor);
+    this.jumpLock = true;
     this.background.setTheme(this.player.color);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
@@ -118,6 +119,10 @@ export class GameScene extends Phaser.Scene {
     if (this.state === 'playing') {
       // La vitesse s'applique à la musique ; le jeu suit l'horloge audio.
       this.audio.setRate(this.controls.getSpeed());
+      // Saut maintenu : seulement après avoir relâché la touche de départ.
+      const held = this.controls.isJumpHeld();
+      if (!held) this.jumpLock = false;
+      this.player.jumpHeld = held && !this.jumpLock;
       this.beat = this.level.timeToBeat(this.audio.getTime());
       // Avance de la physique en petits pas, en temps "beat".
       let remaining = Phaser.Math.Clamp(this.beat - this.lastBeat, 0, 0.5);

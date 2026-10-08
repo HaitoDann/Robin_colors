@@ -33,6 +33,8 @@ export class Player {
     this.dashTimer = 0;
     this.angle = 0;
     this.flipTimer = 0;
+    this.squash = 0; // >0 : étiré (saut), <0 : écrasé (atterrissage)
+    this.jumpHeld = false; // mis à jour par la scène (touche Z maintenue)
     this.dead = false;
     this.setColor(color);
     this.sprite.setVisible(true);
@@ -92,6 +94,7 @@ export class Player {
     this.jumpBuffer = 0;
     this.fastFalling = false;
     this.airJump = true;
+    this.squash = 1;
   }
 
   doubleJump() {
@@ -132,7 +135,10 @@ export class Player {
       this.dashTimer = Math.max(0, this.dashTimer - dt);
       this.vy = 0;
     } else {
-      const gravity = PLAYER.gravity * (this.fastFalling ? PLAYER.fastFallGravityMul : 1);
+      let gravity = PLAYER.gravity;
+      if (this.vy < 0) gravity *= PLAYER.fallGravityMul;
+      if (Math.abs(this.vy) < PLAYER.apexHangSpeed && !this.fastFalling) gravity *= PLAYER.apexHangMul;
+      if (this.fastFalling) gravity *= PLAYER.fastFallGravityMul;
       this.vy -= gravity * dt;
       this.h += this.vy * dt;
     }
@@ -172,15 +178,22 @@ export class Player {
     if (this.h < -60 || (this.h < -6 && !overHole)) return this.die();
 
     this.flipTimer = Math.max(0, this.flipTimer - dt);
+    // L'écrasement / étirement revient doucement à la normale.
+    const decay = dt / PLAYER.squashBeats;
+    this.squash = this.squash > 0 ? Math.max(0, this.squash - decay) : Math.min(0, this.squash + decay);
   }
 
   land() {
-    if (!this.onGround) this.onEvent('land');
+    if (!this.onGround) {
+      this.onEvent('land');
+      // Écrasement plus fort si on arrive vite (fast-fall).
+      this.squash = -Math.min(1, 0.5 + Math.abs(this.vy) / 1200);
+    }
     this.flipTimer = 0;
     this.onGround = true;
     this.fastFalling = false;
     this.airJump = false;
-    if (this.jumpBuffer > 0) this.jump();
+    if (this.jumpBuffer > 0 || (PLAYER.holdToRejump && this.jumpHeld)) this.jump();
   }
 
   die() {
@@ -191,16 +204,29 @@ export class Player {
   // beat : sert à caler la course sur la musique (un pas par beat).
   render(beat = 0) {
     if (this.dead) return; // l'animation de mort garde la main
-    this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - this.halfHeight);
-    // Salto pendant le double saut, sinon Robin reste droit.
-    this.angle = this.flipTimer > 0 ? 360 * (1 - this.flipTimer / PLAYER.flipBeats) : 0;
-    this.sprite.setAngle(this.angle);
-    if (this.useSheet) {
-      this.sprite.setFrame(this.currentFrame(beat));
-      this.sprite.setScale(PLAYER.spriteScale);
+    const base = this.useSheet ? PLAYER.spriteScale : 1;
+    // Étiré (saut) : plus haut et plus fin ; écrasé (atterrissage) : l'inverse.
+    const k = PLAYER.squashAmount * this.squash;
+    let sx = base * (1 - k);
+    let sy = base * (1 + k);
+    if (!this.useSheet && this.dashing) [sx, sy] = [1.25, 0.8];
+    this.sprite.setScale(sx, sy);
+    // Les pieds restent au sol malgré la déformation.
+    const half = (this.halfHeight * sy) / base;
+    this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - half);
+
+    if (this.flipTimer > 0) {
+      // Salto pendant le double saut.
+      this.angle = 360 * (1 - this.flipTimer / PLAYER.flipBeats);
+    } else if (!this.onGround && !this.dashing) {
+      // Inclinaison selon la vitesse verticale : nez en haut à la montée.
+      const t = Math.max(-1, Math.min(1, this.vy / PLAYER.jumpVelocity));
+      this.angle = -t * PLAYER.airTiltDeg;
     } else {
-      this.sprite.setScale(this.dashing ? 1.25 : 1, this.dashing ? 0.8 : 1);
+      this.angle = 0;
     }
+    this.sprite.setAngle(this.angle);
+    if (this.useSheet) this.sprite.setFrame(this.currentFrame(beat));
   }
 
   currentFrame(beat) {

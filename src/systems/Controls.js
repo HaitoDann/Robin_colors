@@ -30,12 +30,17 @@ export class Controls {
     // Touches maintenues pour la vitesse.
     this.slowKeys = [kb.addKey(K.Q, false), kb.addKey(K.LEFT, false)];
     this.fastKeys = [kb.addKey(K.D, false), kb.addKey(K.RIGHT, false)];
+    this.jumpKeys = [kb.addKey(K.Z, false), kb.addKey(K.SPACE, false), kb.addKey(K.UP, false)];
 
     kb.on('keydown', (event) => {
       if (event.repeat) return;
       const name = this.bindings[event.keyCode];
       if (name && this.actions[name]) this.actions[name](event);
     });
+  }
+
+  isJumpHeld() {
+    return this.jumpKeys.some((k) => k.isDown);
   }
 
   // Vitesse demandée par le joueur : Q = x0.8, D = x1.2, les deux ou rien = x1.

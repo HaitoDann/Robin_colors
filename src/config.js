@@ -22,9 +22,19 @@ export const PLAYER = {
   height: 40,
   // Taille d'affichage du sprite (x1,5 => 3 pixels d'écran par pixel du dessin).
   spriteScale: 1.5,
-  // Saut simple : hauteur max ~100 px, durée totale 1 beat.
-  jumpVelocity: 400, // px / beat
-  gravity: 800, // px / beat²
+  // Saut simple : hauteur max ~100 px, durée totale ~1 beat (à garder si on
+  // retouche ces valeurs, sinon les niveaux existants changent de difficulté).
+  jumpVelocity: 405, // px / beat
+  gravity: 870, // px / beat² (en montée)
+  fallGravityMul: 1.6, // on retombe plus vite qu'on ne monte : saut plus nerveux
+  apexHangSpeed: 110, // près du sommet (|vy| < cette valeur)...
+  apexHangMul: 0.55, // ...la gravité est réduite : petit temps de flottement
+  // Garder Z enfoncé : Robin ressaute automatiquement en touchant le sol.
+  holdToRejump: true,
+  // Effets visuels (n'influencent pas les collisions).
+  squashBeats: 0.18, // durée de l'écrasement / étirement
+  squashAmount: 0.22,
+  airTiltDeg: 10, // inclinaison max en l'air (nez en haut à la montée)
   // Fast-fall : vitesse de chute imposée et gravité renforcée.
   fastFallVelocity: 1100,
   fastFallGravityMul: 2.5,
