@@ -53,3 +53,10 @@ Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
 - **Rouge** : traversables uniquement pendant le dash (barrières, longs trous).
 
 Champs optionnels : `length` (en beats), `height` (en px).
+
+## Score
+
+- Distance : 10 points par beat, bonus de 50 points par obstacle franchi.
+- Multiplicateur selon la vitesse au moment où les points sont gagnés :
+  x0.8 → score x0.5, x1 → x1, x1.2 → x2.
+- Le record de chaque niveau est sauvegardé dans le navigateur (localStorage).

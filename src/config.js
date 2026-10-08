@@ -43,3 +43,10 @@ export const PHYSICS_STEP = 1 / 64;
 
 // Vitesses de jeu (Q maintenu = lent, D maintenu = rapide).
 export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
+
+// Multiplicateur de score selon la vitesse : ralentir aide, accélérer rapporte.
+export const SCORE = {
+  multipliers: { 0.8: 0.5, 1: 1, 1.2: 2 },
+  pointsPerBeat: 10,
+  pointsPerObstacle: 50,
+};

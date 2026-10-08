@@ -12,6 +12,7 @@ import { Background } from '../systems/Background.js';
 import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
 import { Effects } from '../systems/Effects.js';
+import { Score } from '../systems/Score.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -47,6 +48,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.obstacles = new Obstacles(this, this.level);
+    this.score = new Score(this.levelId);
     this.player = new Player(this, (name) => this.onPlayerEvent(name));
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
@@ -66,6 +68,7 @@ export class GameScene extends Phaser.Scene {
 
   onJump() {
     if (this.state === 'title' || this.state === 'finished') {
+      this.attempts = 0;
       this.audio.unlock().then(() => this.startRun());
       return;
     }
@@ -79,6 +82,7 @@ export class GameScene extends Phaser.Scene {
     this.background.setTheme(this.player.color);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
+    this.score.reset(this.startBeat * PPB, this.obstacles.items);
     this.audio.play(this.level.beatToTime(this.startBeat));
     this.hud.hideMessage();
     this.state = 'playing';
@@ -99,6 +103,11 @@ export class GameScene extends Phaser.Scene {
         b += dt;
         remaining -= dt;
         this.player.step(dt, b * PPB, this.obstacles);
+      }
+      if (!this.player.dead) {
+        this.score.update(Math.max(0, this.beat - this.lastBeat), this.audio.rate, this.beat * PPB);
+        for (const gain of this.score.events) this.hud.popGain(this.player.sprite.x, this.player.sprite.y - 30, gain);
+        this.score.events.length = 0;
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
@@ -124,6 +133,7 @@ export class GameScene extends Phaser.Scene {
         `  [P] tonalité ${this.audio.keepPitch ? 'conservée' : 'libre'}`,
     );
     this.hud.setSpeed(this.audio.rate);
+    if (this.score) this.hud.setScore(this.score.points, this.score.multiplier(this.audio.rate), this.score.best);
   }
 
   onDeath() {
@@ -138,7 +148,14 @@ export class GameScene extends Phaser.Scene {
   onFinish() {
     this.state = 'finished';
     this.audio.stop();
-    this.hud.showMessage('Niveau terminé !', 'Z / Espace pour rejouer');
+    // Pas de record si on a démarré en cours de niveau (outil de test).
+    const record = this.startBeat === 0 && this.score.commit();
+    this.hud.showMessage(
+      'Niveau terminé !',
+      `Score : ${this.score.points}${record ? '  — nouveau record !' : `   (record ${this.score.best})`}\n` +
+        (this.startBeat > 0 ? `(départ au beat ${this.startBeat} : pas de record)\n` : '') +
+        `${this.score.passed} obstacles, ${this.attempts} essai(s)\n\nZ / Espace pour rejouer`,
+    );
   }
 
   // Retours visuels des actions de Robin.
