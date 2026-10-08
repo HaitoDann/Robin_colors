@@ -121,7 +121,9 @@ Les images d'origine (générées avec ChatGPT) sont dans `art/`. Le script
 `tools/process_sprites.py` les nettoie (fond en damier retiré, vraie grille de
 pixels d'environ 32 px de haut, palette réduite) et produit les planches
 `public/sprites/robin_blue.png` et `robin_red.png`. Chaque planche contient
-12 images de 32×36 : course 1-8, saut, chute, dash, debout.
+18 images de 48×36 : course 1-8, saut 1-2, chute, dash 1-2, debout, mort 1-4.
+Les poses de `art/robin_jump_fall_dash_death.png` n'existent qu'en bleu : la
+version rouge est recolorée automatiquement avec les couleurs de la course rouge.
 
 ```bash
 pip install pillow numpy

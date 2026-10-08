@@ -186,8 +186,9 @@ export class GameScene extends Phaser.Scene {
   onDeath() {
     this.state = 'dead';
     this.audio.stop();
-    this.player.sprite.setVisible(false);
-    this.effects.burst(this.player.sprite.x, this.player.sprite.y, this.player.tint, 18, 80, 500);
+    // Robin s'effondre (sprites) ou explose en pixels (cube de secours).
+    if (!this.player.playDeath(this)) this.player.sprite.setVisible(false);
+    this.effects.burst(this.player.sprite.x, this.player.sprite.y, this.player.tint, 12, 60, 450);
     this.cameras.main.shake(150, 0.006);
     this.time.delayedCall(700, () => this.startRun());
   }

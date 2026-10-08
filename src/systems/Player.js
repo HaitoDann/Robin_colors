@@ -189,6 +189,7 @@ export class Player {
 
   // beat : sert à caler la course sur la musique (un pas par beat).
   render(beat = 0) {
+    if (this.dead) return; // l'animation de mort garde la main
     this.sprite.setPosition(PLAYER_X, GROUND_Y - this.h - this.halfHeight);
     // Salto pendant le double saut, sinon Robin reste droit.
     this.angle = this.flipTimer > 0 ? 360 * (1 - this.flipTimer / PLAYER.flipBeats) : 0;
@@ -202,11 +203,26 @@ export class Player {
   }
 
   currentFrame(beat) {
+    const loop = (frames, perBeat) => {
+      const i = Math.floor(beat * perBeat);
+      return frames[((i % frames.length) + frames.length) % frames.length];
+    };
     if (this.idle) return ROBIN_SHEET.idle;
-    if (this.dashing) return ROBIN_SHEET.dash;
-    if (!this.onGround) return this.vy > 0 ? ROBIN_SHEET.jump : ROBIN_SHEET.fall;
-    const run = ROBIN_SHEET.run;
-    const i = Math.floor(beat * ROBIN_SHEET.runFramesPerBeat);
-    return run[((i % run.length) + run.length) % run.length];
+    if (this.dashing) return loop(ROBIN_SHEET.dash, ROBIN_SHEET.dashFramesPerBeat);
+    if (!this.onGround) {
+      if (this.vy > PLAYER.jumpVelocity * 0.5) return ROBIN_SHEET.jump[0];
+      return this.vy > 0 ? ROBIN_SHEET.jump[1] : ROBIN_SHEET.fall;
+    }
+    return loop(ROBIN_SHEET.run, ROBIN_SHEET.runFramesPerBeat);
+  }
+
+  // Animation de mort (planche de sprites) ; renvoie false sans sprites.
+  playDeath(scene) {
+    if (!this.useSheet) return false;
+    this.sprite.setAngle(0).setScale(1);
+    ROBIN_SHEET.death.forEach((frame, i) =>
+      scene.time.delayedCall(i * ROBIN_SHEET.deathFrameMs, () => this.sprite.setFrame(frame)),
+    );
+    return true;
   }
 }

@@ -34,14 +34,17 @@ export const PLAYER = {
 
 // Planche de sprites de Robin (générée par tools/process_sprites.py).
 export const ROBIN_SHEET = {
-  frameWidth: 32,
+  frameWidth: 48,
   frameHeight: 36,
   run: [0, 1, 2, 3, 4, 5, 6, 7],
-  jump: 8,
-  fall: 9,
-  dash: 10,
-  idle: 11,
+  jump: [8, 9], // impulsion, puis haut du saut
+  fall: 10,
+  dash: [11, 12],
+  idle: 13,
+  death: [14, 15, 16, 17],
   runFramesPerBeat: 4, // un pas sur chaque beat
+  dashFramesPerBeat: 8,
+  deathFrameMs: 90,
 };
 
 export const COLORS = {

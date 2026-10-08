@@ -1,11 +1,14 @@
 """Convertit les images "pixel art" générées (grandes, floues, fond en damier)
 en vraies planches de sprites pour le jeu.
 
-Entrées  : art/robin_run.png (8 images de course, bleu puis rouge)
-           art/robin.png     (pose debout, bleu et rouge, fond transparent)
+Entrées  : art/robin_run.png  (8 images de course, bleu puis rouge)
+           art/robin.png      (pose debout, bleu et rouge, fond transparent)
+           art/robin_jump_fall_dash_death.png (bleu uniquement : saut x2,
+               chute, dash x2 sur la 1re ligne, mort x4 sur la 2e)
 Sorties  : public/sprites/robin_blue.png, public/sprites/robin_red.png
-           Une ligne d'images de FRAME_W x FRAME_H :
-           0-7 course, 8 saut, 9 chute, 10 dash, 11 debout
+           Une ligne d'images de FRAME_W x FRAME_H, dans l'ordre de FRAMES.
+           La version rouge des poses qui n'existent qu'en bleu est obtenue
+           en recolorant avec les couleurs de la course rouge.
 
 Usage : python3 tools/process_sprites.py   (nécessite Pillow et numpy)
 """
@@ -21,8 +24,15 @@ ART = ROOT / "art"
 OUT = ROOT / "public" / "sprites"
 
 ART_HEIGHT = 32  # hauteur de Robin en vrais pixels
-FRAME_W, FRAME_H = 32, 36
-FRAMES = ["run1", "run2", "run3", "run4", "run5", "run6", "run7", "run8", "jump", "fall", "dash", "idle"]
+FRAME_W, FRAME_H = 48, 36
+FRAMES = [
+    "run1", "run2", "run3", "run4", "run5", "run6", "run7", "run8",
+    "jump1", "jump2", "fall", "dash1", "dash2", "idle",
+    "death1", "death2", "death3", "death4",
+]
+# Taille d'un "pixel" dans l'image des poses, réglée pour que la tête fasse
+# la même largeur que dans la course (20 px).
+POSES_SCALE = 7.1
 
 
 def background_mask_checker(rgb):
@@ -110,14 +120,17 @@ def quantize(frames, colors=14):
     return result
 
 
-def place(sprite, head_cx=None):
-    """Pose le sprite dans une case FRAME_W x FRAME_H, pieds en bas,
-    tête centrée horizontalement (évite que Robin "tremble" en courant)."""
+def place(sprite, anchor="head"):
+    """Pose le sprite dans une case FRAME_W x FRAME_H, pieds en bas.
+    anchor="head" : tête centrée horizontalement (Robin ne "tremble" pas en
+    courant) ; anchor="center" : sprite centré (poses allongées)."""
     canvas = np.zeros((FRAME_H, FRAME_W, 4), dtype=np.uint8)
     h, w = sprite.shape[:2]
-    if head_cx is None:
+    if anchor == "head":
         head = sprite[: h // 3, :, 3] > 0
         head_cx = np.nonzero(head)[1].mean()
+    else:
+        head_cx = w / 2
     x = int(round(FRAME_W / 2 - head_cx))
     y = FRAME_H - h
     for j in range(h):
@@ -125,16 +138,6 @@ def place(sprite, head_cx=None):
             if sprite[j, i, 3] and 0 <= x + i < FRAME_W and 0 <= y + j < FRAME_H:
                 canvas[y + j, x + i] = sprite[j, i]
     return canvas
-
-
-def lean(frame, max_shift=2):
-    """Penche Robin vers l'avant (le haut du corps décalé à droite) pour le dash."""
-    out = np.zeros_like(frame)
-    h = frame.shape[0]
-    for y in range(h):
-        s = int(round(max_shift * (1 - y / h)))
-        out[y, s:] = frame[y, : frame.shape[1] - s]
-    return out
 
 
 def run_frames():
@@ -166,21 +169,74 @@ def idle_frames():
     return out
 
 
+def pose_frames():
+    """Poses bleues : 1re ligne saut1, saut2, chute, dash1, dash2 ; 2e ligne mort1-4."""
+    rgb = np.array(Image.open(ART / "robin_jump_fall_dash_death.png").convert("RGB")).astype(int)
+    fg_all = ~background_mask_checker(rgb)
+    sprites = []
+    for y0, y1 in (b for b in segments(fg_all.sum(1)) if b[1] - b[0] > 80):
+        for x0, x1 in segments(fg_all[y0:y1].sum(0), 2):
+            # Dans chaque colonne, le numéro est au-dessus : on garde le plus grand bloc.
+            rows = segments(fg_all[y0:y1, x0:x1].sum(1), 1)
+            r0, r1 = max(rows, key=lambda r: r[1] - r[0])
+            sub = rgb[y0 + r0 : y0 + r1, x0:x1]
+            fg = ~flood_outside(background_mask_checker(sub))
+            sprites.append(crop_alpha(downsample(sub, fg, POSES_SCALE)))
+    assert len(sprites) == 9, f"{len(sprites)} poses trouvées au lieu de 9"
+    return sprites
+
+
+def is_tinted(c, color):
+    r, g, b = (int(v) for v in c)
+    return b > r + 25 if color == "blue" else r > b + 25
+
+
+def recolor_blue_to_red(frames, blue_ref, red_ref):
+    """Recolore des images bleues en rouge. La correspondance bleu -> rouge
+    est apprise en superposant les courses bleue et rouge (mêmes dessins) :
+    pour chaque couleur bleue, on prend la couleur rouge la plus fréquente
+    au même endroit. La peau, les yeux et le blanc ne changent pas."""
+    votes = {}
+    for b, r in zip(blue_ref, red_ref):
+        both = (b[:, :, 3] > 0) & (r[:, :, 3] > 0)
+        for y, x in zip(*np.nonzero(both)):
+            cb, cr = tuple(b[y, x, :3]), tuple(r[y, x, :3])
+            if is_tinted(cb, "blue") and is_tinted(cr, "red"):
+                votes.setdefault(cb, {}).setdefault(cr, 0)
+                votes[cb][cr] += 1
+    mapping = {cb: max(v, key=v.get) for cb, v in votes.items()}
+    known = np.array(list(mapping.keys()), dtype=int)
+
+    out = []
+    for f in frames:
+        f = f.copy()
+        for y, x in zip(*np.nonzero(f[:, :, 3])):
+            c = f[y, x, :3].astype(int)
+            if is_tinted(c, "blue"):
+                nearest = tuple(known[((known - c) ** 2).sum(1).argmin()])
+                f[y, x, :3] = mapping[nearest]
+        out.append(f)
+    return out
+
+
 def main():
     runs = run_frames()
     idles = idle_frames()
+    jump1, jump2, fall, dash1, dash2, *deaths = pose_frames()
     OUT.mkdir(parents=True, exist_ok=True)
-    for color in ("blue", "red"):
-        run = runs[color]
-        assert len(run) == 8, f"{color}: {len(run)} images de course trouvées au lieu de 8"
-        frames = [place(f) for f in run]
-        frames.append(place(run[3]))  # saut : jambes tendues
-        frames.append(place(run[1]))  # chute
-        frames.append(lean(place(run[3])))  # dash : penché en avant
-        frames.append(place(idles[color]))
-        frames = quantize(frames)
-        sheet = np.concatenate(frames, axis=1)
-        Image.fromarray(sheet).save(OUT / f"robin_{color}.png")
+
+    poses = [place(jump1), place(jump2), place(fall), place(dash1), place(dash2)]
+    death = [place(d, "center") for d in deaths]
+
+    blue = quantize([place(f) for f in runs["blue"]] + poses + [place(idles["blue"])] + death)
+    red_own = quantize([place(f) for f in runs["red"]] + [place(idles["red"])])
+    blue_poses = blue[8:13] + blue[14:18]
+    red_poses = recolor_blue_to_red(blue_poses, blue[:8], red_own[:8])
+    red = red_own[:8] + red_poses[:5] + [red_own[8]] + red_poses[5:]
+
+    for color, frames in (("blue", blue), ("red", red)):
+        assert len(frames) == len(FRAMES)
+        Image.fromarray(np.concatenate(frames, axis=1)).save(OUT / f"robin_{color}.png")
         print(f"robin_{color}.png : {len(frames)} images de {FRAME_W}x{FRAME_H}")
 
 
