@@ -13,6 +13,8 @@ import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
 import { Effects } from '../systems/Effects.js';
 import { Score } from '../systems/Score.js';
+import { Editor } from '../systems/Editor.js';
+import { Hitboxes } from '../systems/Hitboxes.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,7 +26,10 @@ export class GameScene extends Phaser.Scene {
     this.levelId = params.get('level') ?? 'level1';
     // ?pitch=keep : garder la tonalité quand on change de vitesse.
     this.keepPitch = params.get('pitch') === 'keep';
-    this.startBeat = 0;
+    // ?beat=32 : démarrer directement au beat 32 pour tester un passage.
+    this.startBeat = Math.max(0, Number(params.get('beat')) || 0);
+    // ?color=red : couleur de départ (utile pour tester une section rouge).
+    this.startColor = params.get('color') === 'red' ? 'red' : 'blue';
   }
 
   async create() {
@@ -49,12 +54,17 @@ export class GameScene extends Phaser.Scene {
 
     this.obstacles = new Obstacles(this, this.level);
     this.score = new Score(this.levelId);
+    this.hitboxes = new Hitboxes(this);
+    this.editor = new Editor(this, this.level, this.levelId, { onChange: () => this.obstacles.rebuild() });
     this.player = new Player(this, (name) => this.onPlayerEvent(name));
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
-      fastFall: () => this.player.pressFastFall(),
-      switchColor: () => this.state === 'playing' && this.player.toggleColor(),
-      restart: () => this.state !== 'loading' && this.startRun(),
+      fastFall: () => this.state === 'playing' && this.player.pressFastFall(),
+      // En éditeur, Maj choisit la couleur de départ de Robin.
+      switchColor: () => (this.state === 'playing' || this.state === 'editor') && this.player.toggleColor(),
+      restart: () => this.state !== 'loading' && this.state !== 'editor' && this.startRun(),
+      editor: () => this.toggleEditor(),
+      hitboxes: () => this.hitboxes.toggle(),
       togglePitch: () => this.audio.setKeepPitch(!this.audio.keepPitch),
     });
     this.input.on('pointerdown', () => this.onJump());
@@ -78,7 +88,7 @@ export class GameScene extends Phaser.Scene {
   startRun() {
     this.time.removeAllEvents();
     this.attempts++;
-    this.player.reset();
+    this.player.reset(this.startColor);
     this.background.setTheme(this.player.color);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
@@ -90,6 +100,8 @@ export class GameScene extends Phaser.Scene {
 
   update() {
     if (this.state === 'loading') return;
+
+    if (this.state === 'editor') this.beat = this.editor.viewBeat;
 
     if (this.state === 'playing') {
       // La vitesse s'applique à la musique ; le jeu suit l'horloge audio.
@@ -128,12 +140,34 @@ export class GameScene extends Phaser.Scene {
     this.background.update(cameraX);
     if (this.obstacles) this.obstacles.draw(cameraX, this.beat);
     if (this.player) this.player.render();
+    if (this.hitboxes) this.hitboxes.draw(this.beat, this.player, this.obstacles);
+    if (this.editor) this.editor.draw();
     this.hud.setInfo(
       `${this.level?.name ?? ''}  beat ${this.beat.toFixed(1)}  essai ${this.attempts}` +
+        (this.startBeat > 0 ? `  départ beat ${this.startBeat}` : '') +
         `  [P] tonalité ${this.audio.keepPitch ? 'conservée' : 'libre'}`,
     );
     this.hud.setSpeed(this.audio.rate);
     if (this.score) this.hud.setScore(this.score.points, this.score.multiplier(this.audio.rate), this.score.best);
+  }
+
+  // E : pause + éditeur ; E à nouveau : rejouer depuis le beat affiché.
+  toggleEditor() {
+    if (this.state === 'loading') return;
+    if (this.editor.active) {
+      this.startBeat = this.editor.exit();
+      this.startColor = this.player.color;
+      this.player.sprite.setAlpha(1);
+      this.audio.unlock().then(() => this.startRun());
+      return;
+    }
+    this.time.removeAllEvents();
+    this.audio.stop();
+    this.hud.hideMessage();
+    this.state = 'editor';
+    this.player.reset(this.player.color);
+    this.player.sprite.setAlpha(0.5);
+    this.editor.enter(this.beat);
   }
 
   onDeath() {

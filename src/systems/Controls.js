@@ -23,6 +23,8 @@ export class Controls {
       [K.SHIFT]: 'switchColor',
       [K.R]: 'restart',
       [K.P]: 'togglePitch',
+      [K.E]: 'editor',
+      [K.H]: 'hitboxes',
     };
 
     // Touches maintenues pour la vitesse.

@@ -19,7 +19,16 @@ Mets ta piste dans `public/music/track1.mp3` (le nom indiqué par `"music"` dans
 le JSON). Si le fichier manque, une musique électro de remplacement est générée
 au bon BPM. Ajuste `"offset"` (en secondes) pour caler le beat 0 sur la piste.
 
-Choisir un niveau : `http://localhost:5173/?level=level1`.
+## Paramètres d'URL
+
+| Paramètre | Effet |
+| --- | --- |
+| `?level=level1` | Charger `public/levels/level1.json` |
+| `?beat=32` | Démarrer directement au beat 32 (pas de record enregistré) |
+| `?color=red` | Couleur de départ de Robin |
+| `?pitch=keep` | Garder la tonalité quand la vitesse change |
+
+Exemple : `http://localhost:5173/?beat=80&color=red`
 
 ## Contrôles (AZERTY)
 
@@ -33,7 +42,9 @@ Choisir un niveau : `http://localhost:5173/?level=level1`.
 | Q (ou ←) maintenu | Ralentir jeu + musique (x0.8) |
 | D (ou →) maintenu | Accélérer jeu + musique (x1.2) |
 | P | Garder / libérer la tonalité quand la vitesse change |
-| R | Recommencer |
+| R | Recommencer (depuis le beat de départ) |
+| E | Mode éditeur (pause) / rejouer depuis le beat affiché |
+| H | Afficher les hitboxes |
 
 Option d'URL `?pitch=keep` : démarrer en gardant la tonalité (sinon la
 musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
@@ -60,3 +71,50 @@ Champs optionnels : `length` (en beats), `height` (en px).
 - Multiplicateur selon la vitesse au moment où les points sont gagnés :
   x0.8 → score x0.5, x1 → x1, x1.2 → x2.
 - Le record de chaque niveau est sauvegardé dans le navigateur (localStorage).
+
+## Mode éditeur (E)
+
+- Le jeu se met en pause et affiche la grille de beats (numéros sous le sol,
+  ligne forte toutes les 4 temps). La ligne jaune = position de Robin.
+- **Clic** : poser l'obstacle choisi sur la grille, ou supprimer celui sous la
+  souris (surligné en blanc). **Clic droit** : supprimer.
+- **1-5** ou **T** : type (spike, wall, hole, ceiling, barrier) ; **C** : couleur ;
+  **G** : pas de grille (1, 1/2, 1/4 beat) ; **↑ / ↓** : longueur.
+- **← / →** ou molette : défiler (Maj = 4 beats). **Maj** : couleur de départ de Robin.
+- **X** : exporter le JSON (téléchargement + presse-papiers + console).
+  Remplace ensuite `public/levels/<niveau>.json` par le fichier exporté.
+- Chaque modification est aussi sauvegardée en brouillon dans le navigateur :
+  **L** recharge ce brouillon après un rechargement de page.
+- **E** à nouveau : rejoue depuis le beat affiché ; R et les morts recommencent
+  ensuite depuis ce beat.
+
+## Organisation du code
+
+```
+src/
+  main.js              configuration Phaser
+  config.js            constantes (physique en beats, vitesses, score)
+  scenes/GameScene.js  relie tous les systèmes
+  systems/
+    AudioSystem.js     musique, horloge audio, vitesse, tonalité
+    placeholderMusic.js musique électro générée si le mp3 manque
+    LevelSystem.js     chargement JSON, conversions beat <-> temps
+    Player.js          Robin : physique, couleurs, double saut, dash
+    Obstacles.js       géométrie, collisions et dessin des obstacles et du sol
+    Controls.js        clavier
+    Score.js           score, multiplicateur, record
+    Editor.js          mode éditeur
+    Hitboxes.js        affichage des hitboxes
+    Background.js      décor en parallaxe teinté selon la couleur
+    Effects.js         particules et traînées
+    Hud.js             textes à l'écran
+  gfx/textures.js      textures générées (à remplacer par des sprites)
+```
+
+Le temps de jeu vient de l'horloge audio (`AudioContext.currentTime`) : la
+position de chaque obstacle et la physique de Robin sont calculées en beats,
+donc la synchro tient à toutes les vitesses.
+
+Pour passer aux sprites : charger les images dans `GameScene.preload()` avec
+les mêmes clés que `gfx/textures.js` (`robin_blue`, `robin_red`…), et remplacer
+les fonctions `drawSpikes` / `drawBlock` / `drawBarrier` de `Obstacles.js`.
