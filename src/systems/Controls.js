@@ -22,7 +22,6 @@ export class Controls {
       [K.DOWN]: 'fastFall',
       [K.SHIFT]: 'switchColor',
       [K.R]: 'restart',
-      [K.P]: 'togglePitch',
       [K.E]: 'editor',
       [K.H]: 'hitboxes',
       [K.ESC]: 'back',

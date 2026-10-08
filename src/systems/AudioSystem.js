@@ -65,6 +65,11 @@ export class AudioSystem {
     this.element.webkitPreservesPitch = true;
   }
 
+  // Instant (horloge de l'AudioContext) où la musique atteindra songTime.
+  songTimeToCtx(songTime) {
+    return this.anchorCtx + (songTime - this.anchorSong) / this.rate;
+  }
+
   // Volume de 0 à 1.
   setVolume(v) {
     this.gain.gain.value = v;

@@ -1,7 +1,18 @@
 // Chargement d'un niveau JSON et conversions beat <-> temps.
 // Un niveau ne contient jamais de pixels : seulement des beats.
 
+// Petite empreinte d'un texte (pour savoir si un fichier a changé).
+function hashText(text) {
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (Math.imul(h, 31) + text.charCodeAt(i)) | 0;
+  return h;
+}
+
 export class LevelSystem {
+  static hash(text) {
+    return hashText(text);
+  }
+
   constructor(data) {
     this.name = data.name ?? 'Sans nom';
     this.bpm = data.bpm ?? 120;
@@ -13,13 +24,19 @@ export class LevelSystem {
 
   // Charge un niveau. preferDraft : en éditeur, on reprend le brouillon
   // sauvegardé automatiquement s'il existe. Sans fichier, on prend le brouillon.
+  // Un brouillon n'est repris que s'il a été fait à partir de la version
+  // actuelle du fichier (sinon le fichier a changé entre-temps : on l'ignore).
   static async load(id, { preferDraft = false } = {}) {
     const draft = LevelSystem.loadDraft(id);
-    if (preferDraft && draft) return new LevelSystem(draft);
     const res = await fetch(`levels/${id}.json`, { cache: 'no-store' });
-    if (res.ok) return new LevelSystem(await res.json());
-    if (draft) return new LevelSystem(draft);
-    throw new Error(`Niveau introuvable : levels/${id}.json`);
+    const text = res.ok ? await res.text() : null;
+    const base = text ? hashText(text) : null;
+    let level;
+    if (draft && (!text || (preferDraft && draft.base === base))) level = new LevelSystem(draft.data);
+    else if (text) level = new LevelSystem(JSON.parse(text));
+    else throw new Error(`Niveau introuvable : levels/${id}.json`);
+    level.base = base;
+    return level;
   }
 
   static draftKey(id) {
@@ -29,7 +46,10 @@ export class LevelSystem {
   static loadDraft(id) {
     try {
       const raw = localStorage.getItem(LevelSystem.draftKey(id));
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      // Ancien format (sans "data") : niveau seul, version du fichier inconnue.
+      return parsed.data ? parsed : { data: parsed, base: undefined };
     } catch (e) {
       return null;
     }
@@ -37,7 +57,7 @@ export class LevelSystem {
 
   saveDraft(id) {
     try {
-      localStorage.setItem(LevelSystem.draftKey(id), JSON.stringify(this.toJSON()));
+      localStorage.setItem(LevelSystem.draftKey(id), JSON.stringify({ data: this.toJSON(), base: this.base ?? null }));
     } catch (e) {
       /* stockage indisponible */
     }
@@ -65,7 +85,7 @@ export class LevelSystem {
         const key = localStorage.key(i);
         const m = /^robins-colors:draft:(.+)$/.exec(key);
         if (!m || levels.some((l) => l.id === m[1])) continue;
-        const data = JSON.parse(localStorage.getItem(key));
+        const data = LevelSystem.loadDraft(m[1]).data;
         levels.push({ id: m[1], name: data.name ?? m[1], draftOnly: true });
       }
     } catch (e) {
@@ -97,8 +117,10 @@ export class LevelSystem {
     this.obstacles.sort((a, b) => a.beat - b.beat);
   }
 
-  // Dernier beat utile du niveau (fin du dernier obstacle + marge).
+  // Dernier beat du niveau : la fin de la musique si on la connaît
+  // (musicEndBeat, fixé après chargement du mp3), sinon le dernier obstacle + 8.
   get endBeat() {
+    if (this.musicEndBeat) return this.musicEndBeat;
     let last = 0;
     for (const o of this.obstacles) last = Math.max(last, o.beat + (o.length ?? 1));
     return last + 8;

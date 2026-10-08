@@ -15,7 +15,8 @@ const MINIMAP_X1 = WIDTH - 20;
 const HISTORY_MAX = 100;
 
 export class Editor {
-  // callbacks : { onChange, onTest(beat), onPreview(), onExit(), onSave() }
+  // callbacks : { onChange, onTest(beat), onPreview(), onExit(), onSave(),
+  //               onMetronome(), onOffset(), isMetronomeOn() }
   constructor(scene, level, levelId, callbacks) {
     this.scene = scene;
     this.level = level;
@@ -86,7 +87,9 @@ export class Editor {
   }
 
   scroll(beats) {
-    this.viewBeat = Math.max(0, Math.min(this.level.endBeat, this.viewBeat + beats));
+    // Avec une vraie musique, on s'arrête à sa fin ; sinon on peut aller plus loin.
+    const limit = this.level.musicEndBeat ?? this.level.endBeat + 64;
+    this.viewBeat = Math.max(0, Math.min(limit, this.viewBeat + beats));
   }
 
   // --- Conversions écran <-> monde ---
@@ -186,6 +189,9 @@ export class Editor {
     } else if (e.key === ' ') this.callbacks.onPreview();
     else if (e.key === 'Enter') this.callbacks.onTest(this.viewBeat);
     else if (e.key === 'Escape') this.callbacks.onExit();
+    else if (key === 'm') this.callbacks.onMetronome();
+    else if (key === 'j' || key === 'k') this.nudgeOffset(key === 'j' ? -0.01 : 0.01);
+    else if (key === 'u' || key === 'i') this.nudgeOffset(key === 'u' ? -0.001 : 0.001);
     else if (key === 'x') this.exportJSON();
     else if (key === 'n') this.editSettings();
     else if (e.key === 'F1' || key === '?') {
@@ -211,6 +217,13 @@ export class Editor {
   changed() {
     this.callbacks.onChange();
     this.level.saveDraft(this.levelId); // brouillon automatique
+  }
+
+  // J / K : décaler la musique par rapport à la grille de 10 ms (U / I : 1 ms).
+  nudgeOffset(delta) {
+    this.level.offset = Math.round((this.level.offset + delta) * 1000) / 1000;
+    this.changed();
+    this.callbacks.onOffset();
   }
 
   // Nom, BPM, musique et offset du niveau (N).
@@ -265,7 +278,10 @@ export class Editor {
     this.drawMinimap();
     const len = this.length == null ? 'défaut' : `${this.length} beat`;
     const types = OBSTACLE_TYPES.map((t, i) => (i === this.typeIndex ? `[${TYPE_LABELS[t]}]` : TYPE_LABELS[t])).join(' ');
-    const head = `ÉDITEUR — ${this.level.name} — beat ${this.viewBeat.toFixed(2)}${previewing ? '  ▶ lecture' : ''}`;
+    const metro = this.callbacks.isMetronomeOn() ? 'ON' : 'off';
+    const head =
+      `ÉDITEUR — ${this.level.name} — beat ${this.viewBeat.toFixed(2)}${previewing ? '  ▶ lecture' : ''}\n` +
+      `${this.level.bpm} BPM   offset ${this.level.offset.toFixed(3)} s   métronome [M] : ${metro}`;
     const lines = this.showHelp
       ? [
           head,
@@ -273,7 +289,8 @@ export class Editor {
           `Couleur [C] : ${COLOR_LABELS[this.color]}   Grille [G] : 1/${1 / this.snap}   Longueur [↑↓] : ${len}`,
           `Clic : poser / supprimer   Clic droit : supprimer   Ctrl+Z : annuler`,
           `←→ / molette : défiler (Maj x4)   Début/Fin   Clic sur la barre du bas : aller à`,
-          `Espace : écouter / pause   Entrée : tester ici   Maj : couleur de départ de Robin`,
+          `Espace : écouter / pause   M : métronome   J / K : décaler la musique (U / I : fin)`,
+          `Entrée : tester ici   Maj : couleur de départ de Robin`,
           `Ctrl+S : enregistrer   X : exporter   N : nom / BPM / musique   Échap : menu   F1 : aide`,
         ]
       : [head, `F1 : aide`];

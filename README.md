@@ -14,6 +14,11 @@ Build de production : `npm run build` (sortie dans `dist/`).
 
 ## Musique
 
+Caler une musique : dans l'éditeur, active le métronome (M) et écoute (Espace).
+Si les clics tombent avant ou après les coups de la musique, ajuste avec J / K
+(puis U / I pour affiner) jusqu'à ce qu'ils soient confondus. C'est l'offset.
+Le niveau 1 utilise `First_Light.mp3` : 150 BPM, offset 0 (mesuré).
+
 Les niveaux sont dans `public/levels/*.json` et les mp3 dans `public/music/`.
 Mets ta piste dans `public/music/track1.mp3` (le nom indiqué par `"music"` dans
 le JSON). Si le fichier manque, une musique électro de remplacement est générée
@@ -84,6 +89,8 @@ On parcourt le niveau librement, sans jouer :
 | ← → / molette (Maj = 4 beats) | Défiler |
 | Début / Fin, clic sur la barre du bas | Aller au début / à la fin / à un endroit |
 | Espace | Écouter la musique à partir d'ici (la vue suit), Espace pour arrêter |
+| M | Métronome : un clic sur chaque beat (aigu sur le 1er temps de la mesure) |
+| J / K | Décaler la musique par rapport à la grille de 10 ms (U / I : 1 ms) |
 | Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
 | Clic droit | Supprimer |
 | 1-6 ou T | Type : pic, mur, trou, plafond, barrière, pièce |

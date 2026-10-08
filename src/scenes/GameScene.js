@@ -17,6 +17,7 @@ import { Effects } from '../systems/Effects.js';
 import { Editor } from '../systems/Editor.js';
 import { Hitboxes } from '../systems/Hitboxes.js';
 import { Settings } from '../systems/Settings.js';
+import { Metronome } from '../systems/Metronome.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -62,9 +63,15 @@ export class GameScene extends Phaser.Scene {
     this.audio.keepPitch = Settings.keepPitch;
     this.audio.setVolume(Settings.volume / 100);
     this.events.once('shutdown', () => this.audio.stop());
+    // Métronome partagé (activé avec M dans l'éditeur, reste actif en test).
+    if (!this.registry.get('metronome')) this.registry.set('metronome', new Metronome(this.audio));
+    this.metronome = this.registry.get('metronome');
+    if (this.mode !== 'edit') this.metronome.enabled = false;
     try {
       this.level = await LevelSystem.load(this.levelId, { preferDraft: this.mode === 'edit' });
       await this.audio.load(this.level);
+      // Vraie musique : le niveau dure jusqu'à la fin du morceau.
+      if (!this.audio.isPlaceholder) this.level.musicEndBeat = Math.floor(this.level.timeToBeat(this.audio.duration));
     } catch (e) {
       console.error(e);
       this.hud.showMessage('Erreur', `${e.message ?? e}\n\nÉchap : menu`);
@@ -83,6 +90,9 @@ export class GameScene extends Phaser.Scene {
       onPreview: () => this.togglePreview(),
       onExit: () => this.toMenu(),
       onSave: () => this.saveLevel(),
+      onMetronome: () => this.editor.toast(`Métronome ${this.metronome.toggle() ? 'activé' : 'coupé'}`),
+      onOffset: () => this.onOffsetChanged(),
+      isMetronomeOn: () => this.metronome.enabled,
     });
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
@@ -128,6 +138,7 @@ export class GameScene extends Phaser.Scene {
 
   startRun() {
     this.time.removeAllEvents();
+    this.metronome.reset();
     this.attempts++;
     this.player.reset(this.startColor);
     this.background.setTheme(this.player.color);
@@ -146,6 +157,7 @@ export class GameScene extends Phaser.Scene {
 
   update() {
     if (this.state === 'loading') return;
+    this.metronome.update(this.level);
 
     if (this.state === 'editor') {
       // Écoute de la musique dans l'éditeur : la vue suit la lecture.
@@ -296,7 +308,14 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.previewing = true;
+    this.metronome.reset();
     this.audio.unlock().then(() => this.audio.play(this.level.beatToTime(this.editor.viewBeat)));
+  }
+
+  // J/K : l'offset a changé ; pendant l'écoute, on relance pour l'entendre.
+  onOffsetChanged() {
+    this.metronome.reset();
+    if (this.previewing) this.audio.play(this.level.beatToTime(this.editor.viewBeat));
   }
 
   // Ctrl+S : enregistre dans public/levels/ (serveur de dev), sinon exporte.
@@ -307,6 +326,7 @@ export class GameScene extends Phaser.Scene {
         body: this.level.toText(),
       });
       if (!res.ok) throw new Error(await res.text());
+      this.level.base = LevelSystem.hash(this.level.toText());
       LevelSystem.deleteDraft(this.levelId);
       this.editor.toast(`Enregistré : public/levels/${this.levelId}.json`);
     } catch (e) {
