@@ -94,10 +94,11 @@ On parcourt le niveau librement, sans jouer :
 | Suppr | Effacer tout ce qui est visible à l'écran (pour refaire un passage) |
 | J / K | Décaler la musique par rapport à la grille de 10 ms (U / I : 1 ms) |
 | Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
+| Clic maintenu + glisser | Poser en série : un élément par case de grille traversée (pièces à la même hauteur). Commencé sur un élément : efface tout sur le passage |
 | Clic droit | Supprimer |
 | 1-6 ou T | Type : pic, mur, trou, plafond, barrière, pièce |
 | C | Couleur : gris, bleu, rouge (pièce : bleue ou rouge) |
-| G | Pas de la grille : 1, 1/2, 1/4 de beat |
+| G | Pas de la grille : 1, 1/2, 1/4, 1/8 de beat |
 | ↑ ↓ | Longueur de l'élément (trous, plafonds, rangées de pics…) |
 | Ctrl+Z | Annuler |
 | Maj | Couleur de départ de Robin pour le test |

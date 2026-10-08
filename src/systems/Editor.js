@@ -5,7 +5,7 @@
 import { PIXELS_PER_BEAT as PPB, PLAYER_X, GROUND_Y, WIDTH, HEIGHT, RENDER_SCALE } from '../config.js';
 import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obstacles.js';
 
-const SNAPS = [1, 0.5, 0.25];
+const SNAPS = [1, 0.5, 0.25, 0.125];
 const FONT = 'monospace';
 const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce' };
 const COLOR_LABELS = { gray: 'gris', blue: 'bleu', red: 'rouge' };
@@ -52,6 +52,7 @@ export class Editor {
     scene.input.mouse?.disableContextMenu();
     scene.input.on('pointermove', (p) => this.active && this.onPointerMove(p));
     scene.input.on('pointerdown', (p) => this.active && this.onPointerDown(p));
+    scene.input.on('pointerup', () => (this.brush = null));
     scene.input.on('wheel', (p, objs, dx, dy) => this.active && this.scroll(Math.sign(dy) * this.snap * 2));
     this.keyHandler = (e) => this.active && this.onKey(e);
     scene.input.keyboard.on('keydown', this.keyHandler);
@@ -132,8 +133,14 @@ export class Editor {
 
   onPointerMove(p) {
     this.hover = { x: p.worldX, y: p.worldY, beat: this.snapBeat(this.screenToBeat(p.worldX)) };
+    if (!this.brush || !p.isDown) return;
+    if (this.brush.mode === 'paint') this.paintAt(this.hover.beat);
+    else this.eraseAt(p.worldX, p.worldY);
   }
 
+  // Clic : pose (ou supprime) un élément. En gardant le bouton enfoncé et en
+  // glissant, on continue : une pièce / un obstacle par case de grille
+  // traversée (même hauteur que le premier), ou on efface tout sur le passage.
   onPointerDown(p) {
     this.onPointerMove(p);
     // Clic sur la minimap : on saute à cet endroit du niveau.
@@ -143,16 +150,33 @@ export class Editor {
       return;
     }
     const existing = this.findAt(p.worldX, p.worldY);
-    if (existing) {
-      this.remember();
-      this.level.obstacles.splice(this.level.obstacles.indexOf(existing), 1);
-    } else if (!p.rightButtonDown()) {
-      this.remember();
-      this.level.obstacles.push(this.makeObstacle(this.hover.beat, p.worldY));
-      this.level.sortObstacles();
+    if (!existing && p.rightButtonDown()) return;
+    this.remember(); // tout le tracé s'annule d'un seul Ctrl+Z
+    if (existing || p.rightButtonDown()) {
+      this.brush = { mode: 'erase' };
+      this.eraseAt(p.worldX, p.worldY);
     } else {
-      return;
+      this.brush = { mode: 'paint', y: p.worldY, last: null };
+      this.paintAt(this.hover.beat);
     }
+  }
+
+  paintAt(beat) {
+    const b = this.brush;
+    if (b.last === beat) return;
+    b.last = beat;
+    const o = this.makeObstacle(beat, b.y);
+    const dup = this.level.obstacles.some((x) => x.beat === o.beat && x.type === o.type && (x.height ?? null) === (o.height ?? null));
+    if (dup) return;
+    this.level.obstacles.push(o);
+    this.level.sortObstacles();
+    this.changed();
+  }
+
+  eraseAt(x, y) {
+    const existing = this.findAt(x, y);
+    if (!existing) return;
+    this.level.obstacles.splice(this.level.obstacles.indexOf(existing), 1);
     this.changed();
   }
 
@@ -348,7 +372,8 @@ export class Editor {
           head,
           `Type [1-6/T] : ${types}`,
           `Couleur [C] : ${COLOR_LABELS[this.color]}   Grille [G] : 1/${1 / this.snap}   Longueur [↑↓] : ${len}`,
-          `Clic : poser / supprimer   Clic droit : supprimer   Ctrl+Z : annuler`,
+          `Clic : poser / supprimer — maintenir et glisser : poser / effacer en série`,
+          `Clic droit (glisser) : effacer   Ctrl+Z : annuler`,
           `←→ / molette : défiler (Maj x4)   Début/Fin   Clic sur la barre du bas : aller à`,
           `Espace : écouter / pause   R : ENREGISTRER en tapant en rythme   M : métronome`,
           `J / K : décaler la musique (U / I : fin)   Suppr : effacer le passage visible`,
