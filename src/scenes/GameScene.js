@@ -12,7 +12,6 @@ import { Background } from '../systems/Background.js';
 import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
 import { Effects } from '../systems/Effects.js';
-import { Score } from '../systems/Score.js';
 import { Editor } from '../systems/Editor.js';
 import { Hitboxes } from '../systems/Hitboxes.js';
 
@@ -65,12 +64,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.obstacles = new Obstacles(this, this.level);
-    this.score = new Score(this.levelId);
     this.hitboxes = new Hitboxes(this);
     this.editor = new Editor(this, this.level, this.levelId, { onChange: () => this.obstacles.rebuild() });
     this.player = new Player(this, (name) => this.onPlayerEvent(name));
     this.controls = new Controls(this, {
       jump: () => this.onJump(),
+      air: () => (this.state === 'playing' ? this.player.pressAir() : this.onJump()),
       fastFall: () => this.state === 'playing' && this.player.pressFastFall(),
       // En éditeur, Maj choisit la couleur de départ de Robin.
       switchColor: () => (this.state === 'playing' || this.state === 'editor') && this.player.toggleColor(),
@@ -79,12 +78,17 @@ export class GameScene extends Phaser.Scene {
       hitboxes: () => this.hitboxes.toggle(),
       togglePitch: () => this.audio.setKeepPitch(!this.audio.keepPitch),
     });
-    this.input.on('pointerdown', () => this.onJump());
+    // Clic / toucher = saut (tenu = saut plus haut).
+    this.input.on('pointerdown', () => {
+      this.pointerHeld = true;
+      this.onJump();
+    });
+    this.input.on('pointerup', () => (this.pointerHeld = false));
 
     this.state = 'title';
     this.beat = this.startBeat;
     const musicNote = this.audio.isPlaceholder ? '\n(musique de remplacement)' : '';
-    this.hud.showMessage(this.level.name, `Z / Espace pour commencer${musicNote}`);
+    this.hud.showMessage(this.level.name, `Z pour commencer${musicNote}`);
     this.renderWorld();
   }
 
@@ -101,11 +105,9 @@ export class GameScene extends Phaser.Scene {
     this.time.removeAllEvents();
     this.attempts++;
     this.player.reset(this.startColor);
-    this.jumpLock = true;
     this.background.setTheme(this.player.color);
     this.beat = this.startBeat;
     this.lastBeat = this.startBeat;
-    this.score.reset(this.startBeat * PPB, this.obstacles.items);
     this.audio.play(this.level.beatToTime(this.startBeat));
     this.hud.hideMessage();
     this.state = 'playing';
@@ -121,10 +123,9 @@ export class GameScene extends Phaser.Scene {
       this.speedFactor = this.controls.getSpeed();
       this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
       const playerFactor = SPEED_MODE === 'player' ? this.speedFactor : 1;
-      // Saut maintenu : seulement après avoir relâché la touche de départ.
-      const held = this.controls.isJumpHeld();
-      if (!held) this.jumpLock = false;
-      this.player.jumpHeld = held && !this.jumpLock;
+      // Touches tenues : servent au saut, double saut et dash adaptatifs.
+      this.player.jumpHeld = this.controls.isJumpHeld() || this.pointerHeld;
+      this.player.airHeld = this.controls.isAirHeld();
       this.beat = this.level.timeToBeat(this.audio.getTime());
       // Avance de la physique en petits pas, en temps "beat".
       let remaining = Phaser.Math.Clamp(this.beat - this.lastBeat, 0, 0.5);
@@ -134,11 +135,6 @@ export class GameScene extends Phaser.Scene {
         b += dt;
         remaining -= dt;
         this.player.step(dt, b * PPB, this.obstacles, playerFactor);
-      }
-      if (!this.player.dead) {
-        this.score.update(Math.max(0, this.beat - this.lastBeat), this.speedFactor, this.player.x);
-        for (const gain of this.score.events) this.hud.popGain(this.player.sprite.x, this.player.sprite.y - 30, gain);
-        this.score.events.length = 0;
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
@@ -169,9 +165,6 @@ export class GameScene extends Phaser.Scene {
         (this.startBeat > 0 ? `  départ beat ${this.startBeat}` : '') +
         `  [P] tonalité ${this.audio.keepPitch ? 'conservée' : 'libre'}`,
     );
-    const factor = this.state === 'playing' ? this.speedFactor : 1;
-    this.hud.setSpeed(factor);
-    if (this.score) this.hud.setScore(this.score.points, this.score.multiplier(factor), this.score.best);
   }
 
   // E : pause + éditeur ; E à nouveau : rejouer depuis le beat affiché.
@@ -206,14 +199,7 @@ export class GameScene extends Phaser.Scene {
   onFinish() {
     this.state = 'finished';
     this.audio.stop();
-    // Pas de record si on a démarré en cours de niveau (outil de test).
-    const record = this.startBeat === 0 && this.score.commit();
-    this.hud.showMessage(
-      'Niveau terminé !',
-      `Score : ${this.score.points}${record ? '  — nouveau record !' : `   (record ${this.score.best})`}\n` +
-        (this.startBeat > 0 ? `(départ au beat ${this.startBeat} : pas de record)\n` : '') +
-        `${this.score.passed} obstacles, ${this.attempts} essai(s)\n\nZ / Espace pour rejouer`,
-    );
+    this.hud.showMessage('Niveau terminé !', `${this.attempts} essai(s)\n\nZ pour rejouer`);
   }
 
   // Retours visuels des actions de Robin.

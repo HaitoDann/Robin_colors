@@ -102,6 +102,12 @@ export class Obstacles {
     return this.items.filter((g) => g.x1 >= x0 && g.x0 <= x1);
   }
 
+  // Angle du sol (radians, >0 = montée) à la position x. Tout est plat pour
+  // l'instant ; les futures pentes renverront leur inclinaison ici.
+  groundAngleAt() {
+    return 0;
+  }
+
   // Vrai si le sol est absent sous le joueur (zone [x0, x1]).
   isOverHole(x0, x1) {
     // On ne tombe que si le centre du joueur (±6 px) est au-dessus du trou.

@@ -24,7 +24,7 @@ au bon BPM. Ajuste `"offset"` (en secondes) pour caler le beat 0 sur la piste.
 | Paramètre | Effet |
 | --- | --- |
 | `?level=level1` | Charger `public/levels/level1.json` |
-| `?beat=32` | Démarrer directement au beat 32 (pas de record enregistré) |
+| `?beat=32` | Démarrer directement au beat 32 |
 | `?color=red` | Couleur de départ de Robin |
 | `?pitch=keep` | Garder la tonalité quand la vitesse change |
 
@@ -34,13 +34,12 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 
 | Touche | Action |
 | --- | --- |
-| Z (ou Espace / ↑ / clic) | Sauter : appui bref = petit saut, maintenu = saut haut (et ressaute à l'atterrissage) |
+| Z (ou ↑ / clic) | Sauter — appui bref = petit saut, tenu = grand saut |
+| Espace (en l'air) | Bleu : double saut / Rouge : dash — plus on tient, plus c'est haut / long |
 | S (ou ↓) | Fast-fall : redescendre très vite |
 | Maj | Changer de couleur bleu ⇄ rouge |
-| Z en l'air (bleu) | Double saut |
-| Z en l'air (rouge) | Dash horizontal (1,5 beat, sans gravité) |
-| Q (ou ←) maintenu | Robin ralentit (recule à l'écran) — score x0.5 |
-| D (ou →) maintenu | Robin accélère (avance à l'écran, sauts plus longs) — score x2 |
+| Q (ou ←) maintenu | Robin ralentit (recule à l'écran) |
+| D (ou →) maintenu | Robin accélère (avance à l'écran, sauts plus longs) |
 | P | Garder / libérer la tonalité quand la vitesse change |
 | R | Recommencer (depuis le beat de départ) |
 | E | Mode éditeur (pause) / rejouer depuis le beat affiché |
@@ -64,13 +63,6 @@ Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
 - **Rouge** : traversables uniquement pendant le dash (barrières, longs trous).
 
 Champs optionnels : `length` (en beats), `height` (en px).
-
-## Score
-
-- Distance : 10 points par beat, bonus de 50 points par obstacle franchi.
-- Multiplicateur selon la vitesse au moment où les points sont gagnés :
-  x0.8 → score x0.5, x1 → x1, x1.2 → x2.
-- Le record de chaque niveau est sauvegardé dans le navigateur (localStorage).
 
 ## Mode éditeur (E)
 
@@ -145,16 +137,16 @@ Tout est dans `PLAYER` (`src/config.js`) :
 | Réglage | Effet |
 | --- | --- |
 | `jumpVelocity`, `gravity` | Force du saut et gravité en montée |
-| `jumpHoldGravityMul`, `jumpHoldBeats` | Saut adaptatif : gravité réduite tant que Z est tenu |
+| `jumpHoldGravityMul`, `jumpHoldBeats`, `jumpCutMul` | Saut adaptatif : gravité réduite tant que la touche est tenue, montée coupée au relâchement |
 | `maxFallSpeed` | Vitesse de chute maximale |
 | `slowFactor`, `fastFactor` | Vitesse de Robin avec Q / D |
-| `groundAccel`, `airAccel` | Inertie au sol / en l'air |
+| `groundAccel`, `groundDecel`, `groundFriction`, `airAccel` | Vitesse façon Sonic : accélérer, freiner, friction, contrôle en l'air |
+| `slopeFactor` | Effet des pentes sur la vitesse (pour de futures pentes) |
 | `recenter`, `minOffset`, `maxOffset` | Retour en place et limites à l'écran |
 | `fallGravityMul` | > 1 : on retombe plus vite qu'on ne monte (saut nerveux) |
 | `apexHangSpeed`, `apexHangMul` | Petit flottement au sommet du saut |
 | `fastFallVelocity`, `fastFallGravityMul` | Puissance du fast-fall (S) |
-| `dashBeats` | Durée du dash |
-| `holdToRejump` | Z maintenu = sauts enchaînés |
+| `dashMinBeats`, `dashMaxBeats` | Durée du dash (mini dash si on effleure Espace) |
 | `squashBeats`, `squashAmount`, `airTiltDeg` | Déformation et inclinaison (visuel seulement) |
 
 Attention : la hauteur (~100 px) et la durée (~1 beat) du saut définissent la
