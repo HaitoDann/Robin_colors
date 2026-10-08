@@ -1,7 +1,7 @@
 // Mode éditeur (touche E) : pause, grille de beats, pose / suppression
 // d'obstacles à la souris, export du JSON du niveau.
 
-import { PIXELS_PER_BEAT as PPB, PLAYER_X, GROUND_Y, WIDTH, HEIGHT } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PLAYER_X, GROUND_Y, WIDTH, HEIGHT, RENDER_SCALE } from '../config.js';
 import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obstacles.js';
 
 const SNAPS = [1, 0.5, 0.25];
@@ -26,7 +26,7 @@ export class Editor {
     this.ghost = scene.add.graphics().setDepth(15).setVisible(false);
     this.panel = scene.add
       .text(12, 34, '', {
-        fontFamily: FONT,
+        fontFamily: FONT, resolution: RENDER_SCALE,
         fontSize: '13px',
         color: '#e8e8ff',
         backgroundColor: '#05050ccc',
@@ -113,12 +113,12 @@ export class Editor {
   // --- Entrées ---
 
   onPointerMove(p) {
-    this.hover = { x: p.x, y: p.y, beat: this.snapBeat(this.screenToBeat(p.x)) };
+    this.hover = { x: p.worldX, y: p.worldY, beat: this.snapBeat(this.screenToBeat(p.worldX)) };
   }
 
   onPointerDown(p) {
     this.onPointerMove(p);
-    const existing = this.findAt(p.x, p.y);
+    const existing = this.findAt(p.worldX, p.worldY);
     if (existing) {
       this.level.obstacles.splice(this.level.obstacles.indexOf(existing), 1);
     } else if (!p.rightButtonDown()) {
@@ -194,7 +194,7 @@ export class Editor {
 
   toast(msg) {
     const t = this.scene.add
-      .text(WIDTH / 2, HEIGHT - 40, msg, { fontFamily: FONT, fontSize: '16px', color: '#ffd166', backgroundColor: '#05050ccc', padding: { x: 8, y: 4 } })
+      .text(WIDTH / 2, HEIGHT - 40, msg, { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '16px', color: '#ffd166', backgroundColor: '#05050ccc', padding: { x: 8, y: 4 } })
       .setOrigin(0.5)
       .setDepth(120);
     this.scene.tweens.add({ targets: t, alpha: 0, delay: 1200, duration: 400, onComplete: () => t.destroy() });
@@ -231,7 +231,7 @@ export class Editor {
       g.fillStyle(0xffffff, bar ? 0.28 : whole ? 0.14 : 0.06);
       g.fillRect(x, 0, bar ? 2 : 1, GROUND_Y + 30);
       if (whole && b >= 0) {
-        const label = this.labels[li] ?? (this.labels[li] = this.scene.add.text(0, 0, '', { fontFamily: FONT, fontSize: '11px' }).setDepth(9));
+        const label = this.labels[li] ?? (this.labels[li] = this.scene.add.text(0, 0, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '11px' }).setDepth(9));
         label.setText(String(Math.round(b))).setPosition(x + 3, GROUND_Y + 32).setColor(bar ? '#e8e8ff' : '#7a7a9a').setVisible(true);
         li++;
       }

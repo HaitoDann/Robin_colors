@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { WIDTH, HEIGHT, COLORS } from './config.js';
+import { WIDTH, HEIGHT, COLORS, RENDER_SCALE } from './config.js';
 import { GameScene } from './scenes/GameScene.js';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  width: WIDTH,
-  height: HEIGHT,
+  width: WIDTH * RENDER_SCALE,
+  height: HEIGHT * RENDER_SCALE,
   backgroundColor: COLORS.bg,
   pixelArt: true,
   roundPixels: true,

@@ -56,7 +56,7 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 | `spike` | Pic au sol, centré sur le beat. `length` (beats) = rangée de pics | |
 | `wall` | Bloc posé au sol, on peut atterrir dessus | longueur 0,3 beat ; hauteur gris 50 / bleu 130 / rouge 90 px |
 | `hole` | Trou dans le sol | gris 0,6 / bleu 1,4 / rouge 2,25 beats |
-| `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 44 px de passage |
+| `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 54 px de passage |
 | `barrier` | Barrière pleine hauteur (rouge par défaut) | |
 
 Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.

@@ -5,6 +5,9 @@
 
 export const WIDTH = 960;
 export const HEIGHT = 540;
+// Le jeu est calculé en 960x540 mais dessiné 2x plus fin (texte net,
+// déplacements au demi-pixel près). Les sprites pixel art restent nets.
+export const RENDER_SCALE = 2;
 
 // Ligne du sol (en pixels écran) et position fixe de Robin à l'écran.
 export const GROUND_Y = 430;
@@ -15,8 +18,10 @@ export const PIXELS_PER_BEAT = 150;
 
 export const PLAYER = {
   // Boîte de collision (plus petite que le sprite, pour rester indulgent).
-  width: 20,
-  height: 30,
+  width: 24,
+  height: 40,
+  // Taille d'affichage du sprite (x1,5 => 3 pixels d'écran par pixel du dessin).
+  spriteScale: 1.5,
   // Saut simple : hauteur max ~100 px, durée totale 1 beat.
   jumpVelocity: 400, // px / beat
   gravity: 800, // px / beat²

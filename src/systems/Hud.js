@@ -1,6 +1,6 @@
 // Interface : messages centraux et informations en haut de l'écran.
 
-import { WIDTH, HEIGHT } from '../config.js';
+import { WIDTH, HEIGHT, RENDER_SCALE } from '../config.js';
 
 const FONT = 'monospace';
 
@@ -9,26 +9,26 @@ export class Hud {
     this.scene = scene;
     this.panel = scene.add.rectangle(WIDTH / 2, HEIGHT / 2 - 10, 560, 230, 0x05050c, 0.75).setDepth(99);
     this.title = scene.add
-      .text(WIDTH / 2, HEIGHT / 2 - 60, '', { fontFamily: FONT, fontSize: '40px', color: '#f2f2ff', fontStyle: 'bold' })
+      .text(WIDTH / 2, HEIGHT / 2 - 60, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '40px', color: '#f2f2ff', fontStyle: 'bold' })
       .setOrigin(0.5)
       .setDepth(100);
     this.subtitle = scene.add
-      .text(WIDTH / 2, HEIGHT / 2, '', { fontFamily: FONT, fontSize: '18px', color: '#b8b8d8', align: 'center' })
+      .text(WIDTH / 2, HEIGHT / 2, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '18px', color: '#b8b8d8', align: 'center' })
       .setOrigin(0.5, 0)
       .setDepth(100);
     this.info = scene.add
-      .text(12, 10, '', { fontFamily: FONT, fontSize: '14px', color: '#8c8cb0' })
+      .text(12, 10, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '14px', color: '#8c8cb0' })
       .setDepth(100);
     this.score = scene.add
-      .text(WIDTH - 16, 10, '0', { fontFamily: FONT, fontSize: '28px', color: '#f2f2ff', fontStyle: 'bold' })
+      .text(WIDTH - 16, 10, '0', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '28px', color: '#f2f2ff', fontStyle: 'bold' })
       .setOrigin(1, 0)
       .setDepth(100);
     this.mult = scene.add
-      .text(WIDTH - 16, 44, '', { fontFamily: FONT, fontSize: '16px', color: '#8c8cb0', fontStyle: 'bold' })
+      .text(WIDTH - 16, 44, '', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '16px', color: '#8c8cb0', fontStyle: 'bold' })
       .setOrigin(1, 0)
       .setDepth(100);
     this.speed = scene.add
-      .text(16, HEIGHT - 16, 'x1', { fontFamily: FONT, fontSize: '22px', color: '#8c8cb0', fontStyle: 'bold' })
+      .text(16, HEIGHT - 16, 'x1', { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '22px', color: '#8c8cb0', fontStyle: 'bold' })
       .setOrigin(0, 1)
       .setDepth(100);
   }
@@ -53,7 +53,7 @@ export class Hud {
   popGain(x, y, gain) {
     const color = gain > 50 ? '#ffd166' : gain < 50 ? '#7fd3ff' : '#f2f2ff';
     const t = this.scene.add
-      .text(x, y, `+${gain}`, { fontFamily: FONT, fontSize: '14px', color, fontStyle: 'bold' })
+      .text(x, y, `+${gain}`, { fontFamily: FONT, resolution: RENDER_SCALE, fontSize: '14px', color, fontStyle: 'bold' })
       .setOrigin(0.5)
       .setDepth(90);
     this.scene.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: 600, onComplete: () => t.destroy() });

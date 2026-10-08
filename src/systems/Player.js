@@ -16,7 +16,8 @@ export class Player {
     // Sprites dessinés si disponibles, sinon le cube généré en code.
     this.useSheet = scene.textures.exists('robin_sheet_blue');
     this.sprite = scene.add.image(PLAYER_X, GROUND_Y, this.textureFor('blue')).setDepth(20);
-    this.halfHeight = this.sprite.height / 2;
+    if (this.useSheet) this.sprite.setScale(PLAYER.spriteScale);
+    this.halfHeight = this.sprite.displayHeight / 2;
     this.idle = false; // pose debout (écran titre, éditeur)
     this.reset();
   }
@@ -196,7 +197,7 @@ export class Player {
     this.sprite.setAngle(this.angle);
     if (this.useSheet) {
       this.sprite.setFrame(this.currentFrame(beat));
-      this.sprite.setScale(1);
+      this.sprite.setScale(PLAYER.spriteScale);
     } else {
       this.sprite.setScale(this.dashing ? 1.25 : 1, this.dashing ? 0.8 : 1);
     }
@@ -219,7 +220,7 @@ export class Player {
   // Animation de mort (planche de sprites) ; renvoie false sans sprites.
   playDeath(scene) {
     if (!this.useSheet) return false;
-    this.sprite.setAngle(0).setScale(1);
+    this.sprite.setAngle(0).setScale(PLAYER.spriteScale);
     ROBIN_SHEET.death.forEach((frame, i) =>
       scene.time.delayedCall(i * ROBIN_SHEET.deathFrameMs, () => this.sprite.setFrame(frame)),
     );

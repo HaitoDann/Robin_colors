@@ -113,6 +113,7 @@ export class AudioSystem {
   stop() {
     this.anchorSong = this.getTime();
     this.playToken++;
+    this.smoothTime = null;
     if (this.source) {
       try {
         this.source.stop();
@@ -130,6 +131,7 @@ export class AudioSystem {
   setRate(rate) {
     if (rate === this.rate) return;
     this.anchorSong = this.getTime();
+    this.smoothTime = null;
     this.anchorCtx = this.ctx.currentTime;
     this.rate = rate;
     if (this.source) this.source.playbackRate.setValueAtTime(rate, this.ctx.currentTime);
@@ -151,7 +153,25 @@ export class AudioSystem {
     if (!this.playing) return this.anchorSong;
     const predicted = this.anchorSong + (this.ctx.currentTime - this.anchorCtx) * this.rate;
     if (this.keepPitch) this.correctDrift(predicted);
-    return this.anchorSong + (this.ctx.currentTime - this.anchorCtx) * this.rate;
+    return this.smooth(this.anchorSong + (this.ctx.currentTime - this.anchorCtx) * this.rate);
+  }
+
+  // L'horloge audio avance par paquets (plusieurs ms) : utilisée telle quelle,
+  // le défilement saccade. On avance donc avec l'horloge de l'écran
+  // (performance.now) et on se recale doucement sur l'horloge audio.
+  smooth(raw) {
+    const now = performance.now() / 1000;
+    if (this.smoothTime == null) {
+      this.smoothTime = raw;
+    } else {
+      let t = this.smoothTime + (now - this.smoothNow) * this.rate;
+      const diff = raw - t;
+      if (Math.abs(diff) > 0.05) t = raw; // trop d'écart : on se cale direct
+      else t += diff * 0.05;
+      this.smoothTime = Math.max(this.smoothTime, t); // jamais de retour en arrière
+    }
+    this.smoothNow = now;
+    return this.smoothTime;
   }
 
   // Recale doucement l'horloge extrapolée sur la position de l'élément <audio>.

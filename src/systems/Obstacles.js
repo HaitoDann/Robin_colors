@@ -22,7 +22,7 @@ const DEFAULTS = {
   spike: { length: 0 },
   wall: { length: 0.3, height: { gray: 50, blue: 130, red: 90 } },
   hole: { length: { gray: 0.6, blue: 1.4, red: 2.25 } },
-  ceiling: { length: 2, height: 44 }, // height = espace libre sous le plafond
+  ceiling: { length: 2, height: 54 }, // height = espace libre sous le plafond
   barrier: { length: 0 },
 };
 

@@ -2,7 +2,7 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
@@ -43,6 +43,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   async create() {
+    // Coordonnées du jeu en 960x540, affichées en haute résolution.
+    this.cameras.main.setZoom(RENDER_SCALE).centerOn(WIDTH / 2, HEIGHT / 2);
     createTextures(this);
     this.background = new Background(this);
     this.hud = new Hud(this);
