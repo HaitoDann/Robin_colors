@@ -391,7 +391,7 @@ export class Editor {
           `←→ / molette : défiler (Maj x4)   Début/Fin   Clic sur la barre du bas : aller à`,
           `Espace : écouter / pause   R : ENREGISTRER en tapant en rythme   M : métronome`,
           `J / K : décaler la musique (U / I : fin)   Suppr : effacer le passage visible`,
-          `Entrée : tester ici   Maj : couleur de départ de Robin`,
+          `Entrée : tester ici   A : couleur de départ de Robin`,
           `Ctrl+S : enregistrer   X : exporter   N : nom / BPM / musique   Échap : menu   F1 : aide`,
         ]
       : [head, `F1 : aide`];

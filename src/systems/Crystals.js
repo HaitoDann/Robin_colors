@@ -19,8 +19,8 @@ export class Crystals {
   update(player) {
     const box = player.getHitbox(player.x);
     const hit = [];
-    for (const c of this.obstacles.crystals) {
-      if (this.used.has(c.data)) continue;
+    for (const c of this.obstacles.query(box.x0, box.x1)) {
+      if (!c.isCrystal || this.used.has(c.data)) continue;
       if (box.x1 > c.x0 && box.x0 < c.x1 && box.y1 > c.y0 && box.y0 < c.y1) {
         this.used.add(c.data);
         player.refreshAir();
@@ -34,7 +34,8 @@ export class Crystals {
     const g = this.gfx;
     g.clear();
     const pulse = 1 - (((beat % 1) + 1) % 1);
-    for (const c of this.obstacles.crystals) {
+    for (const c of this.obstacles.query(cameraX - PLAYER_X - 30, cameraX - PLAYER_X + WIDTH + 30)) {
+      if (!c.isCrystal) continue;
       const sx = PLAYER_X + ((c.x0 + c.x1) / 2 - cameraX);
       if (sx < -30 || sx > WIDTH + 30) continue;
       const sy = GROUND_Y - (c.y0 + c.y1) / 2;

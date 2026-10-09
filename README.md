@@ -44,7 +44,8 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | Z (ou ↑ / clic) | Sauter — appui bref = petit saut, tenu = grand saut |
 | Espace (en l'air) | Bleu : double saut / Rouge : dash — plus on tient, plus c'est haut / long |
 | S (ou ↓) | En l'air : fast-fall (redescendre très vite). Au sol : glissade (passe sous les passages bas ; plus on va vite, plus elle va loin). Il faut un nouvel appui : rester appuyé après un fast-fall ne glisse pas |
-| Maj | Changer de couleur bleu ⇄ rouge |
+| A | Changer de couleur bleu ⇄ rouge |
+| F | Afficher les images par seconde (fluidité) |
 | Q (ou ←) maintenu | Robin ralentit, la musique aussi |
 | D (ou →) maintenu | Robin accélère, la musique aussi (sauts plus longs) |
 
@@ -113,7 +114,7 @@ On parcourt le niveau librement, sans jouer :
 | G | Pas de la grille : 1, 1/2, 1/4, 1/8 de beat |
 | ↑ ↓ | Longueur de l'élément (trous, plafonds, rangées de pics…) |
 | Ctrl+Z | Annuler |
-| Maj | Couleur de départ de Robin pour le test |
+| A | Couleur de départ de Robin pour le test |
 | Entrée | **Tester depuis la ligne jaune** (Échap pour revenir à l'éditeur) |
 | N | Nom, BPM, fichier musique et offset du niveau |
 | Ctrl+S | **Enregistrer** dans `public/levels/<niveau>.json` (avec `npm run dev`) |

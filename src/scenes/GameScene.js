@@ -102,12 +102,13 @@ export class GameScene extends Phaser.Scene {
       jump: () => this.onJump(),
       air: () => (this.state === 'playing' ? this.player.pressAir() : this.onJump()),
       fastFall: () => this.state === 'playing' && this.player.pressFastFall(),
-      // En éditeur, Maj choisit la couleur de départ de Robin.
+      // En éditeur, A choisit la couleur de départ de Robin.
       switchColor: () => (this.state === 'playing' || this.state === 'editor') && this.player.toggleColor(),
       // R : recommence vraiment du début (oublie le point de contrôle).
       restart: () => ['playing', 'dead', 'paused', 'finished'].includes(this.state) && this.startRun({ fresh: true }),
       editor: () => this.mode === 'edit' && this.state !== 'editor' && this.backToEditor(),
       hitboxes: () => this.hitboxes.toggle(),
+      fps: () => (this.showFps = !this.showFps),
       back: () => this.onBack(),
       confirm: () => this.state !== 'editor' && this.onJump(),
     });
@@ -228,11 +229,13 @@ export class GameScene extends Phaser.Scene {
     this.editor.draw(this.previewing);
     const coinCount = (c) => [this.coins.count(c), this.coins.totalOf(c)];
     this.hud.setCoins({ blue: coinCount('blue'), red: coinCount('red') });
-    if (this.state === 'editor') this.hud.setInfo('');
+    const fps = this.showFps ? `   ${Math.round(this.game.loop.actualFps)} img/s` : '';
+    if (this.state === 'editor') this.hud.setInfo(fps.trim());
     else
       this.hud.setInfo(
         `${this.level.name}   essai ${this.attempts}` +
-          (this.mode === 'edit' ? `   beat ${this.beat.toFixed(1)}   Échap : retour à l'éditeur` : ''),
+          (this.mode === 'edit' ? `   beat ${this.beat.toFixed(1)}   Échap : retour à l'éditeur` : '') +
+          fps,
       );
   }
 

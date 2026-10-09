@@ -12,7 +12,7 @@ export class Controls {
     this.scene = scene;
     this.actions = actions;
     const kb = scene.input.keyboard;
-    kb.addCapture([K.SPACE, K.UP, K.DOWN, K.LEFT, K.RIGHT, K.SHIFT]);
+    kb.addCapture([K.SPACE, K.UP, K.DOWN, K.LEFT, K.RIGHT]);
 
     this.bindings = {
       [K.Z]: 'jump',
@@ -20,7 +20,10 @@ export class Controls {
       [K.SPACE]: 'air', // double saut (bleu) / dash (rouge)
       [K.S]: 'fastFall',
       [K.DOWN]: 'fastFall',
-      [K.SHIFT]: 'switchColor',
+      // A : changer de couleur (Maj appuyée 5 fois ouvre les "touches
+      // rémanentes" de Windows). F : compteur d'images par seconde.
+      [K.A]: 'switchColor',
+      [K.F]: 'fps',
       [K.R]: 'restart',
       [K.E]: 'editor',
       [K.H]: 'hitboxes',

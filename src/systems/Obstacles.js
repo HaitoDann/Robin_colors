@@ -186,6 +186,11 @@ export class Obstacles {
       }
     }
     this.checkpoints = this.items.filter((g) => g.isCheckpoint);
+    // Index pour retrouver vite les éléments proches (appelé à chaque pas de
+    // physique : sans lui, on parcourait tout le niveau des milliers de fois
+    // par seconde).
+    this.byX = [...this.items].sort((a, b) => a.x0 - b.x0);
+    this.maxWidth = this.items.reduce((m, g) => Math.max(m, g.x1 - g.x0), 0);
     this.holes = this.items.filter((g) => g.isHole);
     this.coins = this.items.filter((g) => g.isCoin);
     this.crystals = this.items.filter((g) => g.isCrystal);
@@ -193,7 +198,19 @@ export class Obstacles {
 
   // Obstacles qui chevauchent l'intervalle horizontal [x0, x1].
   query(x0, x1) {
-    return this.items.filter((g) => g.x1 >= x0 && g.x0 <= x1);
+    const list = this.byX;
+    // Premier élément dont le début peut encore chevaucher x0.
+    let lo = 0;
+    let hi = list.length;
+    const from = x0 - this.maxWidth;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (list[mid].x0 < from) lo = mid + 1;
+      else hi = mid;
+    }
+    const out = [];
+    for (let i = lo; i < list.length && list[i].x0 <= x1; i++) if (list[i].x1 >= x0) out.push(list[i]);
+    return out;
   }
 
   // Hauteur (px) et angle (radians, >0 = montée) du sol à la position x.

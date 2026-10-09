@@ -133,6 +133,11 @@ export class MenuScene extends Phaser.Scene {
           adjust: (d) => ((Settings.latencyMs = Phaser.Math.Clamp(Settings.latencyMs + d * 10, -300, 300)), save()),
         },
         {
+          label: () => `Qualité : ${Settings.quality === 'low' ? 'performance (PC portable)' : 'haute'}`,
+          // Prend effet au rechargement de la page.
+          adjust: () => ((Settings.quality = Settings.quality === 'low' ? 'high' : 'low'), save(), window.location.reload()),
+        },
+        {
           label: () => `Hitboxes : ${Settings.hitboxes ? 'affichées' : 'cachées'}`,
           adjust: () => ((Settings.hitboxes = !Settings.hitboxes), save()),
         },

@@ -36,6 +36,7 @@ export class Background {
     this.from = this.currentColors();
     this.to = target;
     this.mix.t = 0;
+    this.applied = false;
     this.scene.tweens.killTweensOf(this.mix);
     this.scene.tweens.add({ targets: this.mix, t: 1, duration: 250, ease: 'Sine.easeOut' });
   }
@@ -60,6 +61,10 @@ export class Background {
     this.stars.tilePositionX = cameraX * 0.05;
     this.far.tilePositionX = cameraX * 0.2;
     this.near.tilePositionX = cameraX * 0.45;
-    this.applyTheme();
+    // Les teintes ne changent que pendant une transition de couleur.
+    if (this.mix.t < 1 || !this.applied) {
+      this.applyTheme();
+      this.applied = this.mix.t >= 1;
+    }
   }
 }

@@ -7,7 +7,10 @@ export const WIDTH = 960;
 export const HEIGHT = 540;
 // Le jeu est calculé en 960x540 mais dessiné 2x plus fin (texte net,
 // déplacements au demi-pixel près). Les sprites pixel art restent nets.
-export const RENDER_SCALE = 2;
+// Réglage "Qualité" du menu : en mode performance, rendu 1x (4 fois moins de
+// pixels à dessiner, bien plus fluide sur un PC portable).
+import { Settings } from './systems/Settings.js';
+export const RENDER_SCALE = Settings.quality === 'low' ? 1 : 2;
 
 // Ligne du sol (en pixels écran) et position fixe de Robin à l'écran.
 export const GROUND_Y = 430;
