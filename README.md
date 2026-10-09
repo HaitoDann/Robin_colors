@@ -19,7 +19,7 @@ Si les clics tombent avant ou après les coups de la musique, ajuste avec J / K
 (puis U / I pour affiner) jusqu'à ce qu'ils soient confondus. C'est l'offset.
 Niveaux :
 - Niveau 1 — `First_Light.mp3` : 150 BPM, offset 0,02 s (mesuré). Niveau fait main en 4 actes, avec 3 points de contrôle.
-- Niveau 2 — `Hollow_Circuit.mp3` : 178,18 BPM, offset 0,047 s (mesuré ; pas 175). Plus difficile.
+- Niveau 7 — `Hollow_Circuit.mp3` : 178,18 BPM, offset 0,047 s (mesuré). Fait main, très difficile, 2 points de contrôle.
 
 Les niveaux sont dans `public/levels/*.json` et les mp3 dans `public/music/`.
 Mets ta piste dans `public/music/track1.mp3` (le nom indiqué par `"music"` dans

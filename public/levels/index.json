@@ -1,4 +1,10 @@
 [
-  { "id": "level1", "name": "Niveau 1 — First Light" },
-  { "id": "level2", "name": "Niveau 2 — Hollow Circuit" }
+  {
+    "id": "level1",
+    "name": "Niveau 1 — First Light"
+  },
+  {
+    "id": "level7",
+    "name": "Niveau 7 — Hollow Circuit"
+  }
 ]
