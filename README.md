@@ -226,6 +226,15 @@ seule qui permet de toutes les prendre.
 
 ## Version Windows (.exe à partager)
 
+**Version légère (recommandée, ~23 Mo)** — utilise le moteur web de Windows 10/11 :
+
+```
+sh desktop-lite/build.sh   # -> desktop-lite/dist/RobinsColors/RobinsColors-win_x64.exe
+```
+
+**Version complète (~90 Mo)** — embarque son propre navigateur (Electron), marche
+aussi sur les vieux Windows :
+
 ```
 cd desktop
 npm install          # la première fois

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+  "applicationId": "com.haitodann.robinscolors",
+  "version": "0.5.0",
+  "defaultMode": "window",
+  "documentRoot": "/game/",
+  "url": "/",
+  "enableServer": true,
+  "enableNativeAPI": false,
+  "tokenSecurity": "one-time",
+  "logging": { "enabled": false, "writeToLogFile": false },
+  "modes": {
+    "window": {
+      "title": "Robin's Colors",
+      "width": 1280,
+      "height": 720,
+      "minWidth": 640,
+      "minHeight": 360,
+      "center": true,
+      "resizable": true,
+      "enableInspector": false
+    }
+  },
+  "cli": {
+    "binaryName": "RobinsColors",
+    "resourcesPath": "/game/",
+    "extensionsPath": "/extensions/",
+    "binaryVersion": "6.4.0",
+    "clientVersion": "6.4.0"
+  }
+}
