@@ -43,7 +43,7 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | --- | --- |
 | Z (ou ↑ / clic) | Sauter — appui bref = petit saut, tenu = grand saut |
 | Espace (en l'air) | Bleu : double saut / Rouge : dash — plus on tient, plus c'est haut / long |
-| S (ou ↓) | Fast-fall : redescendre très vite |
+| S (ou ↓) | En l'air : fast-fall (redescendre très vite). Au sol : glissade (passe sous les passages bas ; plus on va vite, plus elle va loin). Il faut un nouvel appui : rester appuyé après un fast-fall ne glisse pas |
 | Maj | Changer de couleur bleu ⇄ rouge |
 | Q (ou ←) maintenu | Robin ralentit, la musique aussi |
 | D (ou →) maintenu | Robin accélère, la musique aussi (sauts plus longs) |
@@ -68,6 +68,11 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 | `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 54 px de passage |
 | `barrier` | Barrière pleine hauteur (rouge par défaut) | |
 | `crystal` | Cristal : en l'air, recharge le double saut / dash (`height`) | — |
+| `low` | Passage bas : seule la glissade passe dessous | 1,5 beat, 26 px de passage |
+| `platform` | Plateforme flottante, traversable par dessous. Colorée : seul Robin de cette couleur s'y pose | 1 beat, hauteur 70 |
+| `spring` | Ressort : arriver dessus en fast-fall (S) propulse très haut (et recharge le pouvoir) | — |
+| `slope` | Pente : le sol monte de `height` px (négatif = descente) sur `length` beats, puis reste à ce niveau. Tout ce qui suit est posé sur le nouveau sol | 2 beats, 60 px |
+| `checkpoint` | Point de contrôle (facultatif) : après une mort, on repart de là. R repart du début | — |
 | `coin` | Pièce bleue ou rouge : seul Robin de la même couleur la ramasse. `height` = hauteur en px | 60 px |
 
 Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
@@ -103,7 +108,7 @@ On parcourt le niveau librement, sans jouer :
 | Clic | Poser l'élément choisi, ou supprimer celui sous la souris (surligné) |
 | Clic maintenu + glisser | Poser en série : un élément par case de grille traversée (pièces à la même hauteur). Commencé sur un élément : efface tout sur le passage |
 | Clic droit | Supprimer |
-| 1-7 ou T | Type : pic, mur, trou, plafond, barrière, pièce, cristal |
+| 1-9, 0 ou T | Type : pic, mur, trou, plafond, barrière, pièce, cristal, passage bas, plateforme, ressort (T pour pente et checkpoint). Plateformes, pièces, cristaux : hauteur = souris ; pente : souris au-dessus du sol = montée, en dessous = descente |
 | C | Couleur : gris, bleu, rouge (pièce : bleue ou rouge) |
 | G | Pas de la grille : 1, 1/2, 1/4, 1/8 de beat |
 | ↑ ↓ | Longueur de l'élément (trous, plafonds, rangées de pics…) |

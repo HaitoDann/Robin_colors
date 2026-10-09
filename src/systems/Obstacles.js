@@ -4,7 +4,7 @@
 
 import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } from '../config.js';
 
-export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal'];
+export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal', 'low', 'platform', 'spring', 'slope', 'checkpoint'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
 
 export const PALETTE = {
@@ -27,6 +27,11 @@ const DEFAULTS = {
   barrier: { length: 0 },
   coin: { height: 60 }, // hauteur du centre de la pièce au-dessus du sol
   crystal: { height: 100 }, // cristal : recharge le double saut / dash
+  low: { length: 1.5, height: 26 }, // passage bas : seule la glissade passe
+  platform: { length: 1, height: 70 }, // plateforme flottante (colorée : seul ce Robin s'y pose)
+  spring: { length: 0 },
+  slope: { length: 2, height: 60 }, // pente : height = dénivelé (négatif = descente)
+  checkpoint: { length: 0 },
 };
 
 const pick = (v, color) => (typeof v === 'object' && v !== null ? v[color] : v);
@@ -101,6 +106,51 @@ export function buildGeometry(o) {
       g.isCrystal = true;
       break;
     }
+    case 'low': {
+      // Plafond très bas : il faut glisser (S au sol) pour passer dessous.
+      g.x0 = bx;
+      g.x1 = bx + length * PPB;
+      g.y0 = o.height ?? d.height;
+      g.y1 = TOP;
+      g.hit = { x0: g.x0, x1: g.x1, y0: g.y0, y1: TOP };
+      break;
+    }
+    case 'platform': {
+      // Plateforme flottante, traversable par en dessous. Colorée : seul Robin
+      // de la même couleur s'y pose (changer de couleur = passer à travers).
+      g.x0 = bx;
+      g.x1 = bx + length * PPB;
+      g.y1 = o.height ?? d.height;
+      g.y0 = g.y1 - 12;
+      g.solidTop = true;
+      if (color !== 'gray') g.onlyColor = color;
+      break;
+    }
+    case 'spring': {
+      // Ressort : on peut marcher dessus ; en fast-fall, il propulse très haut.
+      g.x0 = bx - 18;
+      g.x1 = bx + 18;
+      g.y1 = 14;
+      g.solidTop = true;
+      g.isSpring = true;
+      break;
+    }
+    case 'slope': {
+      // Pente : le sol monte (ou descend) de height px sur length beats,
+      // puis reste à ce niveau. Tout ce qui suit est posé sur le nouveau sol.
+      g.x0 = bx;
+      g.x1 = bx + Math.max(0.1, length) * PPB;
+      g.dh = o.height ?? d.height;
+      g.isSlope = true;
+      break;
+    }
+    case 'checkpoint': {
+      g.x0 = bx - 8;
+      g.x1 = bx + 8;
+      g.y1 = 70;
+      g.isCheckpoint = true;
+      break;
+    }
     default:
       console.warn('Type d’obstacle inconnu :', o.type);
   }
@@ -119,6 +169,23 @@ export class Obstacles {
   // À rappeler quand la liste d'obstacles du niveau change (éditeur).
   rebuild() {
     this.items = this.level.obstacles.map(buildGeometry);
+    this.slopes = this.items.filter((g) => g.isSlope).sort((a, b) => a.x0 - b.x0);
+    // Tout est posé sur le sol local (relevé par les pentes précédentes).
+    if (this.slopes.length) {
+      for (const g of this.items) {
+        if (g.isSlope || g.isHole) continue;
+        const base = this.groundAt(g.type === 'wall' || g.type === 'platform' || g.type === 'low' || g.type === 'ceiling' ? g.x0 : (g.x0 + g.x1) / 2).h;
+        g.base = base;
+        if (!base) continue;
+        g.y0 += base;
+        g.y1 += base;
+        if (g.hit) {
+          g.hit.y0 += base;
+          if (g.hit.y1 < TOP) g.hit.y1 += base;
+        }
+      }
+    }
+    this.checkpoints = this.items.filter((g) => g.isCheckpoint);
     this.holes = this.items.filter((g) => g.isHole);
     this.coins = this.items.filter((g) => g.isCoin);
     this.crystals = this.items.filter((g) => g.isCrystal);
@@ -129,10 +196,23 @@ export class Obstacles {
     return this.items.filter((g) => g.x1 >= x0 && g.x0 <= x1);
   }
 
-  // Angle du sol (radians, >0 = montée) à la position x. Tout est plat pour
-  // l'instant ; les futures pentes renverront leur inclinaison ici.
-  groundAngleAt() {
-    return 0;
+  // Hauteur (px) et angle (radians, >0 = montée) du sol à la position x.
+  groundAt(x) {
+    let h = 0;
+    let angle = 0;
+    for (const s of this.slopes) {
+      if (x < s.x0) break;
+      if (x >= s.x1) h += s.dh;
+      else {
+        h += (s.dh * (x - s.x0)) / (s.x1 - s.x0);
+        angle = Math.atan2(s.dh, s.x1 - s.x0);
+      }
+    }
+    return { h, angle };
+  }
+
+  groundAngleAt(x) {
+    return this.groundAt(x).angle;
   }
 
   // Vrai si le sol est absent sous le joueur (zone [x0, x1]).
@@ -148,21 +228,26 @@ export class Obstacles {
   }
 
   // Rendu : cameraX = position monde de Robin.
-  draw(cameraX, beat) {
+  draw(cameraX, beat, playerColor = 'blue', reached = null) {
     this.drawGround(cameraX, beat);
     const g = this.gfx;
     g.clear();
     const viewX0 = cameraX - PLAYER_X - 50;
     const viewX1 = viewX0 + WIDTH + 100;
     for (const o of this.query(viewX0, viewX1)) {
-      if (o.isHole || o.isCoin || o.isCrystal) continue; // dessinés par Coins / Crystals
+      if (o.isHole || o.isCoin || o.isCrystal || o.isSlope) continue; // dessinés ailleurs
       const sx = this.toScreenX(o.x0, cameraX);
       const w = o.x1 - o.x0;
       const pal = PALETTE[o.color] ?? PALETTE.gray;
-      if (o.type === 'spike') drawSpikes(g, sx, w, pal);
-      else if (o.type === 'wall') drawBlock(g, sx, GROUND_Y - o.y1, w, o.y1, pal);
+      const gy = GROUND_Y - (o.base ?? 0); // sol local (pentes)
+      if (o.type === 'spike') drawSpikes(g, sx, w, pal, gy);
+      else if (o.type === 'wall') drawBlock(g, sx, GROUND_Y - o.y1, w, o.y1 - (o.base ?? 0), pal);
       else if (o.type === 'ceiling') drawBlock(g, sx, -4, w, GROUND_Y - o.y0 + 4, pal);
+      else if (o.type === 'low') drawLow(g, sx, w, GROUND_Y - o.y0, pal);
       else if (o.type === 'barrier') drawBarrier(g, sx, w, pal, beat);
+      else if (o.type === 'platform') drawPlatform(g, sx, GROUND_Y - o.y1, w, pal, !o.onlyColor || o.onlyColor === playerColor);
+      else if (o.type === 'spring') drawSpring(g, sx, w, gy, beat);
+      else if (o.type === 'checkpoint') drawCheckpoint(g, sx + w / 2, gy, reached?.has(o.data));
     }
   }
 
@@ -185,13 +270,25 @@ export class Obstacles {
     const pulse = 1 - (((beat % 1) + 1) % 1);
     const lineAlpha = 0.55 + 0.45 * pulse * pulse;
 
+    const STEP = 6; // le sol est dessiné par bandes (suit les pentes)
     for (const [a, b] of segments) {
-      const sx = this.toScreenX(a, cameraX);
-      const w = b - a;
-      g.fillStyle(COLORS.ground, 1);
-      g.fillRect(sx, GROUND_Y, w, HEIGHT - GROUND_Y);
-      g.fillStyle(COLORS.groundLine, lineAlpha);
-      g.fillRect(sx, GROUND_Y, w, 3);
+      if (!this.slopes.length) {
+        const sx = this.toScreenX(a, cameraX);
+        g.fillStyle(COLORS.ground, 1);
+        g.fillRect(sx, GROUND_Y, b - a, HEIGHT - GROUND_Y);
+        g.fillStyle(COLORS.groundLine, lineAlpha);
+        g.fillRect(sx, GROUND_Y, b - a, 3);
+        continue;
+      }
+      for (let x = a; x < b; x += STEP) {
+        const w = Math.min(STEP, b - x);
+        const y = GROUND_Y - this.groundAt(x + w / 2).h;
+        const sx = this.toScreenX(x, cameraX);
+        g.fillStyle(COLORS.ground, 1);
+        g.fillRect(sx, y, w + 0.5, HEIGHT - y);
+        g.fillStyle(COLORS.groundLine, lineAlpha);
+        g.fillRect(sx, y, w + 0.5, 3);
+      }
     }
 
     // Repères de beat dans le sol (petits pixels qui défilent).
@@ -201,8 +298,9 @@ export class Obstacles {
       if (holes.some((h) => wx >= h.x0 && wx <= h.x1)) continue;
       const sx = this.toScreenX(wx, cameraX);
       const strong = b % 4 === 0;
+      const gy = GROUND_Y - (this.slopes.length ? this.groundAt(wx).h : 0);
       g.fillStyle(COLORS.groundLine, strong ? 0.5 : 0.22);
-      g.fillRect(sx - 1, GROUND_Y + 8, 3, strong ? 12 : 6);
+      g.fillRect(sx - 1, gy + 8, 3, strong ? 12 : 6);
     }
 
     // Bords des trous colorés.
@@ -221,7 +319,7 @@ export class Obstacles {
 
 // --- Dessins "pixel art" (remplaçables par des sprites) ---
 
-function drawSpikes(g, sx, w, pal) {
+function drawSpikes(g, sx, w, pal, GROUND_Y) {
   const count = Math.max(1, Math.round(w / SPIKE_W));
   const step = 3;
   for (let i = 0; i < count; i++) {
@@ -260,4 +358,47 @@ function drawBarrier(g, x, w, pal, beat) {
   g.fillStyle(pal.line, 1);
   g.fillRect(x, 0, 3, GROUND_Y);
   g.fillRect(x + w - 3, 0, 3, GROUND_Y);
+}
+
+// Passage bas : bloc avec une frange hachurée (on doit glisser dessous).
+function drawLow(g, x, w, bottom, pal) {
+  drawBlock(g, x, -4, w, bottom + 4, pal);
+  g.fillStyle(0xffd166, 0.9);
+  for (let xx = x + 3; xx < x + w - 6; xx += 12) g.fillRect(xx, bottom - 6, 6, 3);
+}
+
+// Plateforme : pleine si Robin peut s'y poser, simple contour sinon.
+function drawPlatform(g, x, y, w, pal, solid) {
+  if (solid) {
+    g.fillStyle(pal.fill, 1);
+    g.fillRect(x, y, w, 12);
+    g.fillStyle(pal.line, 1);
+    g.fillRect(x, y, w, 3);
+    g.fillRect(x, y + 9, w, 3);
+  } else {
+    g.lineStyle(2, pal.line, 0.35);
+    g.strokeRect(x + 1, y + 1, w - 2, 10);
+  }
+}
+
+// Ressort : base, spirale qui pulse sur le beat, plateau jaune.
+function drawSpring(g, x, w, gy, beat) {
+  const pulse = 1 - (((beat % 1) + 1) % 1);
+  const top = gy - 14 + pulse * 2;
+  g.fillStyle(0x4a4a5e, 1);
+  g.fillRect(x + 2, gy - 4, w - 4, 4);
+  g.fillStyle(0xb4b4d0, 1);
+  for (let y = gy - 6; y > top + 3; y -= 3) g.fillRect(x + 8 + ((y / 3) % 2) * 4, y, w - 20, 2);
+  g.fillStyle(0xffd166, 1);
+  g.fillRect(x, top, w, 4);
+}
+
+// Point de contrôle : drapeau (s'allume une fois atteint).
+function drawCheckpoint(g, x, gy, reached) {
+  g.fillStyle(0xb4b4d0, 1);
+  g.fillRect(x - 1, gy - 70, 3, 70);
+  g.fillStyle(reached ? 0x7dffa0 : 0x6c6c9a, 1);
+  g.fillRect(x + 2, gy - 70, 22, 6);
+  g.fillRect(x + 2, gy - 64, 16, 6);
+  g.fillRect(x + 2, gy - 58, 10, 6);
 }

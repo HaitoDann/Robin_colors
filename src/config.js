@@ -51,9 +51,10 @@ export const PLAYER = {
   // en l'air, peu de contrôle : l'élan pris au sol décide de la longueur du saut.
   slowFactor: 0.8, // vitesse cible avec Q (x vitesse de défilement)
   fastFactor: 1.2, // vitesse cible avec D
-  groundAccel: 160, // px / beat² : D tenu, on prend de la vitesse
-  groundDecel: 320, // px / beat² : Q tenu alors qu'on va vite, on freine fort
-  groundFriction: 90, // px / beat² : sans touche, on revient vers x1
+  groundAccel: 75, // px / beat² : D tenu, on prend de la vitesse (~0,5 beat)
+  groundDecel: 120, // px / beat² : Q tenu alors qu'on va vite, on freine
+  groundFriction: 70, // px / beat² : sans touche, on revient vers x1
+  speedInputBeats: 0.25, // Q/D "montent" progressivement (pas de coup sec)
   airAccel: 40, // px / beat² : peu de contrôle en l'air => l'élan compte
   // Pentes (pour plus tard) : en montée on perd de la vitesse, en descente on
   // en gagne, même sans toucher à rien (comme Sonic). Sol plat = aucun effet.
@@ -72,6 +73,13 @@ export const PLAYER = {
   // Adaptatif : il dure tant que Espace est tenu, entre min et max.
   dashMinBeats: 0.2, // effleurer Espace = mini dash
   dashMaxBeats: 1.5,
+  // Glissade (S au sol) : Robin passe sous les passages bas. Plus il va vite,
+  // plus elle dure ; elle coûte un peu de vitesse.
+  slideHeight: 20, // hauteur de la boîte de collision pendant la glissade
+  slideBeats: 0.6, // durée à vitesse normale (x vitesse de Robin)
+  slideSpeedLoss: 0.9, // vitesse x0,9 au début de la glissade
+  // Ressort : il faut arriver dessus en fast-fall (S) pour être propulsé.
+  springVelocity: 640,
 };
 
 // Planche de sprites de Robin (générée par tools/process_sprites.py).

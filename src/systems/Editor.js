@@ -7,7 +7,7 @@ import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obsta
 
 const SNAPS = [1, 0.5, 0.25, 0.125];
 const FONT = 'monospace';
-const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal' };
+const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal', low: 'passage bas', platform: 'plateforme', spring: 'ressort', slope: 'pente', checkpoint: 'checkpoint' };
 const COLOR_LABELS = { gray: 'gris', blue: 'bleu', red: 'rouge' };
 const MINIMAP_Y = HEIGHT - 14;
 const MINIMAP_X0 = 60;
@@ -113,6 +113,10 @@ export class Editor {
     const x0 = this.beatToScreen(g.x0 / PPB);
     const x1 = Math.max(this.beatToScreen(g.x1 / PPB), x0 + 16);
     if (g.isHole) return { x0, x1, y0: GROUND_Y - 10, y1: HEIGHT - 30 };
+    if (g.isSlope) {
+      const a = this.scene.obstacles?.groundAt(g.x0).h ?? 0;
+      return { x0, x1, y0: GROUND_Y - Math.max(a, a + g.dh) - 10, y1: GROUND_Y - Math.min(a, a + g.dh) + 10 };
+    }
     const y0 = Math.max(0, GROUND_Y - g.y1);
     const y1 = Math.min(HEIGHT, GROUND_Y - g.y0);
     return { x0, x1, y0, y1 };
@@ -183,13 +187,20 @@ export class Editor {
   makeObstacle(beat, y) {
     const o = { beat: Math.round(beat * 1000) / 1000, type: this.type };
     if (this.color !== 'gray' || this.type === 'barrier') o.color = this.color;
+    // Hauteur de la souris au-dessus du sol local (pentes), arrondie à 10 px.
+    const ground = this.scene.obstacles?.groundAt(o.beat * PPB).h ?? 0;
+    const mouseH = Math.round((GROUND_Y - y - ground) / 10) * 10;
+    if (['crystal', 'spring', 'slope', 'checkpoint'].includes(this.type)) delete o.color;
     if (this.type === 'crystal') {
-      delete o.color;
-      o.height = Math.max(20, Math.round((GROUND_Y - y) / 10) * 10);
+      o.height = Math.max(20, mouseH);
     } else if (this.type === 'coin') {
-      // Hauteur de la pièce = position de la souris, arrondie à 10 px.
-      o.height = Math.max(15, Math.round((GROUND_Y - y) / 10) * 10);
-    } else if (this.length != null) {
+      o.height = Math.max(15, mouseH);
+    } else if (this.type === 'platform') {
+      o.height = Math.max(30, mouseH);
+    } else if (this.type === 'slope') {
+      o.height = mouseH || 10; // au-dessus du sol : montée, en dessous : descente
+    }
+    if (this.length != null && !['coin', 'crystal', 'spring', 'checkpoint'].includes(this.type)) {
       o.length = this.length;
     }
     return o;
@@ -198,12 +209,12 @@ export class Editor {
   onKey(e) {
     const key = e.key.toLowerCase();
     if (this.recording) return this.onRecordKey(e, key);
-    const digit = /^(Digit|Numpad)([1-7])$/.exec(e.code);
+    const digit = /^(Digit|Numpad)([0-9])$/.exec(e.code);
     if ((e.ctrlKey || e.metaKey) && key === 'z') this.undo();
     else if ((e.ctrlKey || e.metaKey) && key === 's') {
       e.preventDefault();
       this.callbacks.onSave();
-    } else if (digit) this.typeIndex = Number(digit[2]) - 1;
+    } else if (digit) this.typeIndex = Math.min(OBSTACLE_TYPES.length, Number(digit[2]) || 10) - 1;
     else if (key === 't') this.typeIndex = (this.typeIndex + 1) % OBSTACLE_TYPES.length;
     else if (key === 'c') this.colorIndex = (this.colorIndex + 1) % OBSTACLE_COLORS.length;
     else if (key === 'g') this.snapIndex = (this.snapIndex + 1) % SNAPS.length;
@@ -373,7 +384,7 @@ export class Editor {
     const lines = this.showHelp
       ? [
           head,
-          `Type [1-7/T] : ${types}`,
+          `Type [1-0/T] : ${types}`,
           `Couleur [C] : ${COLOR_LABELS[this.color]}   Grille [G] : 1/${1 / this.snap}   Longueur [↑↓] : ${len}`,
           `Clic : poser / supprimer — maintenir et glisser : poser / effacer en série`,
           `Clic droit (glisser) : effacer   Ctrl+Z : annuler`,
@@ -445,6 +456,10 @@ export class Editor {
       return;
     }
     const geo = buildGeometry(this.makeObstacle(this.hover.beat, this.hover.y));
+    // Aperçu posé sur le sol local (pentes).
+    const base = geo.isSlope ? 0 : (this.scene.obstacles?.groundAt(geo.x0).h ?? 0);
+    geo.y0 += base;
+    geo.y1 += base;
     const r = this.screenRect(geo);
     const pal = PALETTE[geo.color];
     g.fillStyle(pal.line, 0.35);

@@ -104,7 +104,8 @@ export class GameScene extends Phaser.Scene {
       fastFall: () => this.state === 'playing' && this.player.pressFastFall(),
       // En éditeur, Maj choisit la couleur de départ de Robin.
       switchColor: () => (this.state === 'playing' || this.state === 'editor') && this.player.toggleColor(),
-      restart: () => ['playing', 'dead', 'paused', 'finished'].includes(this.state) && this.startRun(),
+      // R : recommence vraiment du début (oublie le point de contrôle).
+      restart: () => ['playing', 'dead', 'paused', 'finished'].includes(this.state) && this.startRun({ fresh: true }),
       editor: () => this.mode === 'edit' && this.state !== 'editor' && this.backToEditor(),
       hitboxes: () => this.hitboxes.toggle(),
       back: () => this.onBack(),
@@ -133,25 +134,32 @@ export class GameScene extends Phaser.Scene {
     if (this.state === 'title' || this.state === 'finished') {
       if (this.state === 'finished' && this.mode === 'edit') return this.backToEditor();
       this.attempts = 0;
-      this.audio.unlock().then(() => this.startRun());
+      this.audio.unlock().then(() => this.startRun({ fresh: true }));
       return;
     }
     if (this.state === 'paused') return this.resume();
     if (this.state === 'playing') this.player.pressJump();
   }
 
-  startRun() {
+  // fresh : repartir du début (sinon, du dernier point de contrôle atteint).
+  startRun({ fresh = false } = {}) {
     this.time.removeAllEvents();
     this.metronome.reset();
     this.attempts++;
-    this.player.reset(this.startColor);
+    if (fresh) this.checkpoint = null;
+    const cp = this.checkpoint;
+    const from = cp ? cp.beat : this.startBeat;
+    this.player.reset(cp ? cp.color : this.startColor);
     this.background.setTheme(this.player.color);
     this.coins.reset(this.startBeat * PPB);
+    // Les pièces ramassées avant le point de contrôle restent acquises.
+    if (cp) for (const d of cp.coins) this.coins.collected.add(d);
+    this.reached = new Set(cp ? cp.reached : []);
     this.crystals.reset();
-    this.beat = this.startBeat;
-    this.lastBeat = this.startBeat;
+    this.beat = from;
+    this.lastBeat = from;
     this.audio.setRate(1);
-    this.audio.play(this.level.beatToTime(this.startBeat));
+    this.audio.play(this.level.beatToTime(from));
     this.hud.hideMessage();
     this.state = 'playing';
   }
@@ -192,6 +200,7 @@ export class GameScene extends Phaser.Scene {
         this.player.step(dt, b * PPB, this.obstacles, playerFactor);
         for (const c of this.coins.update(this.player)) this.onCoin(c);
         if (this.crystals.update(this.player).length) this.onCrystal();
+        this.checkCheckpoints();
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
@@ -210,7 +219,7 @@ export class GameScene extends Phaser.Scene {
   renderWorld() {
     const cameraX = this.beat * PPB;
     this.background.update(cameraX);
-    this.obstacles.draw(cameraX, this.beat);
+    this.obstacles.draw(cameraX, this.beat, this.player.color, this.reached);
     this.coins.draw(cameraX, this.beat, this.player.color);
     this.crystals.draw(cameraX, this.beat);
     this.player.idle = this.state === 'title' || this.state === 'editor';
@@ -225,6 +234,21 @@ export class GameScene extends Phaser.Scene {
         `${this.level.name}   essai ${this.attempts}` +
           (this.mode === 'edit' ? `   beat ${this.beat.toFixed(1)}   Échap : retour à l'éditeur` : ''),
       );
+  }
+
+  // Point de contrôle franchi : on y repartira après une mort.
+  checkCheckpoints() {
+    for (const c of this.obstacles.checkpoints) {
+      if (this.reached.has(c.data) || this.player.x < (c.x0 + c.x1) / 2) continue;
+      this.reached.add(c.data);
+      this.checkpoint = {
+        beat: c.data.beat,
+        color: this.player.color,
+        coins: [...this.coins.collected],
+        reached: [...this.reached],
+      };
+      this.effects.ring(this.obstacles.toScreenX((c.x0 + c.x1) / 2, this.player.x), this.player.sprite.y - 30, 0x7dffa0, 40);
+    }
   }
 
   onCoin() {
@@ -313,7 +337,7 @@ export class GameScene extends Phaser.Scene {
     this.editor.exit();
     this.player.sprite.setAlpha(1);
     this.attempts = 0;
-    this.audio.unlock().then(() => this.startRun());
+    this.audio.unlock().then(() => this.startRun({ fresh: true }));
   }
 
   // Espace dans l'éditeur : écouter la musique à partir de la vue.
@@ -376,6 +400,11 @@ export class GameScene extends Phaser.Scene {
       this.effects.ring(x, y + 14, tint, 26);
     } else if (name === 'dash') {
       this.effects.burst(x - 10, y, tint, 8, 30, 250);
+    } else if (name === 'spring') {
+      this.effects.ring(x, y + 20, 0xffd166, 36);
+      this.effects.burst(x, y + 20, 0xffd166, 10, 40, 300);
+    } else if (name === 'slide') {
+      this.effects.dust(this.player.h);
     } else if (name === 'land') {
       this.effects.dust(this.player.h);
     }
