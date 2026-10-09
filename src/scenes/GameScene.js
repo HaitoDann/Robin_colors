@@ -19,6 +19,7 @@ import { Editor } from '../systems/Editor.js';
 import { Hitboxes } from '../systems/Hitboxes.js';
 import { Settings } from '../systems/Settings.js';
 import { Metronome } from '../systems/Metronome.js';
+import { Progress } from '../systems/Progress.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -49,11 +50,13 @@ export class GameScene extends Phaser.Scene {
   async create() {
     // Coordonnées du jeu en 960x540, affichées en haute résolution.
     this.cameras.main.setZoom(RENDER_SCALE).centerOn(WIDTH / 2, HEIGHT / 2);
+    this.leaving = false;
+    this.cameras.main.fadeIn(250, 7, 7, 13);
     createTextures(this);
     this.background = new Background(this);
     this.hud = new Hud(this);
     this.effects = new Effects(this);
-    this.hud.showMessage("Robin's colors", 'Chargement…');
+    this.hud.showMessage('CHARGEMENT', '', { kicker: "ROBIN'S COLORS" });
     this.state = 'loading';
     this.beat = this.startBeat;
     this.attempts = 0;
@@ -70,12 +73,16 @@ export class GameScene extends Phaser.Scene {
     if (this.mode !== 'edit') this.metronome.enabled = false;
     try {
       this.level = await LevelSystem.load(this.levelId, { preferDraft: this.mode === 'edit' });
+      // Numéro et titre du niveau (levels/index.json) pour l'interface.
+      const meta = (await LevelSystem.list()).find((l) => l.id === this.levelId) ?? {};
+      this.levelTitle = (meta.title ?? this.level.name).toUpperCase();
+      this.levelKicker = meta.number ? `NIVEAU ${String(meta.number).padStart(2, '0')} · ${this.levelTitle}` : this.levelTitle;
       await this.audio.load(this.level);
       // Vraie musique : le niveau dure jusqu'à la fin du morceau.
       if (!this.audio.isPlaceholder) this.level.musicEndBeat = Math.floor(this.level.timeToBeat(this.audio.duration));
     } catch (e) {
       console.error(e);
-      this.hud.showMessage('Erreur', `${e.message ?? e}\n\nÉchap : menu`);
+      this.hud.showMessage('ERREUR', `${e.message ?? e}`, { color: 'red', hints: [['ÉCHAP', 'menu']] });
       this.input.keyboard.once('keydown-ESC', () => this.scene.start('menu'));
       return;
     }
@@ -123,10 +130,29 @@ export class GameScene extends Phaser.Scene {
       this.enterEditor(this.startBeat);
     } else {
       this.state = 'title';
-      const musicNote = this.audio.isPlaceholder ? '\n(musique de remplacement)' : '';
-      this.hud.showMessage(this.level.name, `Z ou Entrée pour commencer${musicNote}\n\nÉchap : menu`);
+      this.showTitleCard();
     }
     this.renderWorld();
+  }
+
+  // Carte de titre : nom du niveau, tempo, record et rappel des commandes.
+  showTitleCard() {
+    const p = Progress.get(this.levelId);
+    const lines = [
+      `${Math.round(this.level.bpm)} BPM` + (this.audio.isPlaceholder ? '  ·  musique de remplacement' : ''),
+      p.done ? `Record : ${p.coins} / ${p.total} pièces` : '',
+      '',
+      'Z saut   ESPACE double saut / dash   A couleur',
+      'S glissade / fast-fall   Q D vitesse',
+    ].filter((l, i) => l || i === 2);
+    this.hud.showMessage(this.levelTitle, lines.join('\n'), {
+      kicker: this.levelKicker.startsWith('NIVEAU') ? this.levelKicker.split(' · ')[0] : '',
+      color: this.player.color,
+      hints: [
+        ['Z', 'jouer'],
+        ['ÉCHAP', 'menu'],
+      ],
+    });
   }
 
   // --- Déroulement d'une partie ---
@@ -230,13 +256,23 @@ export class GameScene extends Phaser.Scene {
     const coinCount = (c) => [this.coins.count(c), this.coins.totalOf(c)];
     this.hud.setCoins({ blue: coinCount('blue'), red: coinCount('red') });
     const fps = this.showFps ? `   ${Math.round(this.game.loop.actualFps)} img/s` : '';
+    this.hud.setVisible(this.state !== 'editor');
     if (this.state === 'editor') this.hud.setInfo(fps.trim());
     else
-      this.hud.setInfo(
-        `${this.level.name}   essai ${this.attempts}` +
-          (this.mode === 'edit' ? `   beat ${this.beat.toFixed(1)}   Échap : retour à l'éditeur` : '') +
+      this.hud.setHeader(
+        this.levelKicker ?? '',
+        (this.attempts ? `Essai ${this.attempts}` : '') +
+          (this.mode === 'edit' ? `   beat ${this.beat.toFixed(1)}   Échap : éditeur` : '') +
           fps,
       );
+    // Barre de progression, avec les points de contrôle.
+    const end = this.level.endBeat || 1;
+    this.hud.setProgress(
+      this.beat / end,
+      this.obstacles.checkpoints.map((c) => ({ at: c.data.beat / end, reached: !!this.reached?.has(c.data) })),
+      this.player.color,
+    );
+    this.hud.draw();
   }
 
   // Point de contrôle franchi : on y repartira après une mort.
@@ -279,9 +315,15 @@ export class GameScene extends Phaser.Scene {
   onFinish() {
     this.state = 'finished';
     this.audio.stop();
-    const line = (c, label) => (this.coins.totalOf(c) ? `Pièces ${label} : ${this.coins.count(c)} / ${this.coins.totalOf(c)}\n` : '');
-    const next = this.mode === 'edit' ? "Entrée : retour à l'éditeur" : 'Z / Entrée : rejouer   Échap : menu';
-    this.hud.showMessage('Niveau terminé !', `${line('blue', 'bleues')}${line('red', 'rouges')}${this.attempts} essai(s)\n\n${next}`);
+    const got = this.coins.count('blue') + this.coins.count('red');
+    const total = this.coins.total;
+    // Record enregistré seulement pour une partie complète (pas en test d'éditeur).
+    const record = this.mode === 'play' && this.startBeat === 0 && Progress.finish(this.levelId, got, total, this.attempts - 1);
+    const line = (c, label) => (this.coins.totalOf(c) ? `Pièces ${label} : ${this.coins.count(c)} / ${this.coins.totalOf(c)}` : '');
+    const lines = [line('blue', 'bleues'), line('red', 'rouges'), `${this.attempts} essai${this.attempts > 1 ? 's' : ''}`];
+    if (record) lines.push('', got === total ? '★ TOUTES LES PIÈCES ★' : '★ Nouveau record ★');
+    const hints = this.mode === 'edit' ? [['ENTRÉE', 'éditeur']] : [['Z', 'rejouer'], ['ÉCHAP', 'menu']];
+    this.hud.showMessage('TERMINÉ', lines.filter((l, i) => l || i > 2).join('\n'), { kicker: this.levelKicker, color: 'gold', hints });
   }
 
   // --- Pause et navigation ---
@@ -298,7 +340,14 @@ export class GameScene extends Phaser.Scene {
     this.state = 'paused';
     this.pausedAt = this.audio.getTime();
     this.audio.stop();
-    this.hud.showMessage('Pause', 'Échap / Z : reprendre\nR : recommencer\nM : menu');
+    this.hud.showMessage('PAUSE', '', {
+      kicker: this.levelKicker,
+      hints: [
+        ['ÉCHAP', 'reprendre'],
+        ['R', 'recommencer'],
+        ['M', 'menu'],
+      ],
+    });
     this.input.keyboard.once('keydown-M', () => this.state === 'paused' && this.toMenu());
   }
 
@@ -309,8 +358,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   toMenu() {
+    if (this.leaving) return;
+    this.leaving = true;
     this.audio.stop();
-    this.scene.start('menu');
+    this.cameras.main.fadeOut(200, 7, 7, 13);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('menu'));
   }
 
   // --- Éditeur ---

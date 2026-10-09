@@ -6,7 +6,7 @@ import { PIXELS_PER_BEAT as PPB, PLAYER_X, GROUND_Y, WIDTH, HEIGHT, RENDER_SCALE
 import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obstacles.js';
 
 const SNAPS = [1, 0.5, 0.25, 0.125];
-const FONT = 'monospace';
+import { FONT_TEXT as FONT } from '../ui/theme.js';
 const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal', low: 'passage bas', platform: 'plateforme', spring: 'ressort', slope: 'pente', checkpoint: 'checkpoint' };
 const COLOR_LABELS = { gray: 'gris', blue: 'bleu', red: 'rouge' };
 const MINIMAP_Y = HEIGHT - 14;

@@ -103,6 +103,7 @@ export const ROBIN_SHEET = {
   idleLoop: [33, 34, 35, 36, 37, 38, 39, 40], // tête qui bouge au rythme
   idleFramesPerBeat: 4,
   landBeats: 0.15, // durée de la pose d'atterrissage
+  getUpBeats: 0.12, // durée de la pose "se relève" après la glissade
   runFramesPerBeat: 4, // un pas sur chaque beat
   dashFramesPerBeat: 8,
   deathFrameMs: 90,

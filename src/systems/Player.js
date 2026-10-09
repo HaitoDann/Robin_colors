@@ -37,6 +37,7 @@ export class Player {
     this.slideTimer = 0; // glissade en cours
     this.slideTotal = 0;
     this.landTimer = 0; // pose d'atterrissage (animation)
+    this.getUpTimer = 0; // Robin se relève après une glissade (animation)
     this.heavyLand = false;
     this.speedInput = 1; // Q/D lissés (montée progressive)
     this.onGround = true;
@@ -147,6 +148,7 @@ export class Player {
 
   jump() {
     this.slideTimer = 0;
+    this.getUpTimer = 0;
     this.vy = PLAYER.jumpVelocity;
     this.startHold('jump');
     this.onGround = false;
@@ -211,7 +213,9 @@ export class Player {
       this.slideTimer = Math.max(0, this.slideTimer - dt);
       // On reste couché tant qu'un plafond bas est au-dessus.
       if (!this.sliding && this.blockedAbove(obstacles)) this.slideTimer = dt;
+      if (!this.sliding) this.getUpTimer = ROBIN_SHEET.getUpBeats;
     }
+    this.getUpTimer = Math.max(0, this.getUpTimer - dt);
     this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
 
     const prevH = this.h;
@@ -417,10 +421,10 @@ export class Player {
     if (this.dashing) return loop(S.dash, S.dashFramesPerBeat);
     if (this.sliding) {
       // Entrée, glisse, puis relevé sur la fin.
-      const done = this.slideTotal - this.slideTimer;
-      if (done < 0.08) return S.slide[0];
-      return this.slideTimer < 0.1 ? S.slide[2] : S.slide[1];
+      // Entrée, puis couché jusqu'au bout.
+      return this.slideTotal - this.slideTimer < 0.08 ? S.slide[0] : S.slide[1];
     }
+    if (this.onGround && this.getUpTimer > 0) return S.slide[2]; // se relève
     if (!this.onGround && this.fastFalling) return loop(S.fastFall, 8);
     if (this.onGround && this.landTimer > 0) {
       const frames = this.heavyLand ? S.heavyLand : S.land;
