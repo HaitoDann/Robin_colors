@@ -223,3 +223,16 @@ qu'ils restent faisables.
 
 Ces formes ont été vérifiées par simulation : la mécanique indiquée est la
 seule qui permet de toutes les prendre.
+
+## Version Windows (.exe à partager)
+
+```
+cd desktop
+npm install          # la première fois
+npm run exe          # compile le jeu puis crée desktop/release/RobinsColors.exe
+```
+
+Un seul fichier `RobinsColors.exe` (portable, sans installation). Le jeu y tourne
+dans une fenêtre ; F11 bascule en plein écran. L'exe n'étant pas signé, Windows
+peut afficher « Windows a protégé votre ordinateur » : *Informations
+complémentaires* puis *Exécuter quand même*.
