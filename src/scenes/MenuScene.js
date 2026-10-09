@@ -6,17 +6,20 @@
 // touches ; tout pulse doucement sur un tempo de 150 BPM.
 
 import Phaser from 'phaser';
-import { WIDTH, HEIGHT, GROUND_Y, ROBIN_SHEET, PLAYER, RENDER_SCALE } from '../config.js';
+import { WIDTH, HEIGHT, GROUND_Y, ROBIN_SHEET, RENDER_SCALE } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { Background } from '../systems/Background.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { Settings } from '../systems/Settings.js';
 import { Progress } from '../systems/Progress.js';
-import { UI, accent, text, drawPanel, keyHints, drawDiamond } from '../ui/theme.js';
-import { PianoFloor } from '../ui/PianoFloor.js';
+import { UI, accent, text, keyHints, drawDiamond, drawWoodPanel, FONT_TEXT } from '../ui/theme.js';
+import { AudioSystem } from '../systems/AudioSystem.js';
+import TILES from '../gfx/tiles.js';
 
 const K = Phaser.Input.Keyboard.KeyCodes;
-const MENU_BPM = 150;
+// Musique du menu : First Light en boucle (Robin bat la mesure).
+const MENU_MUSIC = { music: 'First_Light.mp3', bpm: 150, offset: 0.02, endBeat: 600 };
+const MENU_BPM = MENU_MUSIC.bpm;
 const VERSION = 'v0.5';
 
 export class MenuScene extends Phaser.Scene {
@@ -25,6 +28,10 @@ export class MenuScene extends Phaser.Scene {
   }
 
   preload() {
+    for (const name of ['ground', 'deco']) {
+      const t = TILES[name];
+      if (!this.textures.exists(`tile_${name}`)) this.load.spritesheet(`tile_${name}`, `tiles/${name}.png`, { frameWidth: t.w, frameHeight: t.h });
+    }
     for (const color of ['blue', 'red']) {
       if (this.textures.exists(`robin_sheet_${color}`)) continue;
       this.load.spritesheet(`robin_sheet_${color}`, `sprites/robin_${color}.png`, {
@@ -47,14 +54,19 @@ export class MenuScene extends Phaser.Scene {
     this.cameras.main.fadeIn(250, 7, 7, 13);
     createTextures(this);
     this.background = new Background(this);
-    this.scrollX = 0;
-    this.floor = new PianoFloor(this, GROUND_Y);
+    // Départ du défilement choisi pour que la lune soit à droite du titre.
+    this.scrollX = -9000;
+    this.buildClearing();
 
-    // Robin court sur le clavier et change de couleur toutes les 2 mesures.
+    // Robin debout dans la clairière : il bat la mesure de la tête et change
+    // de couleur toutes les 2 mesures.
     this.robinColor = 'blue';
     if (this.textures.exists('robin_sheet_blue')) {
-      this.robin = this.add.image(150, GROUND_Y - 27, 'robin_sheet_blue', 0).setScale(PLAYER.spriteScale).setDepth(8);
+      this.robin = this.add.image(170, GROUND_Y + 2, 'robin_sheet_blue', ROBIN_SHEET.idleLoop[0]).setOrigin(0.5, 1).setScale(3).setDepth(8);
     }
+    this.audio = AudioSystem.shared(this.game);
+    this.input.keyboard.once('keydown', () => this.startMusic());
+    this.input.once('pointerdown', () => this.startMusic());
 
     this.buildLogo();
     this.screenObjs = [];
@@ -71,35 +83,76 @@ export class MenuScene extends Phaser.Scene {
     this.show('main');
   }
 
-  // --- Logo : ROBIN'S en ivoire, COLORS en lettres bleues et rouges ---
+  // --- Clairière : sol herbeux, fleurs et champignons ---
 
-  buildLogo() {
-    const y = 70;
-    this.logo = this.add.container(WIDTH / 2, y).setDepth(20);
-    const top = text(this, 0, -34, "ROBIN'S", { size: 26, title: true, bold: true, color: '#f2eee0', letterSpacing: 10 }).setOrigin(0.5);
-    const letters = 'COLORS'.split('');
-    const size = 62;
-    const parts = letters.map((ch, i) =>
-      text(this, 0, 14, ch, { size, title: true, bold: true, color: UI.css(i % 2 ? UI.red : UI.blue) })
-        .setOrigin(0.5)
-        .setShadow(4, 4, '#07070d', 0, false, true),
-    );
-    const total = parts.reduce((s, t) => s + t.width, 0) + (parts.length - 1) * 4;
-    let x = -total / 2;
-    for (const t of parts) {
-      t.x = x + t.width / 2;
-      x += t.width + 4;
+  buildClearing() {
+    const top = GROUND_Y - 8;
+    if (this.textures.exists('tile_ground')) {
+      this.add.tileSprite(0, top, WIDTH, TILES.ground.h, 'tile_ground').setOrigin(0).setDepth(6);
     }
-    this.logoLetters = parts;
-    // Barre "portée" sous le logo : une moitié bleue, une moitié rouge.
-    const bar = this.add.graphics();
-    bar.fillStyle(UI.blue, 1).fillRect(-total / 2, 52, total / 2 - 3, 4);
-    bar.fillStyle(UI.red, 1).fillRect(3, 52, total / 2 - 3, 4);
-    this.logo.add([top, ...parts, bar]);
+    this.add.rectangle(0, top + TILES.ground.h - 1, WIDTH, HEIGHT, 0x1a1620).setOrigin(0).setDepth(5);
+    if (this.textures.exists('tile_deco')) {
+      for (const [x, f] of [[40, 0], [95, 4], [300, 1], [330, 6], [420, 3], [610, 2], [720, 5], [790, 0], [880, 4], [930, 1]]) {
+        this.add.image(x, top + 10, 'tile_deco', f).setOrigin(0.5, 1).setScale(2).setDepth(7);
+      }
+    }
   }
 
-  // Temps en beats (horloge du menu), pour faire pulser l'interface.
+  // --- Titre : lettres rondes en dégradé bleu -> rose, qui scintillent ---
+
+  buildLogo() {
+    this.logo = this.add.container(WIDTH / 2, 74).setDepth(20);
+    const t = this.add
+      .text(0, 0, "Robin's Colors", { fontFamily: FONT_TEXT, fontSize: '66px', resolution: RENDER_SCALE, stroke: '#1a0f2e', strokeThickness: 8 })
+      .setOrigin(0.5)
+      .setShadow(0, 5, '#0a0614', 0, true, true);
+    const grad = t.context.createLinearGradient(0, 0, t.width, 0);
+    grad.addColorStop(0, '#7fd0ff');
+    grad.addColorStop(0.5, '#e8d8ff');
+    grad.addColorStop(1, '#ff8ac0');
+    t.setFill(grad);
+    this.logoText = t;
+    this.sparkles = this.add.graphics();
+    this.logo.add([this.sparkles, t]);
+  }
+
+  // Petites étoiles qui scintillent autour du titre.
+  drawSparkles(time) {
+    const g = this.sparkles.clear();
+    const w = this.logoText.width / 2 + 20;
+    for (let i = 0; i < 9; i++) {
+      const a = Math.max(0, Math.sin(time / 400 + i * 1.7));
+      if (a < 0.2) continue;
+      const x = -w + ((i * 97) % (w * 2));
+      const y = -34 + ((i * 53) % 70);
+      g.fillStyle(i % 2 ? 0xff9ad0 : 0x9fe0ff, a);
+      g.fillRect(x - 1, y, 3, 1);
+      g.fillRect(x, y - 1, 1, 3);
+      if (a > 0.8) g.fillRect(x - 3, y, 7, 1).fillRect(x, y - 3, 1, 7);
+    }
+  }
+
+  // Lance First Light (au premier appui : règle des navigateurs).
+  async startMusic() {
+    if (this.musicStarted) return;
+    this.musicStarted = true;
+    try {
+      await this.audio.unlock();
+      if (this.audio.loadedMusic !== MENU_MUSIC.music) {
+        await this.audio.load(MENU_MUSIC);
+      }
+      if (!this.scene.isActive()) return;
+      this.audio.setRate(1);
+      this.audio.setVolume(Settings.volume / 100);
+      this.audio.play(0);
+    } catch (e) {
+      console.warn('[menu] musique indisponible', e);
+    }
+  }
+
+  // Temps en beats : celui de la musique si elle joue, sinon une horloge.
   get beat() {
+    if (this.audio?.playing) return (this.audio.getTime() - MENU_MUSIC.offset) * (MENU_BPM / 60);
     return (this.time.now / 1000) * (MENU_BPM / 60);
   }
 
@@ -142,7 +195,7 @@ export class MenuScene extends Phaser.Scene {
       }));
       this.layout = 'cards';
       hints[0] = ['←→', 'choisir'];
-      this.keep(text(this, WIDTH / 2, 148, 'CHOISIS TA PISTE', { size: 14, title: true, color: UI.dim, letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
+      this.keep(text(this, WIDTH / 2, 148, 'CHOISIS TA PISTE', { size: 14, title: true, color: '#e6d6b8', letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
     } else if (screen === 'edit') {
       this.items = [
         ...this.levels.map((l) => ({
@@ -154,7 +207,7 @@ export class MenuScene extends Phaser.Scene {
         back,
       ];
       this.layout = 'list';
-      this.keep(text(this, WIDTH / 2, 148, 'ÉDITEUR — QUEL NIVEAU ?', { size: 14, title: true, color: UI.dim, letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
+      this.keep(text(this, WIDTH / 2, 148, 'ÉDITEUR — QUEL NIVEAU ?', { size: 14, title: true, color: '#e6d6b8', letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
     } else if (screen === 'settings') {
       const save = () => Settings.save();
       this.items = [
@@ -190,7 +243,7 @@ export class MenuScene extends Phaser.Scene {
       ];
       this.layout = 'settings';
       hints.splice(1, 0, ['←→', 'régler']);
-      this.keep(text(this, WIDTH / 2, 148, 'RÉGLAGES', { size: 14, title: true, color: UI.dim, letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
+      this.keep(text(this, WIDTH / 2, 148, 'RÉGLAGES', { size: 14, title: true, color: '#e6d6b8', letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
     }
 
     this.keep(...keyHints(this, WIDTH / 2, HEIGHT - 30, hints, 30));
@@ -207,16 +260,16 @@ export class MenuScene extends Phaser.Scene {
         return {
           num: this.keep(text(this, 0, 0, String(l.number ?? '?').padStart(2, '0'), { size: 54, title: true, bold: true }).setOrigin(0.5).setDepth(20)),
           title: this.keep(text(this, 0, 0, (l.title ?? l.name).toUpperCase(), { size: 15, title: true, bold: true, align: 'center', wordWrap: { width: 190 } }).setOrigin(0.5).setDepth(20)),
-          info: this.keep(text(this, 0, 0, l.bpm ? `${l.bpm} BPM` : '', { size: 12, title: true, color: UI.dim }).setOrigin(0.5).setDepth(20)),
+          info: this.keep(text(this, 0, 0, l.bpm ? `${l.bpm} BPM` : '', { size: 12, title: true, color: '#d9c7a3' }).setOrigin(0.5).setDepth(20)),
           record: this.keep(
-            text(this, 0, 0, p.done ? `${p.coins} / ${p.total}` : 'Pas encore terminé', { size: p.done ? 12 : 13, title: p.done, color: p.done ? UI.gold : UI.faint }).setOrigin(0.5).setDepth(20),
+            text(this, 0, 0, p.done ? `${p.coins} / ${p.total}` : 'Pas encore terminé', { size: p.done ? 12 : 13, title: p.done, color: p.done ? UI.gold : '#b89f80' }).setOrigin(0.5).setDepth(20),
           ),
           progress: p,
         };
       }
       return {
         label: this.keep(text(this, 0, 0, item.label, { size: 22, bold: true }).setOrigin(0, 0.5).setDepth(20)),
-        sub: this.keep(text(this, 0, 0, item.sub ?? '', { size: 12, color: UI.dim }).setOrigin(0, 0.5).setDepth(20)),
+        sub: this.keep(text(this, 0, 0, item.sub ?? '', { size: 12, color: '#d9c7a3' }).setOrigin(0, 0.5).setDepth(20)),
         value: item.value ? this.keep(text(this, 0, 0, '', { size: 14, title: true }).setOrigin(1, 0.5).setDepth(20)) : null,
       };
     });
@@ -230,18 +283,18 @@ export class MenuScene extends Phaser.Scene {
       const item = this.items[i];
       if (this.layout === 'cards') {
         const { x, y } = this.cardPos(i);
-        t.num.setPosition(x, y - 70).setColor(sel ? UI.css(acc) : UI.dim);
-        t.title.setPosition(x, y - 18).setColor(sel ? UI.text : UI.dim);
+        t.num.setPosition(x, y - 70).setColor(sel ? UI.css(acc) : '#c9b08a');
+        t.title.setPosition(x, y - 18).setColor(sel ? UI.text : '#e6d6b8');
         t.info.setPosition(x, y + 8);
         t.record.setPosition(x + (t.progress.done ? 8 : 0), y + 64);
         return;
       }
       const { x, y, w } = this.rowPos(i);
       const shift = sel ? 10 : 0;
-      t.label.setPosition(x + 22 + shift, item.sub ? y - 7 : y).setColor(sel ? UI.text : '#b8b8d8');
+      t.label.setPosition(x + 22 + shift, item.sub ? y - 7 : y).setColor(sel ? UI.text : '#e6d6b8');
       t.label.setFontSize(this.layout === 'settings' || item.back ? 18 : 22);
       t.sub.setPosition(x + 22 + shift, y + 13).setVisible(!!item.sub && this.layout !== 'settings');
-      if (t.value) t.value.setPosition(x + w - 18, y).setText(item.value()).setColor(sel ? UI.css(acc) : '#b8b8d8');
+      if (t.value) t.value.setPosition(x + w - 18, y).setText(item.value()).setColor(sel ? UI.css(acc) : '#e6d6b8');
     });
   }
 
@@ -279,9 +332,9 @@ export class MenuScene extends Phaser.Scene {
         const lift = sel ? 6 + pulse * 2 : 0;
         const x0 = x - w / 2;
         const y0 = y - h / 2 - lift;
-        // Carte façon touche de piano : ivoire en haut quand elle est choisie.
-        drawPanel(g, x0, y0, w, h, { border: sel ? acc : UI.line, alpha: 0.95 });
-        g.fillStyle(sel ? acc : UI.line, sel ? 0.18 : 0.4).fillRect(x0 + 2, y0 + 2, w - 4, 100);
+        // Carte en bois moussu, liseré de couleur quand elle est choisie.
+        drawWoodPanel(g, x0, y0, w, h, { glow: sel ? acc : null });
+        g.fillStyle(0x1e120c, 0.35).fillRect(x0 + 10, y0 + 18, w - 20, 92);
         // Difficulté : 5 pastilles.
         const d = item.level.difficulty ?? 0;
         for (let k = 0; k < 5; k++) {
@@ -298,13 +351,7 @@ export class MenuScene extends Phaser.Scene {
       }
       const { x, y, w, h } = this.rowPos(i);
       const shift = sel ? 10 : 0;
-      drawPanel(g, x + shift, y - h / 2, w, h, {
-        fill: sel ? 0x141428 : UI.panel,
-        alpha: sel ? 0.95 : 0.7,
-        border: sel ? acc : UI.line,
-        stripe: sel ? acc : null,
-        stripeW: 6,
-      });
+      drawWoodPanel(g, x + shift, y - h / 2, w, h, { glow: sel ? acc : null, alpha: sel ? 1 : 0.85, decor: sel });
       if (item.gauge) {
         // Jauge du réglage, au centre de la ligne.
         const gx = x + shift + 190;
@@ -376,7 +423,10 @@ export class MenuScene extends Phaser.Scene {
   startGame(data) {
     this.leaving = true;
     this.cameras.main.fadeOut(220, 7, 7, 13);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('game', data));
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.audio?.stop();
+      this.scene.start('game', data);
+    });
   }
 
   // Crée un niveau vide (brouillon) et ouvre l'éditeur dessus.
@@ -400,28 +450,30 @@ export class MenuScene extends Phaser.Scene {
 
   update(time, delta) {
     if (!this.background) return;
-    // Le décor défile derrière le menu, Robin court sur le clavier.
-    this.scrollX += delta * 0.15;
+    // Le décor dérive doucement (parallaxe lente), la musique boucle.
+    this.scrollX += delta * 0.03;
     this.background.update(this.scrollX);
+    if (this.audio?.playing && this.audio.getTime() > this.audio.duration - 0.05) this.audio.play(0);
     const beat = this.beat;
-    this.floor.draw(this.scrollX * 2.2, beat, this.robin ? this.robin.x : -100, this.robinColor);
+    this.drawSparkles(time);
 
     // Changement de couleur toutes les 8 beats, avec un flash.
     const color = Math.floor(beat / 8) % 2 ? 'red' : 'blue';
     if (color !== this.robinColor) {
       this.robinColor = color;
       this.background.setTheme(color);
-      if (this.robin) this.flash(this.robin.x, this.robin.y, accent(color));
+      if (this.robin) this.flash(this.robin.x, this.robin.y - 54, accent(color));
       if (this.screen) this.refresh();
     }
     if (this.robin) {
-      const frame = ROBIN_SHEET.run[Math.floor(beat * 2) % 8];
+      // Tête qui bat la mesure : 2 images par temps, boucle sur 4 temps.
+      const loop = ROBIN_SHEET.idleLoop;
+      const frame = loop[((Math.floor(beat * 2) % loop.length) + loop.length) % loop.length];
       this.robin.setTexture(`robin_sheet_${this.robinColor}`, frame);
     }
-    // Le logo respire sur le tempo, chaque lettre de COLORS sautille à son tour.
-    const p = 1 - (beat % 1);
-    this.logo?.setScale(1 + p * p * 0.02);
-    this.logoLetters?.forEach((t, i) => (t.y = 14 - (Math.floor(beat * 2) % 6 === i ? 3 : 0)));
+    // Le titre respire doucement sur le tempo.
+    const p = 1 - (((beat % 1) + 1) % 1);
+    this.logo?.setScale(1 + p * p * 0.015);
     this.drawUI();
   }
 

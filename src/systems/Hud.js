@@ -2,7 +2,7 @@
 // compteurs de pièces, et panneaux (titre, pause, fin de niveau).
 
 import { WIDTH, HEIGHT } from '../config.js';
-import { UI, text, drawPanel, keyHints, drawDiamond, FONT_TITLE, FONT_TEXT } from '../ui/theme.js';
+import { UI, text, drawWoodPanel, keyHints, drawDiamond, FONT_TITLE, FONT_TEXT } from '../ui/theme.js';
 
 const BAR_W = 320;
 
@@ -24,9 +24,9 @@ export class Hud {
     this.progress = null;
 
     // Panneau central.
-    this.pKicker = text(scene, WIDTH / 2, 0, '', { size: 13, title: true, color: UI.dim, letterSpacing: 4 }).setOrigin(0.5).setDepth(100);
+    this.pKicker = text(scene, WIDTH / 2, 0, '', { size: 13, title: true, color: '#c9b08a', letterSpacing: 4 }).setOrigin(0.5).setDepth(100);
     this.title = text(scene, WIDTH / 2, 0, '', { size: 34, title: true, bold: true }).setOrigin(0.5).setDepth(100);
-    this.subtitle = text(scene, WIDTH / 2, 0, '', { size: 17, color: '#c8c8e0', align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0).setDepth(100);
+    this.subtitle = text(scene, WIDTH / 2, 0, '', { size: 17, color: '#e6d6b8', align: 'center', lineSpacing: 6 }).setOrigin(0.5, 0).setDepth(100);
     this.hintObjs = [];
     this.panelOpen = false;
   }
@@ -103,13 +103,13 @@ export class Hud {
     let y = HEIGHT / 2 - h / 2 - 10;
     const g = this.panelGfx.clear();
     g.fillStyle(UI.ink, 0.45).fillRect(0, 0, WIDTH, HEIGHT); // assombrit le jeu
-    drawPanel(g, WIDTH / 2 - w / 2, y, w, h, { fill: UI.panel, alpha: 0.96, border: acc, stripe: acc, stripeW: 6 });
+    drawWoodPanel(g, WIDTH / 2 - w / 2, y, w, h, { glow: acc });
     y += 24;
     if (kicker) {
       this.pKicker.setY(y);
       y += 24;
     }
-    this.title.setY(y + 4).setColor(UI.text);
+    this.title.setY(y + 4).setColor('#f6ecd6');
     y += 32;
     if (subtitle) {
       this.subtitle.setY(y);

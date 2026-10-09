@@ -36,6 +36,7 @@ export class AudioSystem {
   // Charge le mp3 du niveau, ou génère une musique de remplacement.
   async load(level) {
     this.buffer = null;
+    this.loadedMusic = level.music ?? null; // pour savoir si on peut réutiliser
     this.isPlaceholder = false;
     if (level.music) {
       const url = `music/${level.music}`;
