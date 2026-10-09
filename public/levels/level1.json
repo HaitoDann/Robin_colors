@@ -1,2052 +1,673 @@
 {
   "name": "Niveau 1 — First Light",
-  "bpm": 152,
+  "bpm": 150,
   "music": "First_Light.mp3",
-  "offset": 0.07,
+  "offset": 0.02,
   "obstacles": [
-    {
-      "beat": 4,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 5.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 7,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 8.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 11,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 12.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 14,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 16,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 17.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 19,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 22.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 23.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 23.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 24,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 24,
-      "type": "spike"
-    },
-    {
-      "beat": 25.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 26.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 34.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 35.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 35.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 36,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 36,
-      "type": "spike"
-    },
-    {
-      "beat": 37.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 38.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 46.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 47.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 47.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 48,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 48,
-      "type": "spike"
-    },
-    {
-      "beat": 49.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 50.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 58.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 59.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 59.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 60,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 60,
-      "type": "spike"
-    },
-    {
-      "beat": 61.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 62.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 70.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 71.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 71.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 72,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 72,
-      "type": "spike"
-    },
-    {
-      "beat": 73.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 74.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 86.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 87,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 87.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 88.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 88.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 88.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 88.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 90,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 91,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 100,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 101,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 101.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 102,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 102.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 102.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 104,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 104.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 104.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 106,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 107,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 120,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 121,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 122,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 123,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 124,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 125,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 134.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 135.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 135.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 136,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 136,
-      "type": "spike"
-    },
-    {
-      "beat": 137.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 138.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 149,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 149.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 150,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 150.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 150.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 152,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 152.25,
-      "type": "barrier",
-      "color": "red"
-    },
-    {
-      "beat": 152.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 152.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 154,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 155,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 166.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 167,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 167.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 168.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 168.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 168.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 168.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 170,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 171,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 176,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 182.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 183.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 183.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 184,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 184,
-      "type": "spike"
-    },
-    {
-      "beat": 185.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 186.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 197,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 197.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 198,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 198.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 198.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 200,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 200.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 200.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 202,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 203,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 216,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 216.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 217.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 218.25,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 219,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 219.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 230.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 231,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 231.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 232.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 232.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 232.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 232.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 234,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 235,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 244,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 245.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 247,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 248.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 251,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 252.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 254,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 256,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 262.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 263.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 263.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 264,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 264,
-      "type": "spike"
-    },
-    {
-      "beat": 265.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 266.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 277,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 277.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 278,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 278.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 278.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 280,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 280.25,
-      "type": "barrier",
-      "color": "red"
-    },
-    {
-      "beat": 280.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 280.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 282,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 283,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 294.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 295,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 295.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 296.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 296.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 296.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 296.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 298,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 299,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 310.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 311.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 311.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 312,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 312,
-      "type": "spike"
-    },
-    {
-      "beat": 313.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 314.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 320,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 328,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 328.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 329.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 330.25,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 331,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 331.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 341,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 341.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 342,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 342.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 342.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 344,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 344.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 344.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 346,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 347,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 358.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 359,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 359.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 360.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 360.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 360.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 360.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 362,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 363,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 374.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 375.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 375.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 376,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 376,
-      "type": "spike"
-    },
-    {
-      "beat": 377.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 378.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 389,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 389.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 390,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 390.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 390.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 392,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 392.25,
-      "type": "barrier",
-      "color": "red"
-    },
-    {
-      "beat": 392.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 392.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 394,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 395,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 400,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 406.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 407,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 407.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 408.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 408.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 408.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 408.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 410,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 411,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 422.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 423.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 423.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 424,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 424,
-      "type": "spike"
-    },
-    {
-      "beat": 425.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 426.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 436,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 437.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 439,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 440.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 443,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 444.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 446,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 447.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 453,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 453.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 454,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 454.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 454.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 456,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 456.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 456.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 458,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 459,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 472,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 472.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 473.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 474.25,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 475,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 475.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 480,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 486.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 487,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 487.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 488.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 488.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 488.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 488.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 490,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 491,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 501,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 501.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 502,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 502.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 502.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 504,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 504.25,
-      "type": "barrier",
-      "color": "red"
-    },
-    {
-      "beat": 504.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 504.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 506,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 507,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 518.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 519.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 519.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 520,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 520,
-      "type": "spike"
-    },
-    {
-      "beat": 521.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 522.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 534.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 535,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 535.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 536.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 536.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 536.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 536.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 538,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 539,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 549,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 549.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 550,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 550.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 550.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 552,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 552.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 552.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 554,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 555,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 560,
-      "type": "checkpoint"
-    },
-    {
-      "beat": 564,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 565.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 567,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 568.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 574.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 575.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 575.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 576,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 576,
-      "type": "spike"
-    },
-    {
-      "beat": 577.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 578.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 586.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 587,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 587.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 588.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 588.625,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 588.625,
-      "type": "wall",
-      "color": "blue",
-      "length": 0.1,
-      "height": 100
-    },
-    {
-      "beat": 588.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 180
-    },
-    {
-      "beat": 590,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 591,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 601,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 601.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 602,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 602.5,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 602.75,
-      "type": "coin",
-      "color": "red",
-      "height": 25
-    },
-    {
-      "beat": 604,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 604.25,
-      "type": "barrier",
-      "color": "red"
-    },
-    {
-      "beat": 604.25,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 604.5,
-      "type": "coin",
-      "color": "red",
-      "height": 70
-    },
-    {
-      "beat": 606,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 607,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 614.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 615.75,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 615.875,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 616,
-      "type": "coin",
-      "color": "blue",
-      "height": 50
-    },
-    {
-      "beat": 616,
-      "type": "spike"
-    },
-    {
-      "beat": 617.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 618.5,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 620,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 622,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    },
-    {
-      "beat": 624,
-      "type": "coin",
-      "color": "blue",
-      "height": 25
-    }
+    { "beat": 7, "type": "spike" },
+    { "beat": 7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 9, "type": "spike" },
+    { "beat": 9, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 11, "type": "spike" },
+    { "beat": 11, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 13, "type": "spike" },
+    { "beat": 13, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 15.75, "type": "coin", "color": "blue", "height": 84 },
+    { "beat": 15.875, "type": "coin", "color": "blue", "height": 109 },
+    { "beat": 16.0, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 16.0, "type": "spike" },
+    { "beat": 16.125, "type": "coin", "color": "blue", "height": 136 },
+    { "beat": 16.25, "type": "coin", "color": "blue", "height": 131 },
+    { "beat": 18.25, "type": "spike" },
+    { "beat": 18.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 19.25, "type": "spike" },
+    { "beat": 19.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 20.25, "type": "spike" },
+    { "beat": 20.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 22.25, "type": "spike" },
+    { "beat": 22.25, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 24.75, "type": "hole", "length": 0.7 },
+    { "beat": 25.1, "type": "coin", "color": "blue", "height": 110 },
+    { "beat": 27.95, "type": "ceiling", "length": 2.5 },
+    { "beat": 28.2, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 28.7, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 29.2, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 29.7, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 30.2, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 33.45, "type": "low", "length": 1 },
+    { "beat": 33.95, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 35.45, "type": "low", "length": 1.5 },
+    { "beat": 35.7, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 36.2, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 36.7, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 39.2, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 39.7, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 40.2, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 40.7, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 41.2, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 41.7, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 42.2, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 42.7, "type": "coin", "color": "blue", "height": 55 },
+    { "beat": 44.7, "type": "spike" },
+    { "beat": 44.7, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 45.7, "type": "low", "length": 1.5 },
+    { "beat": 45.95, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 46.45, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 46.95, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 49.45, "type": "wall", "length": 1.5 },
+    { "beat": 49.7, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 50.2, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 50.7, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 52.2, "type": "spike" },
+    { "beat": 54.7, "type": "slope", "length": 2, "height": 60 },
+    { "beat": 55.2, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 55.7, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 56.2, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 57.45, "type": "spike" },
+    { "beat": 57.45, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 58.45, "type": "slope", "length": 1.5, "height": -60 },
+    { "beat": 61.7, "type": "spike" },
+    { "beat": 62.7, "type": "spike" },
+    { "beat": 62.7, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 66.95, "type": "coin", "color": "blue", "height": 192 },
+    { "beat": 67.2, "type": "coin", "color": "blue", "height": 236 },
+    { "beat": 67.45, "type": "coin", "color": "blue", "height": 239 },
+    { "beat": 70.2, "type": "wall", "color": "blue" },
+    { "beat": 70.35, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 73.7, "type": "hole", "length": 4.800000000000001 },
+    { "beat": 73.95, "type": "platform", "length": 0.9, "height": 45 },
+    { "beat": 74.4, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 75.25, "type": "platform", "length": 0.9, "height": 90 },
+    { "beat": 75.7, "type": "coin", "color": "blue", "height": 120 },
+    { "beat": 76.55, "type": "platform", "length": 0.9, "height": 135 },
+    { "beat": 77.0, "type": "coin", "color": "blue", "height": 165 },
+    { "beat": 81.0, "type": "spike", "length": 0.4 },
+    { "beat": 81.1, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 81.75, "type": "ceiling", "length": 2 },
+    { "beat": 82.0, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 82.5, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 83.0, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 83.5, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 85.0, "type": "coin", "color": "red", "height": 25 },
+    { "beat": 87.0, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.125, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.25, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.375, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.5, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.625, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.75, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 87.875, "type": "coin", "color": "red", "height": 140 },
+    { "beat": 91.5, "type": "barrier", "color": "red" },
+    { "beat": 91.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 92.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 92.25, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 95.0, "type": "hole", "color": "red" },
+    { "beat": 95.3, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 95.65, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 96.0, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 96.35, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 96.7, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 99.75, "type": "spike" },
+    { "beat": 99.75, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 100.75, "type": "spike" },
+    { "beat": 100.75, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 101.75, "type": "spike" },
+    { "beat": 101.75, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 102.25, "type": "spike" },
+    { "beat": 102.25, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 102.75, "type": "spike" },
+    { "beat": 102.75, "type": "coin", "color": "red", "height": 128 },
+    { "beat": 104.75, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 106.3, "type": "platform", "length": 3.2, "height": 60 },
+    { "beat": 106.5, "type": "spike", "length": 3 },
+    { "beat": 106.75, "type": "coin", "color": "blue", "height": 85 },
+    { "beat": 107.25, "type": "coin", "color": "blue", "height": 125 },
+    { "beat": 107.75, "type": "coin", "color": "blue", "height": 85 },
+    { "beat": 108.25, "type": "coin", "color": "blue", "height": 125 },
+    { "beat": 108.75, "type": "coin", "color": "blue", "height": 85 },
+    { "beat": 109.25, "type": "coin", "color": "blue", "height": 125 },
+    { "beat": 112.5, "type": "spring" },
+    { "beat": 113.1, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 113.6, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 113.8, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 115.5, "type": "checkpoint" },
+    { "beat": 118.0, "type": "low", "length": 1 },
+    { "beat": 118.5, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 120.25, "type": "spike" },
+    { "beat": 120.25, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 121.5, "type": "low", "length": 1.5 },
+    { "beat": 121.75, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 122.25, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 122.75, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 125.25, "type": "slope", "length": 2, "height": 80 },
+    { "beat": 125.75, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 126.25, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 126.75, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 128.0, "type": "spike" },
+    { "beat": 128.0, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 129.0, "type": "slope", "length": 1.5, "height": -80 },
+    { "beat": 131.25, "type": "spike" },
+    { "beat": 131.25, "type": "coin", "color": "blue", "height": 148 },
+    { "beat": 134.25, "type": "wall", "color": "blue" },
+    { "beat": 134.4, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 136.5, "type": "wall", "color": "blue" },
+    { "beat": 136.65, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 140.25, "type": "wall", "color": "blue" },
+    { "beat": 140.4, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 142.75, "type": "barrier", "color": "red" },
+    { "beat": 143.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 146.25, "type": "barrier", "color": "red" },
+    { "beat": 146.5, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 146.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 147.25, "type": "barrier", "color": "red" },
+    { "beat": 147.5, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 147.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 148.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 150.75, "type": "hole", "color": "red", "length": 4 },
+    { "beat": 151.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 151.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 152.35, "type": "crystal", "height": 100 },
+    { "beat": 152.35, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 152.95, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 153.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 154.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 157.25, "type": "spike" },
+    { "beat": 157.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 157.75, "type": "spike" },
+    { "beat": 157.75, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 158.25, "type": "spike" },
+    { "beat": 158.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 159.25, "type": "spike" },
+    { "beat": 159.25, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 159.75, "type": "spike" },
+    { "beat": 159.75, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 160.25, "type": "spike" },
+    { "beat": 160.25, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 163.0, "type": "hole", "length": 4.800000000000001 },
+    { "beat": 163.25, "type": "platform", "length": 0.9, "height": 45, "color": "blue" },
+    { "beat": 163.7, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 164.55, "type": "platform", "length": 0.9, "height": 90, "color": "red" },
+    { "beat": 165.0, "type": "coin", "color": "red", "height": 120 },
+    { "beat": 165.85, "type": "platform", "length": 0.9, "height": 135, "color": "blue" },
+    { "beat": 166.3, "type": "coin", "color": "blue", "height": 165 },
+    { "beat": 170.8, "type": "crystal", "height": 190 },
+    { "beat": 171.4, "type": "wall", "color": "blue", "height": 260, "length": 0.3 },
+    { "beat": 171.55, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 173.8, "type": "spike" },
+    { "beat": 173.8, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 176.3, "type": "spike", "length": 0.6 },
+    { "beat": 176.375, "type": "coin", "color": "blue", "height": 109 },
+    { "beat": 176.5, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 176.625, "type": "coin", "color": "blue", "height": 136 },
+    { "beat": 179.4, "type": "spike" },
+    { "beat": 179.4, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 180.4, "type": "low", "length": 1.5 },
+    { "beat": 180.65, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 181.15, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 181.65, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 184.15, "type": "wall", "length": 1 },
+    { "beat": 184.65, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 185.15, "type": "wall", "length": 1, "height": 95 },
+    { "beat": 185.65, "type": "coin", "color": "blue", "height": 120 },
+    { "beat": 187.4, "type": "spike" },
+    { "beat": 189.15, "type": "coin", "color": "red", "height": 25 },
+    { "beat": 190.7, "type": "platform", "length": 3.2, "height": 60, "color": "red" },
+    { "beat": 190.9, "type": "spike", "length": 3 },
+    { "beat": 191.15, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 191.65, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 192.15, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 192.65, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 193.15, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 193.65, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 196.9, "type": "hole", "color": "red", "length": 4.5 },
+    { "beat": 197.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 198.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 198.1, "type": "barrier", "color": "red" },
+    { "beat": 198.6, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 199.1, "type": "crystal", "height": 100 },
+    { "beat": 199.2, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 199.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 200.1, "type": "barrier", "color": "red" },
+    { "beat": 200.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 201.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 204.9, "type": "barrier", "color": "red" },
+    { "beat": 205.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 207.4, "type": "wall", "color": "blue" },
+    { "beat": 207.55, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 209.4, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 211.65, "type": "spring" },
+    { "beat": 212.25, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 212.75, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 212.95, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 214.55, "type": "low", "length": 1.25 },
+    { "beat": 215.05, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 218.05, "type": "hole", "length": 0.6 },
+    { "beat": 218.35, "type": "coin", "color": "blue", "height": 110 },
+    { "beat": 219.9, "type": "spike" },
+    { "beat": 222.4, "type": "slope", "length": 2, "height": 80 },
+    { "beat": 222.9, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 223.4, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 223.9, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 225.15, "type": "spike" },
+    { "beat": 225.15, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 226.15, "type": "slope", "length": 1.5, "height": -80 },
+    { "beat": 228.4, "type": "spike" },
+    { "beat": 228.4, "type": "coin", "color": "blue", "height": 148 },
+    { "beat": 230.9, "type": "ceiling", "length": 4 },
+    { "beat": 231.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 231.65, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 232.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 232.65, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 233.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 233.65, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 234.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 234.65, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 235.9, "type": "spike" },
+    { "beat": 238.4, "type": "spike" },
+    { "beat": 238.4, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 239.4, "type": "spike" },
+    { "beat": 239.4, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 239.9, "type": "spike" },
+    { "beat": 239.9, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 240.4, "type": "spike" },
+    { "beat": 240.4, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 241.4, "type": "spike" },
+    { "beat": 241.4, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 241.9, "type": "spike" },
+    { "beat": 241.9, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 242.4, "type": "spike" },
+    { "beat": 242.4, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 244.9, "type": "spike", "length": 0.4 },
+    { "beat": 245.0, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 245.65, "type": "ceiling", "length": 2 },
+    { "beat": 245.9, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 246.4, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 246.9, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 247.4, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 249.9, "type": "wall", "color": "blue" },
+    { "beat": 250.05, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 252.15, "type": "wall", "color": "blue" },
+    { "beat": 252.3, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 254.4, "type": "checkpoint" },
+    { "beat": 256.65, "type": "hole", "length": 4.800000000000001 },
+    { "beat": 256.9, "type": "platform", "length": 0.9, "height": 45, "color": "red" },
+    { "beat": 257.35, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 258.2, "type": "platform", "length": 0.9, "height": 90, "color": "blue" },
+    { "beat": 258.65, "type": "coin", "color": "blue", "height": 120 },
+    { "beat": 259.5, "type": "platform", "length": 0.9, "height": 135, "color": "red" },
+    { "beat": 259.95, "type": "coin", "color": "red", "height": 165 },
+    { "beat": 264.95, "type": "barrier", "color": "red" },
+    { "beat": 265.2, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 265.45, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 265.95, "type": "barrier", "color": "red" },
+    { "beat": 266.2, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 266.45, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 266.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 269.95, "type": "barrier", "color": "red" },
+    { "beat": 270.2, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 272.45, "type": "wall", "color": "blue" },
+    { "beat": 272.6, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 275.45, "type": "crystal", "height": 190 },
+    { "beat": 276.05, "type": "wall", "color": "blue", "height": 260, "length": 0.3 },
+    { "beat": 276.2, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 278.45, "type": "spike" },
+    { "beat": 278.45, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 281.45, "type": "hole", "length": 3.6 },
+    { "beat": 281.65, "type": "platform", "color": "blue", "length": 1.5, "height": 50 },
+    { "beat": 282.35, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 283.4, "type": "platform", "color": "red", "length": 1.5, "height": 50 },
+    { "beat": 284.15, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 288.05, "type": "hole", "color": "red", "length": 4.5 },
+    { "beat": 288.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 289.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 289.25, "type": "barrier", "color": "red" },
+    { "beat": 289.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 290.25, "type": "crystal", "height": 100 },
+    { "beat": 290.35, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 290.95, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 291.25, "type": "barrier", "color": "red" },
+    { "beat": 291.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 292.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 295.55, "type": "low", "length": 1 },
+    { "beat": 296.05, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 297.55, "type": "spike" },
+    { "beat": 297.55, "type": "coin", "color": "red", "height": 128 },
+    { "beat": 298.55, "type": "low", "length": 1.5 },
+    { "beat": 298.8, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 299.3, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 299.8, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 301.8, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 303.8, "type": "hole", "length": 6.1000000000000005 },
+    { "beat": 304.05, "type": "platform", "length": 0.9, "height": 45, "color": "blue" },
+    { "beat": 304.5, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 305.35, "type": "platform", "length": 0.9, "height": 90, "color": "red" },
+    { "beat": 305.8, "type": "coin", "color": "red", "height": 120 },
+    { "beat": 306.65, "type": "platform", "length": 0.9, "height": 135, "color": "blue" },
+    { "beat": 307.1, "type": "coin", "color": "blue", "height": 165 },
+    { "beat": 307.95, "type": "platform", "length": 0.9, "height": 180, "color": "red" },
+    { "beat": 308.4, "type": "coin", "color": "red", "height": 210 },
+    { "beat": 312.9, "type": "hole", "color": "red", "length": 4 },
+    { "beat": 313.3, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 313.9, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 314.5, "type": "crystal", "height": 100 },
+    { "beat": 314.5, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 315.1, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 315.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 316.3, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 320.4, "type": "barrier", "color": "red" },
+    { "beat": 320.65, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 322.9, "type": "wall", "color": "blue" },
+    { "beat": 323.05, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 324.9, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 327.15, "type": "spring" },
+    { "beat": 327.75, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 328.25, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 328.45, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 330.05, "type": "low", "length": 1.25 },
+    { "beat": 330.55, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 334.05, "type": "wall", "color": "blue" },
+    { "beat": 334.2, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 336.55, "type": "barrier", "color": "red" },
+    { "beat": 336.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 339.55, "type": "hole", "color": "red" },
+    { "beat": 339.85, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 340.2, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 340.55, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 340.9, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 341.25, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 344.3, "type": "spike" },
+    { "beat": 344.3, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 345.3, "type": "low", "length": 1.5 },
+    { "beat": 345.55, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 346.05, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 346.55, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 349.55, "type": "hole", "length": 3.6 },
+    { "beat": 349.75, "type": "platform", "color": "red", "length": 1.5, "height": 50 },
+    { "beat": 350.45, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 351.5, "type": "platform", "color": "blue", "length": 1.5, "height": 50 },
+    { "beat": 352.25, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 355.65, "type": "slope", "length": 2, "height": 100 },
+    { "beat": 356.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 356.65, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 357.15, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 358.4, "type": "spike" },
+    { "beat": 358.4, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 359.4, "type": "slope", "length": 1.5, "height": -100 },
+    { "beat": 361.65, "type": "spike" },
+    { "beat": 361.65, "type": "coin", "color": "blue", "height": 148 },
+    { "beat": 364.65, "type": "wall", "color": "blue" },
+    { "beat": 364.8, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 366.9, "type": "wall", "color": "blue" },
+    { "beat": 367.05, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 370.15, "type": "spike" },
+    { "beat": 370.15, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 371.15, "type": "spike" },
+    { "beat": 371.15, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 372.4, "type": "spike" },
+    { "beat": 372.4, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 375.9, "type": "coin", "color": "red", "height": 25 },
+    { "beat": 377.45, "type": "platform", "length": 3.2, "height": 60, "color": "red" },
+    { "beat": 377.65, "type": "spike", "length": 3 },
+    { "beat": 377.9, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 378.4, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 378.9, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 379.4, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 379.9, "type": "coin", "color": "red", "height": 85 },
+    { "beat": 380.4, "type": "coin", "color": "red", "height": 125 },
+    { "beat": 384.15, "type": "barrier", "color": "red" },
+    { "beat": 384.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 384.65, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 385.15, "type": "barrier", "color": "red" },
+    { "beat": 385.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 385.65, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 385.9, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 388.15, "type": "spike" },
+    { "beat": 388.15, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 389.15, "type": "spike" },
+    { "beat": 389.15, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 389.65, "type": "spike" },
+    { "beat": 389.65, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 390.65, "type": "spike" },
+    { "beat": 390.65, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 391.15, "type": "spike" },
+    { "beat": 391.15, "type": "coin", "color": "red", "height": 128 },
+    { "beat": 394.65, "type": "barrier", "color": "red" },
+    { "beat": 394.9, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 397.15, "type": "wall", "color": "blue" },
+    { "beat": 397.3, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 400.15, "type": "low", "length": 1 },
+    { "beat": 400.65, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 402.15, "type": "spike" },
+    { "beat": 402.15, "type": "coin", "color": "red", "height": 128 },
+    { "beat": 403.15, "type": "low", "length": 1.5 },
+    { "beat": 403.4, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 403.9, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 404.4, "type": "coin", "color": "red", "height": 12 },
+    { "beat": 406.4, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 408.65, "type": "spring" },
+    { "beat": 409.25, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 409.75, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 409.95, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 411.55, "type": "low", "length": 1.25 },
+    { "beat": 412.05, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 415.3, "type": "hole", "length": 4.800000000000001 },
+    { "beat": 415.55, "type": "platform", "length": 0.9, "height": 45 },
+    { "beat": 416.0, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 416.85, "type": "platform", "length": 0.9, "height": 90, "color": "red" },
+    { "beat": 417.3, "type": "coin", "color": "red", "height": 120 },
+    { "beat": 418.15, "type": "platform", "length": 0.9, "height": 135, "color": "blue" },
+    { "beat": 418.6, "type": "coin", "color": "blue", "height": 165 },
+    { "beat": 422.6, "type": "ceiling", "length": 2 },
+    { "beat": 422.85, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 423.35, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 423.85, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 424.35, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 425.6, "type": "spike" },
+    { "beat": 428.6, "type": "hole", "length": 3.6 },
+    { "beat": 428.8, "type": "platform", "color": "blue", "length": 1.5, "height": 50 },
+    { "beat": 429.5, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 430.55, "type": "platform", "color": "red", "length": 1.5, "height": 50 },
+    { "beat": 431.3, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 435.2, "type": "hole", "color": "red" },
+    { "beat": 435.5, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 435.85, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 436.2, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 436.55, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 436.9, "type": "coin", "color": "red", "height": 110 },
+    { "beat": 439.95, "type": "spike" },
+    { "beat": 439.95, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 440.95, "type": "low", "length": 1.5 },
+    { "beat": 441.2, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 441.7, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 442.2, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 443.7, "type": "checkpoint" },
+    { "beat": 445.7, "type": "spike" },
+    { "beat": 445.7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 446.2, "type": "spike" },
+    { "beat": 446.2, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 446.7, "type": "spike" },
+    { "beat": 446.7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 447.2, "type": "spike" },
+    { "beat": 447.2, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 447.7, "type": "spike" },
+    { "beat": 447.7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 448.7, "type": "spike" },
+    { "beat": 448.7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 449.7, "type": "spike" },
+    { "beat": 449.7, "type": "coin", "color": "blue", "height": 70 },
+    { "beat": 450.2, "type": "spike" },
+    { "beat": 450.2, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 452.95, "type": "hole", "length": 6.1000000000000005 },
+    { "beat": 453.2, "type": "platform", "length": 0.9, "height": 45, "color": "red" },
+    { "beat": 453.65, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 454.5, "type": "platform", "length": 0.9, "height": 90, "color": "blue" },
+    { "beat": 454.95, "type": "coin", "color": "blue", "height": 120 },
+    { "beat": 455.8, "type": "platform", "length": 0.9, "height": 135, "color": "red" },
+    { "beat": 456.25, "type": "coin", "color": "red", "height": 165 },
+    { "beat": 457.1, "type": "platform", "length": 0.9, "height": 180, "color": "blue" },
+    { "beat": 457.55, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 462.05, "type": "crystal", "height": 190 },
+    { "beat": 462.65, "type": "wall", "color": "blue", "height": 260, "length": 0.3 },
+    { "beat": 462.8, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 465.05, "type": "spike" },
+    { "beat": 465.05, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 468.05, "type": "wall", "color": "blue" },
+    { "beat": 468.2, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 470.55, "type": "barrier", "color": "red" },
+    { "beat": 470.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 473.55, "type": "hole", "color": "red", "length": 4.5 },
+    { "beat": 474.05, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 474.65, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 474.75, "type": "barrier", "color": "red" },
+    { "beat": 475.25, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 475.75, "type": "crystal", "height": 100 },
+    { "beat": 475.85, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 476.45, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 476.75, "type": "barrier", "color": "red" },
+    { "beat": 477.05, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 477.65, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 481.55, "type": "barrier", "color": "red" },
+    { "beat": 481.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 482.05, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 482.55, "type": "barrier", "color": "red" },
+    { "beat": 482.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 483.05, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 483.3, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 486.55, "type": "barrier", "color": "red" },
+    { "beat": 486.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 489.05, "type": "wall", "color": "blue" },
+    { "beat": 489.2, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 492.05, "type": "spring" },
+    { "beat": 492.65, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 493.15, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 493.35, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 494.95, "type": "low", "length": 1.25 },
+    { "beat": 495.45, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 498.95, "type": "low", "length": 1 },
+    { "beat": 499.45, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 501.2, "type": "spike" },
+    { "beat": 501.2, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 502.45, "type": "low", "length": 1.5 },
+    { "beat": 502.7, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 503.2, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 503.7, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 506.7, "type": "hole", "length": 3.6 },
+    { "beat": 506.9, "type": "platform", "color": "blue", "length": 1.5, "height": 50 },
+    { "beat": 507.6, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 508.65, "type": "platform", "color": "red", "length": 1.5, "height": 50 },
+    { "beat": 509.4, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 513.3, "type": "hole", "color": "red", "length": 4 },
+    { "beat": 513.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 514.3, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 514.9, "type": "crystal", "height": 100 },
+    { "beat": 514.9, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 515.5, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 516.1, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 516.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 520.8, "type": "barrier", "color": "red" },
+    { "beat": 521.05, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 523.3, "type": "wall", "color": "blue" },
+    { "beat": 523.45, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 525.8, "type": "spike" },
+    { "beat": 525.8, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 526.8, "type": "low", "length": 1.5 },
+    { "beat": 527.05, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 527.55, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 528.05, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 530.55, "type": "spike", "length": 0.4 },
+    { "beat": 530.625, "type": "coin", "color": "blue", "height": 109 },
+    { "beat": 530.75, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 530.875, "type": "coin", "color": "blue", "height": 136 },
+    { "beat": 533.45, "type": "slope", "length": 2, "height": 80 },
+    { "beat": 533.95, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 534.45, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 534.95, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 536.2, "type": "spike" },
+    { "beat": 536.2, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 537.2, "type": "slope", "length": 1.5, "height": -80 },
+    { "beat": 539.45, "type": "spike" },
+    { "beat": 539.45, "type": "coin", "color": "blue", "height": 148 },
+    { "beat": 542.45, "type": "wall", "color": "blue" },
+    { "beat": 542.6, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 544.7, "type": "wall", "color": "blue" },
+    { "beat": 544.85, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 548.2, "type": "hole", "length": 6.1000000000000005 },
+    { "beat": 548.45, "type": "platform", "length": 0.9, "height": 45, "color": "blue" },
+    { "beat": 548.9, "type": "coin", "color": "blue", "height": 75 },
+    { "beat": 549.75, "type": "platform", "length": 0.9, "height": 90, "color": "red" },
+    { "beat": 550.2, "type": "coin", "color": "red", "height": 120 },
+    { "beat": 551.05, "type": "platform", "length": 0.9, "height": 135, "color": "blue" },
+    { "beat": 551.5, "type": "coin", "color": "blue", "height": 165 },
+    { "beat": 552.35, "type": "platform", "length": 0.9, "height": 180, "color": "red" },
+    { "beat": 552.8, "type": "coin", "color": "red", "height": 210 },
+    { "beat": 557.3, "type": "hole", "color": "red", "length": 4.5 },
+    { "beat": 557.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 558.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 558.5, "type": "barrier", "color": "red" },
+    { "beat": 559.0, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 559.5, "type": "crystal", "height": 100 },
+    { "beat": 559.6, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 560.2, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 560.5, "type": "barrier", "color": "red" },
+    { "beat": 560.8, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 561.4, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 565.3, "type": "barrier", "color": "red" },
+    { "beat": 565.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 567.8, "type": "wall", "color": "blue" },
+    { "beat": 567.95, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 570.8, "type": "crystal", "height": 190 },
+    { "beat": 571.4, "type": "wall", "color": "blue", "height": 260, "length": 0.3 },
+    { "beat": 571.55, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 573.8, "type": "spike" },
+    { "beat": 573.8, "type": "coin", "color": "blue", "height": 128 },
+    { "beat": 575.8, "type": "coin", "color": "blue", "height": 25 },
+    { "beat": 578.05, "type": "spring" },
+    { "beat": 578.65, "type": "coin", "color": "blue", "height": 210 },
+    { "beat": 579.15, "type": "wall", "height": 250, "length": 0.4 },
+    { "beat": 579.35, "type": "coin", "color": "blue", "height": 290 },
+    { "beat": 580.95, "type": "low", "length": 1.25 },
+    { "beat": 581.45, "type": "coin", "color": "blue", "height": 12 },
+    { "beat": 584.95, "type": "wall", "color": "blue" },
+    { "beat": 585.1, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 587.45, "type": "barrier", "color": "red" },
+    { "beat": 587.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 590.45, "type": "hole", "color": "red", "length": 4.5 },
+    { "beat": 590.95, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 591.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 591.65, "type": "barrier", "color": "red" },
+    { "beat": 592.15, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 592.65, "type": "crystal", "height": 100 },
+    { "beat": 592.75, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 593.35, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 593.65, "type": "barrier", "color": "red" },
+    { "beat": 593.95, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 594.55, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 598.45, "type": "barrier", "color": "red" },
+    { "beat": 598.7, "type": "coin", "color": "red", "height": 100 },
+    { "beat": 600.95, "type": "wall", "color": "blue" },
+    { "beat": 601.1, "type": "coin", "color": "blue", "height": 200 },
+    { "beat": 603.7, "type": "hole", "length": 4.800000000000001 },
+    { "beat": 603.95, "type": "platform", "length": 0.9, "height": 45, "color": "red" },
+    { "beat": 604.4, "type": "coin", "color": "red", "height": 75 },
+    { "beat": 605.25, "type": "platform", "length": 0.9, "height": 90, "color": "blue" },
+    { "beat": 605.7, "type": "coin", "color": "blue", "height": 120 },
+    { "beat": 606.55, "type": "platform", "length": 0.9, "height": 135, "color": "red" },
+    { "beat": 607.0, "type": "coin", "color": "red", "height": 165 },
+    { "beat": 611.0, "type": "spike" },
+    { "beat": 611.0, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 611.5, "type": "spike" },
+    { "beat": 611.5, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 612.0, "type": "spike" },
+    { "beat": 612.0, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 612.5, "type": "spike" },
+    { "beat": 612.5, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 613.0, "type": "spike" },
+    { "beat": 613.0, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 613.5, "type": "spike" },
+    { "beat": 613.5, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 614.0, "type": "spike" },
+    { "beat": 614.0, "type": "coin", "color": "red", "height": 70 },
+    { "beat": 614.5, "type": "spike" },
+    { "beat": 614.5, "type": "coin", "color": "red", "height": 128 }
   ]
 }
