@@ -95,6 +95,14 @@ export const ROBIN_SHEET = {
   dash: [11, 12],
   idle: 13,
   death: [14, 15, 16, 17],
+  slide: [18, 19, 20], // entrée, glisse, relevé
+  land: [21, 22],
+  heavyLand: [23, 24], // après un fast-fall
+  fastFall: [25, 26],
+  fastRun: [27, 28, 29, 30, 31, 32], // course avec D
+  idleLoop: [33, 34, 35, 36, 37, 38, 39, 40], // tête qui bouge au rythme
+  idleFramesPerBeat: 4,
+  landBeats: 0.15, // durée de la pose d'atterrissage
   runFramesPerBeat: 4, // un pas sur chaque beat
   dashFramesPerBeat: 8,
   deathFrameMs: 90,

@@ -29,7 +29,13 @@ FRAMES = [
     "run1", "run2", "run3", "run4", "run5", "run6", "run7", "run8",
     "jump1", "jump2", "fall", "dash1", "dash2", "idle",
     "death1", "death2", "death3", "death4",
+    "slide1", "slide2", "slide3", "land1", "land2", "hland1", "hland2",
+    "ff1", "ff2", "frun1", "frun2", "frun3", "frun4", "frun5", "frun6",
+    "idle1", "idle2", "idle3", "idle4", "idle5", "idle6", "idle7", "idle8",
 ]
+# 2e planche de poses : glissade, atterrissages, fast-fall, course rapide, idle.
+POSES2 = "robin_glissade_atterissage_fastfall_course rapide_idle.png"
+POSES2_SCALE = 170 / 35  # idle de 170 px source -> 35 px
 # Taille d'un "pixel" dans l'image des poses, réglée pour que la tête fasse
 # la même largeur que dans la course (20 px).
 POSES_SCALE = 7.1
@@ -190,6 +196,36 @@ def pose_frames():
     return sprites
 
 
+def merge(segs, gap):
+    out = []
+    for s in segs:
+        if out and s[0] - out[-1][1] < gap:
+            out[-1] = (out[-1][0], s[1])
+        else:
+            out.append(s)
+    return out
+
+
+def pose2_frames():
+    """3 lignes : glissade x3, atterrissage x2, atterrissage lourd x2 /
+    fast-fall x2, course rapide x6 / idle x8. Les traits d'effet proches
+    d'une pose sont regroupés avec elle ; titres et numéros sont ignorés."""
+    rgb = np.array(Image.open(ART / POSES2).convert("RGB")).astype(int)
+    fg_all = ~background_mask_checker(rgb)
+    bands = [b for b in segments(fg_all.sum(1), 3) if b[1] - b[0] > 150]
+    sprites = []
+    for y0, y1 in bands:
+        y0 -= 12  # garde les traits de vitesse au-dessus de la tête
+        for x0, x1 in merge(segments(fg_all[y0:y1].sum(0), 1), 20):
+            rows = merge(segments(fg_all[y0:y1, x0:x1].sum(1), 0), 10)
+            r0, r1 = max(rows, key=lambda r: r[1] - r[0])
+            sub = rgb[y0 + r0 : y0 + r1, x0:x1]
+            fg = ~flood_outside(background_mask_checker(sub))
+            sprites.append(crop_alpha(downsample(sub, fg, POSES2_SCALE)))
+    assert len(sprites) == 23, f"{len(sprites)} poses trouvées au lieu de 23"
+    return sprites
+
+
 def is_tinted(c, color):
     r, g, b = (int(v) for v in c)
     return b > r + 25 if color == "blue" else r > b + 25
@@ -232,9 +268,11 @@ def main():
     poses = [place(jump1), place(jump2), place(fall), place(dash1), place(dash2)]
     death = [place(d, "center") for d in deaths]
 
-    blue = quantize([place(f) for f in runs["blue"]] + poses + [place(idles["blue"])] + death)
+    extra = [place(f, "center" if i == 1 else "head") for i, f in enumerate(pose2_frames())]
+
+    blue = quantize([place(f) for f in runs["blue"]] + poses + [place(idles["blue"])] + death + extra)
     red_own = quantize([place(f) for f in runs["red"]] + [place(idles["red"])])
-    blue_poses = blue[8:13] + blue[14:18]
+    blue_poses = blue[8:13] + blue[14:]
     red_poses = recolor_blue_to_red(blue_poses, blue[:8], red_own[:8])
     red = red_own[:8] + red_poses[:5] + [red_own[8]] + red_poses[5:]
 

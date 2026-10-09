@@ -35,6 +35,9 @@ export class Player {
     this.holdTime = 0;
     this.dashTime = 0;
     this.slideTimer = 0; // glissade en cours
+    this.slideTotal = 0;
+    this.landTimer = 0; // pose d'atterrissage (animation)
+    this.heavyLand = false;
     this.speedInput = 1; // Q/D lissés (montée progressive)
     this.onGround = true;
     this.fastFalling = false;
@@ -130,7 +133,7 @@ export class Player {
   slide() {
     if (this.sliding) return;
     const ratio = this.speed / PPB;
-    this.slideTimer = PLAYER.slideBeats * ratio * ratio;
+    this.slideTimer = this.slideTotal = PLAYER.slideBeats * ratio * ratio;
     this.speed *= PLAYER.slideSpeedLoss;
     this.onEvent('slide');
   }
@@ -292,6 +295,7 @@ export class Player {
     if (this.h < ground - 60 || (this.h < ground - 6 && !overHole)) return this.die();
 
     this.flipTimer = Math.max(0, this.flipTimer - dt);
+    this.landTimer = Math.max(0, this.landTimer - dt);
     // L'écrasement / étirement revient doucement à la normale.
     const decay = dt / PLAYER.squashBeats;
     this.squash = this.squash > 0 ? Math.max(0, this.squash - decay) : Math.min(0, this.squash + decay);
@@ -358,6 +362,8 @@ export class Player {
       this.onEvent('land');
       // Écrasement plus fort si on arrive vite (fast-fall).
       this.squash = -Math.min(1, 0.5 + Math.abs(this.vy) / 1200);
+      this.landTimer = ROBIN_SHEET.landBeats;
+      this.heavyLand = this.fastFalling;
     }
     this.flipTimer = 0;
     this.onGround = true;
@@ -380,7 +386,7 @@ export class Player {
     let sx = base * (1 - k);
     let sy = base * (1 + k);
     if (!this.useSheet && this.dashing) [sx, sy] = [1.25, 0.8];
-    if (this.sliding) [sx, sy] = [base * 1.3, base * 0.55]; // couché
+    if (this.sliding && !this.useSheet) [sx, sy] = [1.3, 0.55]; // couché (cube)
     this.sprite.setScale(sx, sy);
     // Les pieds restent au sol malgré la déformation.
     const half = (this.halfHeight * sy) / base;
@@ -406,16 +412,27 @@ export class Player {
       const i = Math.floor(beat * perBeat);
       return frames[((i % frames.length) + frames.length) % frames.length];
     };
-    if (this.idle) return ROBIN_SHEET.idle;
-    if (this.dashing) return loop(ROBIN_SHEET.dash, ROBIN_SHEET.dashFramesPerBeat);
-    if (this.sliding) return ROBIN_SHEET.dash[0];
+    const S = ROBIN_SHEET;
+    if (this.idle) return loop(S.idleLoop, S.idleFramesPerBeat / 2);
+    if (this.dashing) return loop(S.dash, S.dashFramesPerBeat);
+    if (this.sliding) {
+      // Entrée, glisse, puis relevé sur la fin.
+      const done = this.slideTotal - this.slideTimer;
+      if (done < 0.08) return S.slide[0];
+      return this.slideTimer < 0.1 ? S.slide[2] : S.slide[1];
+    }
+    if (!this.onGround && this.fastFalling) return loop(S.fastFall, 8);
+    if (this.onGround && this.landTimer > 0) {
+      const frames = this.heavyLand ? S.heavyLand : S.land;
+      return frames[this.landTimer > ROBIN_SHEET.landBeats / 2 ? 0 : 1];
+    }
     if (!this.onGround) {
       if (this.vy > PLAYER.jumpVelocity * 0.5) return ROBIN_SHEET.jump[0];
       return this.vy > 0 ? ROBIN_SHEET.jump[1] : ROBIN_SHEET.fall;
     }
     // La course suit la vitesse réelle de Robin (pas plus vite qu'un pas par beat à x1).
     const i = Math.floor(this.runPhase * ROBIN_SHEET.runFramesPerBeat);
-    const run = ROBIN_SHEET.run;
+    const run = this.speed > PPB * 1.08 ? ROBIN_SHEET.fastRun : ROBIN_SHEET.run;
     return run[((i % run.length) + run.length) % run.length];
   }
 
