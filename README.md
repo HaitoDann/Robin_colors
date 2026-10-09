@@ -78,7 +78,7 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 
 Couleurs (`"color"`) : `gray` (défaut), `blue`, `red`.
 - **Bleu** : murs hauts / trous moyens, qui demandent le double saut.
-- **Rouge** : traversables uniquement pendant le dash (barrières, longs trous).
+- **Rouge** : murs rouges fissurés à briser en dash, longs trous à traverser en dash.
 
 Champs optionnels : `length` (en beats), `height` (en px).
 
