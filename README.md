@@ -18,7 +18,7 @@ Caler une musique : dans l'éditeur, active le métronome (M) et écoute (Espace
 Si les clics tombent avant ou après les coups de la musique, ajuste avec J / K
 (puis U / I pour affiner) jusqu'à ce qu'ils soient confondus. C'est l'offset.
 Niveaux :
-- Niveau 1 — `First_Light.mp3` : 150 BPM, offset 0,054 s (calé sur le fichier audio). Apprentissage des mécaniques.
+- Niveau 1 — `First_Light.mp3` : 151,6 BPM, offset 0,060 s (analyse du fichier audio). Nouveau parcours progressif, centré sur les sauts bleus, le dash rouge et les alternances de couleurs.
 - Niveau 2 — `Hollow_Circuit.mp3` : 178,18 BPM, offset 0,047 s (mesuré ; pas 175). Plus difficile.
 
 Les niveaux sont dans `public/levels/*.json` et les mp3 dans `public/music/`.
