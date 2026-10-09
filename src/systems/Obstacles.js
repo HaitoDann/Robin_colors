@@ -3,6 +3,8 @@
 // h = hauteur au-dessus du sol (vers le haut).
 
 import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } from '../config.js';
+import { SpritePool } from '../gfx/SpritePool.js';
+import { hasArt, drawGroundArt, drawObstacleArt } from './ObstacleArt.js';
 
 export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal', 'low', 'platform', 'spring', 'slope', 'checkpoint'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
@@ -181,6 +183,10 @@ export class Obstacles {
     this.level = level;
     this.gfx = scene.add.graphics().setDepth(10);
     this.groundGfx = scene.add.graphics().setDepth(5);
+    // Images pixel art si elles sont chargées, sinon dessins de secours.
+    this.art = hasArt(scene);
+    this.groundPool = new SpritePool(scene, 6);
+    this.pool = new SpritePool(scene, 11);
     this.rebuild();
   }
 
@@ -265,9 +271,15 @@ export class Obstacles {
 
   // Rendu : cameraX = position monde de Robin.
   draw(cameraX, beat, playerColor = 'blue', reached = null) {
-    this.drawGround(cameraX, beat);
     const g = this.gfx;
     g.clear();
+    if (this.art) {
+      this.groundGfx.clear();
+      this.groundPool.begin();
+      drawGroundArt(this, this.groundPool, this.groundGfx, cameraX);
+      this.groundPool.end();
+      this.pool.begin();
+    } else this.drawGround(cameraX, beat);
     const viewX0 = cameraX - PLAYER_X - 50;
     const viewX1 = viewX0 + WIDTH + 100;
     for (const o of this.query(viewX0, viewX1)) {
@@ -276,6 +288,7 @@ export class Obstacles {
       const w = o.x1 - o.x0;
       const pal = PALETTE[o.color] ?? PALETTE.gray;
       const gy = GROUND_Y - (o.base ?? 0); // sol local (pentes)
+      if (this.art && drawObstacleArt(o, this.pool, g, sx, beat, playerColor, reached)) continue;
       if (o.type === 'spike') drawSpikes(g, sx, w, pal, gy);
       else if (o.type === 'wall' && o.color === 'red') {
         if (!o.broken) drawCrackedWall(g, sx, GROUND_Y - o.y1, w, o.y1 - (o.base ?? 0), pal, beat);
@@ -287,6 +300,7 @@ export class Obstacles {
       else if (o.type === 'spring') drawSpring(g, sx, w, gy, beat);
       else if (o.type === 'checkpoint') drawCheckpoint(g, sx + w / 2, gy, reached?.has(o.data));
     }
+    if (this.art) this.pool.end();
   }
 
   drawGround(cameraX, beat) {

@@ -20,6 +20,7 @@ import { Hitboxes } from '../systems/Hitboxes.js';
 import { Settings } from '../systems/Settings.js';
 import { Metronome } from '../systems/Metronome.js';
 import { Progress } from '../systems/Progress.js';
+import TILES from '../gfx/tiles.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -37,6 +38,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    // Décors pixel art (tools/process_tiles.py). Absents : dessins de secours.
+    for (const [name, t] of Object.entries(TILES)) {
+      if (!this.textures.exists(`tile_${name}`)) this.load.spritesheet(`tile_${name}`, `tiles/${name}.png`, { frameWidth: t.w, frameHeight: t.h });
+    }
     // Sprites de Robin ; si absents, on garde le cube généré en code.
     for (const color of ['blue', 'red']) {
       if (this.textures.exists(`robin_sheet_${color}`)) continue;
@@ -288,6 +293,7 @@ export class GameScene extends Phaser.Scene {
       if (o.type !== 'wall' || o.color !== 'red' || o.broken) continue;
       if (box.y1 < o.y0 || box.y0 > o.y1) continue;
       o.broken = true;
+      o.brokenBeat = this.beat;
       this.onWallBroken(o);
     }
   }
