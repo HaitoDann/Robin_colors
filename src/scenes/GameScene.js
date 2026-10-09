@@ -220,7 +220,7 @@ export class GameScene extends Phaser.Scene {
       // Q/D : vitesse de Robin (mode 'player') ou du jeu entier (mode 'music').
       this.speedFactor = this.controls.getSpeed();
       // 'run' : la musique suit la vitesse réelle de Robin (inertie, dash…).
-      if (SPEED_MODE === 'run') this.audio.setRate(musicRateFor(this.player.speed / PPB));
+      if (SPEED_MODE === 'run') this.audio.setRate(this.player.musicRate);
       else this.audio.setRate(SPEED_MODE === 'music' ? this.speedFactor : 1);
       const playerFactor = SPEED_MODE === 'music' ? 1 : this.speedFactor;
       // Touches tenues : servent au saut, double saut et dash adaptatifs.

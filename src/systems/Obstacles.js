@@ -138,7 +138,7 @@ export function buildGeometry(o) {
       // Ressort : on peut marcher dessus ; en fast-fall, il propulse très haut.
       g.x0 = bx - 18;
       g.x1 = bx + 18;
-      g.y1 = 14;
+      g.y1 = 26; // dessus du chapeau de champignon
       g.solidTop = true;
       g.isSpring = true;
       break;

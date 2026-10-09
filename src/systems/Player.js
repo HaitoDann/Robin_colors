@@ -2,7 +2,7 @@
 // Z : saut. Espace en l'air : double saut (bleu) ou dash (rouge, traverse les
 // obstacles rouges). Les trois sont adaptatifs : plus on tient, plus c'est fort.
 
-import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE, musicRateFor } from '../config.js';
+import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE, musicRateFor, MUSIC_RATE } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
 import { hitsSpike } from './Obstacles.js';
 
@@ -31,6 +31,7 @@ export class Player {
     this.offset = 0; // avance (+) ou retard (-) sur le défilement, en px
     this.runPhase = 0;
     this.speed = PPB; // "vitesse au sol" façon Sonic (px / beat)
+    this.musicRate = 1; // vitesse de lecture de la musique (lissée)
     this.holdActive = false; // bonus de saut adaptatif en cours
     this.holdKey = 'jump'; // touche qui contrôle ce bonus ('jump' ou 'air')
     this.holdTime = 0;
@@ -206,7 +207,10 @@ export class Player {
       this.x = cameraX;
       this.offset = 0;
       if (this.onGround) this.runPhase += dt;
-      dt /= musicRateFor(this.speed / PPB);
+      // Vitesse de la musique lissée (la même pour le son et pour le corps).
+      const target = musicRateFor(this.speed / PPB);
+      this.musicRate += (target - this.musicRate) * Math.min(1, dt / MUSIC_RATE.smoothBeats);
+      dt /= this.musicRate;
       this.stepSpeed(dt, speedFactor, obstacles);
     } else {
       this.stepHorizontal(dt, cameraX, speedFactor, obstacles);

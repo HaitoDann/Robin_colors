@@ -54,10 +54,10 @@ export const PLAYER = {
   // en l'air, peu de contrôle : l'élan pris au sol décide de la longueur du saut.
   slowFactor: 0.8, // vitesse cible avec Q (x vitesse de défilement)
   fastFactor: 1.2, // vitesse cible avec D
-  groundAccel: 75, // px / beat² : D tenu, on prend de la vitesse (~0,5 beat)
-  groundDecel: 120, // px / beat² : Q tenu alors qu'on va vite, on freine
-  groundFriction: 70, // px / beat² : sans touche, on revient vers x1
-  speedInputBeats: 0.25, // Q/D "montent" progressivement (pas de coup sec)
+  groundAccel: 40, // px / beat² : D tenu, on prend de la vitesse (~1 beat)
+  groundDecel: 60, // px / beat² : Q tenu alors qu'on va vite, on freine
+  groundFriction: 40, // px / beat² : sans touche, on revient vers x1
+  speedInputBeats: 0.6, // Q/D "montent" progressivement (pas de coup sec)
   airAccel: 40, // px / beat² : peu de contrôle en l'air => l'élan compte
   // Pentes (pour plus tard) : en montée on perd de la vitesse, en descente on
   // en gagne, même sans toucher à rien (comme Sonic). Sol plat = aucun effet.
@@ -66,7 +66,7 @@ export const PLAYER = {
   minOffset: -150, // limites de déplacement à l'écran (px)
   maxOffset: 280,
   dashSpeedFactor: 1.6, // le dash propulse vraiment vers l'avant
-  overspeedDecel: 400, // px / beat² : après un dash, on revient vite à sa vitesse de course
+  overspeedDecel: 160, // px / beat² : après un dash, retour en douceur à la vitesse de course
   // Petites tolérances pour que le jeu reste agréable.
   coyoteBeats: 0.08, // on peut encore sauter juste après avoir quitté le sol
   jumpBufferBeats: 0.12, // un appui juste avant l'atterrissage est mémorisé
@@ -130,9 +130,11 @@ export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
 export const SPEED_MODE = 'run';
 // Vitesse de la musique en mode 'run'. Elle suit la vitesse de Robin, mais
 // atténuée : rate = base + (vitesse de Robin - 1) x follow.
-// Avec base 1 et follow 0,5 : course x1, D x1,1, dash x1,3, Q x0,9.
+// Avec base 1 et follow 0,35 : course x1, D x1,07, dash x1,2, Q x0,93.
+// smoothBeats : la vitesse de la musique glisse doucement vers sa cible
+// (pas de "vinyle" qui grince quand on accélère ou dash).
 // (base 0,95 par exemple = musique un peu plus lente en course normale.)
-export const MUSIC_RATE = { base: 1, follow: 0.5, min: 0.8, max: 1.35 };
+export const MUSIC_RATE = { base: 1, follow: 0.35, min: 0.85, max: 1.25, smoothBeats: 0.35 };
 export function musicRateFor(speedRatio) {
   const r = MUSIC_RATE.base + (speedRatio - 1) * MUSIC_RATE.follow;
   return Math.max(MUSIC_RATE.min, Math.min(MUSIC_RATE.max, r));

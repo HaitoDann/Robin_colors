@@ -17,7 +17,7 @@ export class SpritePool {
     const list = (this.lists[kind] ??= []);
     const i = (this.used[kind] = (this.used[kind] ?? 0) + 1) - 1;
     if (!list[i]) list[i] = create().setDepth(this.depth);
-    return list[i].setVisible(true).setAlpha(1).clearTint();
+    return list[i].setVisible(true).setAlpha(1).clearTint().setFlip(false, false);
   }
 
   // Image simple (origine en haut à gauche par défaut).
