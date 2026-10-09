@@ -793,10 +793,6 @@
       "height": 25
     },
     {
-      "beat": 248,
-      "type": "checkpoint"
-    },
-    {
       "beat": 248.5,
       "type": "coin",
       "color": "blue",
@@ -1384,10 +1380,6 @@
       "height": 25
     },
     {
-      "beat": 432,
-      "type": "checkpoint"
-    },
-    {
       "beat": 436,
       "type": "coin",
       "color": "blue",
@@ -1831,10 +1823,6 @@
       "type": "coin",
       "color": "blue",
       "height": 25
-    },
-    {
-      "beat": 568,
-      "type": "checkpoint"
     },
     {
       "beat": 568.5,
