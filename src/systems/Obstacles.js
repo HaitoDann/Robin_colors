@@ -14,8 +14,12 @@ export const PALETTE = {
   red: { fill: 0x6a1426, line: 0xff5a78 },
 };
 
-const SPIKE_W = 30;
-const SPIKE_H = 30;
+const SPIKE_W = 26; // largeur d'un pic dessiné
+const SPIKE_H = 24; // hauteur d'un pic dessiné
+// Zone mortelle : un triangle un peu plus petit que le dessin (indulgent),
+// et non plus un rectangle (on mourait "dans le vide" à côté de la pointe).
+const SPIKE_HIT_H = 19;
+const SPIKE_HIT_HALF = 10;
 const TOP = 2000; // "infini" vers le haut
 
 // Valeurs par défaut selon le type et la couleur (longueurs en beats).
@@ -52,7 +56,9 @@ export function buildGeometry(o) {
       g.x0 = bx - SPIKE_W / 2;
       g.x1 = g.x0 + w;
       g.y1 = SPIKE_H;
-      g.hit = { x0: g.x0 + 8, x1: g.x1 - 8, y0: 0, y1: 16 };
+      const n = Math.max(1, Math.round(w / SPIKE_W));
+      g.tris = Array.from({ length: n }, (_, i) => ({ cx: g.x0 + SPIKE_W / 2 + i * SPIKE_W, half: SPIKE_HIT_HALF, h: SPIKE_HIT_H }));
+      g.hit = { x0: g.tris[0].cx - SPIKE_HIT_HALF, x1: g.tris[n - 1].cx + SPIKE_HIT_HALF, y0: 0, y1: SPIKE_HIT_H };
       break;
     }
     case 'wall': {
@@ -157,6 +163,18 @@ export function buildGeometry(o) {
   return g;
 }
 
+// Vrai si la boîte {x0, x1, y0, y1} touche un des triangles d'un pic.
+export function hitsSpike(o, box) {
+  for (const t of o.tris) {
+    if (box.x1 <= t.cx - t.half || box.x0 >= t.cx + t.half) continue;
+    // Point de la boîte le plus proche de la pointe.
+    const dx = box.x0 > t.cx ? box.x0 - t.cx : box.x1 < t.cx ? t.cx - box.x1 : 0;
+    const top = (t.base ?? 0) + t.h * (1 - dx / t.half);
+    if (box.y0 < top && box.y1 > (t.base ?? 0)) return true;
+  }
+  return false;
+}
+
 export class Obstacles {
   constructor(scene, level) {
     this.scene = scene;
@@ -179,6 +197,7 @@ export class Obstacles {
         if (!base) continue;
         g.y0 += base;
         g.y1 += base;
+        if (g.tris) for (const t of g.tris) t.base = base;
         if (g.hit) {
           g.hit.y0 += base;
           if (g.hit.y1 < TOP) g.hit.y1 += base;

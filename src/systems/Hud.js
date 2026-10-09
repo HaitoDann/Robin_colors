@@ -2,7 +2,7 @@
 // compteurs de pièces, et panneaux (titre, pause, fin de niveau).
 
 import { WIDTH, HEIGHT } from '../config.js';
-import { UI, text, drawPanel, keyHints, drawDiamond } from '../ui/theme.js';
+import { UI, text, drawPanel, keyHints, drawDiamond, FONT_TITLE, FONT_TEXT } from '../ui/theme.js';
 
 const BAR_W = 320;
 
@@ -14,9 +14,9 @@ export class Hud {
     this.panelGfx = scene.add.graphics().setDepth(99);
 
     this.kicker = text(scene, 14, 10, '', { size: 12, title: true, color: UI.text }).setDepth(100);
-    this.info = text(scene, 14, 27, '', { size: 13, color: UI.dim }).setDepth(100);
+    this.info = text(scene, 14, 27, '', { size: 11, title: true, color: UI.dim }).setDepth(100);
     this.coins = ['blue', 'red'].map((c, i) =>
-      text(scene, WIDTH - 14, 9 + i * 20, '', { size: 16, bold: true, color: UI.css(c === 'blue' ? UI.blue : UI.red) })
+      text(scene, WIDTH - 14, 9 + i * 20, '', { size: 14, title: true, bold: true, color: UI.css(c === 'blue' ? UI.blue : UI.red) })
         .setOrigin(1, 0)
         .setDepth(100),
     );
@@ -89,7 +89,9 @@ export class Hud {
 
   // opts : { kicker, hints: [[touche, texte], ...], color }
   showMessage(title, subtitle = '', opts = {}) {
-    const { kicker = '', hints = [], color = this.color } = opts;
+    const { kicker = '', hints = [], color = this.color, numeric = false } = opts;
+    // Texte avec des nombres : police Silkscreen (chiffres nets).
+    this.subtitle.setFontFamily(numeric ? FONT_TITLE : FONT_TEXT).setFontSize(numeric ? 14 : 17);
     const acc = color === 'red' ? UI.red : color === 'gold' ? 0xffd166 : UI.blue;
     this.pKicker.setText(kicker).setVisible(!!kicker);
     this.title.setText(title).setVisible(true);

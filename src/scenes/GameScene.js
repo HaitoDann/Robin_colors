@@ -139,14 +139,18 @@ export class GameScene extends Phaser.Scene {
   showTitleCard() {
     const p = Progress.get(this.levelId);
     const lines = [
-      `${Math.round(this.level.bpm)} BPM` + (this.audio.isPlaceholder ? '  ·  musique de remplacement' : ''),
-      p.done ? `Record : ${p.coins} / ${p.total} pièces` : '',
-      '',
+      this.audio.isPlaceholder ? '(musique de remplacement)\n' : '',
       'Z saut   ESPACE double saut / dash   A couleur',
       'S glissade / fast-fall   Q D vitesse',
-    ].filter((l, i) => l || i === 2);
+    ].filter(Boolean);
+    // Les nombres vont dans l'en-tête (police Silkscreen, chiffres plus lisibles).
+    const kicker = [
+      this.levelKicker.startsWith('NIVEAU') ? this.levelKicker.split(' · ')[0] : '',
+      `${Math.round(this.level.bpm)} BPM`,
+      p.done ? `RECORD ${p.coins}/${p.total}` : '',
+    ].filter(Boolean);
     this.hud.showMessage(this.levelTitle, lines.join('\n'), {
-      kicker: this.levelKicker.startsWith('NIVEAU') ? this.levelKicker.split(' · ')[0] : '',
+      kicker: kicker.join(' · '),
       color: this.player.color,
       hints: [
         ['Z', 'jouer'],
@@ -323,7 +327,7 @@ export class GameScene extends Phaser.Scene {
     const lines = [line('blue', 'bleues'), line('red', 'rouges'), `${this.attempts} essai${this.attempts > 1 ? 's' : ''}`];
     if (record) lines.push('', got === total ? '★ TOUTES LES PIÈCES ★' : '★ Nouveau record ★');
     const hints = this.mode === 'edit' ? [['ENTRÉE', 'éditeur']] : [['Z', 'rejouer'], ['ÉCHAP', 'menu']];
-    this.hud.showMessage('TERMINÉ', lines.filter((l, i) => l || i > 2).join('\n'), { kicker: this.levelKicker, color: 'gold', hints });
+    this.hud.showMessage('TERMINÉ', lines.filter((l, i) => l || i > 2).join('\n'), { kicker: this.levelKicker, color: 'gold', hints, numeric: true });
   }
 
   // --- Pause et navigation ---

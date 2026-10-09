@@ -4,6 +4,7 @@
 
 import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE, musicRateFor } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
+import { hitsSpike } from './Obstacles.js';
 
 const W = PLAYER.width;
 const H = PLAYER.height;
@@ -291,7 +292,9 @@ export class Player {
     const box = this.getHitbox(worldX);
     for (const o of near) {
       if (!o.hit || this.ignores(o)) continue;
-      const overlap = box.x1 > o.hit.x0 && box.x0 < o.hit.x1 && box.y1 > o.hit.y0 && box.y0 < o.hit.y1;
+      const overlap = o.tris
+        ? hitsSpike(o, { x0: box.x0 + 3, x1: box.x1 - 3, y0: box.y0, y1: box.y1 }) // pieds un peu plus étroits
+        : box.x1 > o.hit.x0 && box.x0 < o.hit.x1 && box.y1 > o.hit.y0 && box.y0 < o.hit.y1;
       if (overlap) return this.die();
     }
 

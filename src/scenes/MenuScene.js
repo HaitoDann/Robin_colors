@@ -207,9 +207,9 @@ export class MenuScene extends Phaser.Scene {
         return {
           num: this.keep(text(this, 0, 0, String(l.number ?? '?').padStart(2, '0'), { size: 54, title: true, bold: true }).setOrigin(0.5).setDepth(20)),
           title: this.keep(text(this, 0, 0, (l.title ?? l.name).toUpperCase(), { size: 15, title: true, bold: true, align: 'center', wordWrap: { width: 190 } }).setOrigin(0.5).setDepth(20)),
-          info: this.keep(text(this, 0, 0, l.bpm ? `${l.bpm} BPM` : '', { size: 13, color: UI.dim }).setOrigin(0.5).setDepth(20)),
+          info: this.keep(text(this, 0, 0, l.bpm ? `${l.bpm} BPM` : '', { size: 12, title: true, color: UI.dim }).setOrigin(0.5).setDepth(20)),
           record: this.keep(
-            text(this, 0, 0, p.done ? `${p.coins} / ${p.total}` : 'Pas encore terminé', { size: 13, color: p.done ? UI.gold : UI.faint }).setOrigin(0.5).setDepth(20),
+            text(this, 0, 0, p.done ? `${p.coins} / ${p.total}` : 'Pas encore terminé', { size: p.done ? 12 : 13, title: p.done, color: p.done ? UI.gold : UI.faint }).setOrigin(0.5).setDepth(20),
           ),
           progress: p,
         };
@@ -217,7 +217,7 @@ export class MenuScene extends Phaser.Scene {
       return {
         label: this.keep(text(this, 0, 0, item.label, { size: 22, bold: true }).setOrigin(0, 0.5).setDepth(20)),
         sub: this.keep(text(this, 0, 0, item.sub ?? '', { size: 12, color: UI.dim }).setOrigin(0, 0.5).setDepth(20)),
-        value: item.value ? this.keep(text(this, 0, 0, '', { size: 18 }).setOrigin(1, 0.5).setDepth(20)) : null,
+        value: item.value ? this.keep(text(this, 0, 0, '', { size: 14, title: true }).setOrigin(1, 0.5).setDepth(20)) : null,
       };
     });
   }

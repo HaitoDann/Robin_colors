@@ -28,6 +28,14 @@ export class Hitboxes {
         g.strokeRect(sx(o.x0), GROUND_Y, o.x1 - o.x0, HEIGHT - GROUND_Y);
         continue;
       }
+      if (o.tris) {
+        g.lineStyle(2, ignored ? 0x66ff99 : 0xff4466, 0.95);
+        for (const t of o.tris) {
+          const b = t.base ?? 0;
+          g.strokeTriangle(sx(t.cx - t.half), sy(b), sx(t.cx), sy(b + t.h), sx(t.cx + t.half), sy(b));
+        }
+        continue;
+      }
       if (!o.hit) continue;
       const color = ignored ? 0x66ff99 : o.solidTop ? 0xffd166 : 0xff4466;
       g.lineStyle(2, color, 0.95);
