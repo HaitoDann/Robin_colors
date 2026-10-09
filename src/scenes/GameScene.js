@@ -3,7 +3,7 @@
 // Le temps de jeu vient de l'horloge audio : beat = level.timeToBeat(audio.getTime()).
 
 import Phaser from 'phaser';
-import { PIXELS_PER_BEAT as PPB, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE, musicRateFor } from '../config.js';
+import { PIXELS_PER_BEAT as PPB, GROUND_Y, PHYSICS_STEP, ROBIN_SHEET, WIDTH, HEIGHT, RENDER_SCALE, SPEED_MODE, musicRateFor } from '../config.js';
 import { createTextures } from '../gfx/textures.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
@@ -187,6 +187,7 @@ export class GameScene extends Phaser.Scene {
     if (cp) for (const d of cp.coins) this.coins.collected.add(d);
     this.reached = new Set(cp ? cp.reached : []);
     this.crystals.reset();
+    for (const o of this.obstacles.items) o.broken = false; // murs rouges réparés
     this.beat = from;
     this.lastBeat = from;
     this.audio.setRate(1);
@@ -232,6 +233,7 @@ export class GameScene extends Phaser.Scene {
         for (const c of this.coins.update(this.player)) this.onCoin(c);
         if (this.crystals.update(this.player).length) this.onCrystal();
         this.checkCheckpoints();
+        if (this.player.dashing) this.breakWalls();
       }
       this.lastBeat = Math.max(this.lastBeat, this.beat);
 
@@ -277,6 +279,25 @@ export class GameScene extends Phaser.Scene {
       this.player.color,
     );
     this.hud.draw();
+  }
+
+  // Dash dans un mur rouge : il vole en éclats (jusqu'au prochain essai).
+  breakWalls() {
+    const box = this.player.getHitbox(this.player.x);
+    for (const o of this.obstacles.query(box.x0 - 4, box.x1 + 4)) {
+      if (o.type !== 'wall' || o.color !== 'red' || o.broken) continue;
+      if (box.y1 < o.y0 || box.y0 > o.y1) continue;
+      o.broken = true;
+      this.onWallBroken(o);
+    }
+  }
+
+  onWallBroken(o) {
+    const sx = this.obstacles.toScreenX((o.x0 + o.x1) / 2, this.player.x);
+    const top = GROUND_Y - Math.min(o.y1, GROUND_Y);
+    for (let y = top + 10; y < GROUND_Y - (o.base ?? 0); y += 30) this.effects.burst(sx, y, 0xff5a78, 3, 50, 450);
+    this.effects.burst(this.player.sprite.x + 10, this.player.sprite.y, 0xffd1dc, 10, 45, 350);
+    this.cameras.main.shake(90, 0.004);
   }
 
   // Point de contrôle franchi : on y repartira après une mort.

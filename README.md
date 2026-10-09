@@ -67,7 +67,7 @@ musique monte/descend comme un vinyle, avec une horloge un peu plus précise).
 | `wall` | Bloc posé au sol, on peut atterrir dessus | longueur 0,3 beat ; hauteur gris 50 / bleu 130 / rouge 90 px |
 | `hole` | Trou dans le sol | gris 0,6 / bleu 1,4 / rouge 2,25 beats |
 | `ceiling` | Plafond bas (ne pas sauter dessous) | 2 beats, 54 px de passage |
-| `barrier` | Barrière pleine hauteur (rouge par défaut) | |
+| `barrier` | Porte de couleur pleine hauteur : on la traverse si on a sa couleur (bleue ou rouge) | |
 | `crystal` | Cristal : en l'air, recharge le double saut / dash (`height`) | — |
 | `low` | Passage bas : seule la glissade passe dessous | 1,5 beat, 26 px de passage |
 | `platform` | Plateforme flottante, traversable par dessous. Colorée : seul Robin de cette couleur s'y pose | 1 beat, hauteur 70 |

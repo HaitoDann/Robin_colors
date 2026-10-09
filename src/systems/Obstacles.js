@@ -277,10 +277,12 @@ export class Obstacles {
       const pal = PALETTE[o.color] ?? PALETTE.gray;
       const gy = GROUND_Y - (o.base ?? 0); // sol local (pentes)
       if (o.type === 'spike') drawSpikes(g, sx, w, pal, gy);
-      else if (o.type === 'wall') drawBlock(g, sx, GROUND_Y - o.y1, w, o.y1 - (o.base ?? 0), pal);
+      else if (o.type === 'wall' && o.color === 'red') {
+        if (!o.broken) drawCrackedWall(g, sx, GROUND_Y - o.y1, w, o.y1 - (o.base ?? 0), pal, beat);
+      } else if (o.type === 'wall') drawBlock(g, sx, GROUND_Y - o.y1, w, o.y1 - (o.base ?? 0), pal);
       else if (o.type === 'ceiling') drawBlock(g, sx, -4, w, GROUND_Y - o.y0 + 4, pal);
       else if (o.type === 'low') drawLow(g, sx, w, GROUND_Y - o.y0, pal);
-      else if (o.type === 'barrier') drawBarrier(g, sx, w, pal, beat);
+      else if (o.type === 'barrier') drawGate(g, sx, w, pal, beat, o.color === playerColor);
       else if (o.type === 'platform') drawPlatform(g, sx, GROUND_Y - o.y1, w, pal, !o.onlyColor || o.onlyColor === playerColor);
       else if (o.type === 'spring') drawSpring(g, sx, w, gy, beat);
       else if (o.type === 'checkpoint') drawCheckpoint(g, sx + w / 2, gy, reached?.has(o.data));
@@ -385,15 +387,49 @@ function drawBlock(g, x, y, w, h, pal) {
   }
 }
 
-function drawBarrier(g, x, w, pal, beat) {
+// Porte de couleur : pleine si Robin n'a pas sa couleur, presque
+// transparente (simple contour qui ondule) s'il peut passer.
+function drawGate(g, x, w, pal, beat, open) {
   const flicker = 0.6 + 0.4 * Math.abs(Math.sin(beat * Math.PI));
-  g.fillStyle(pal.fill, 0.5);
+  if (open) {
+    g.fillStyle(pal.line, 0.12);
+    g.fillRect(x, 0, w, GROUND_Y);
+    g.fillStyle(pal.line, 0.45);
+    for (let y = ((beat * 24) % 12) - 12; y < GROUND_Y; y += 12) g.fillRect(x + w / 2 - 1, y, 2, 6);
+    g.fillRect(x, 0, 2, GROUND_Y);
+    g.fillRect(x + w - 2, 0, 2, GROUND_Y);
+    return;
+  }
+  g.fillStyle(pal.fill, 0.85);
   g.fillRect(x, 0, w, GROUND_Y);
   g.fillStyle(pal.line, flicker);
   for (let y = 0; y < GROUND_Y; y += 12) g.fillRect(x + 4, y, w - 8, 6);
   g.fillStyle(pal.line, 1);
   g.fillRect(x, 0, 3, GROUND_Y);
   g.fillRect(x + w - 3, 0, 3, GROUND_Y);
+}
+
+// Mur rouge cassable : verre rubis opalescent parcouru de fissures lumineuses.
+function drawCrackedWall(g, x, y, w, h, pal, beat) {
+  g.fillStyle(pal.fill, 0.8);
+  g.fillRect(x, y, w, h);
+  // Reflets opalescents qui glissent doucement.
+  const shift = (beat * 10) % 40;
+  g.fillStyle(0xffb3d9, 0.18);
+  for (let yy = y - 40 + shift; yy < y + h; yy += 40) g.fillRect(x + 3, Math.max(y, yy), w - 6, 8);
+  // Fissures en zigzag (déterministes selon la position).
+  const glow = 0.55 + 0.45 * Math.abs(Math.sin(beat * Math.PI));
+  g.fillStyle(0xffd1dc, glow);
+  for (let yy = y + 10; yy + 26 < y + h; yy += 34) {
+    let cx = x + w / 2 + ((Math.round(yy) * 7) % 9) - 4;
+    for (let k = 0; k < 6; k++) {
+      g.fillRect(cx, yy + k * 4, 2, 4);
+      cx += k % 2 ? 3 : -3;
+    }
+    g.fillRect(cx, yy + 12, 6, 2);
+  }
+  g.lineStyle(3, pal.line, 1);
+  g.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
 }
 
 // Passage bas : bloc avec une frange hachurée (on doit glisser dessous).

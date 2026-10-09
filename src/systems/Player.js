@@ -183,8 +183,11 @@ export class Player {
     return { x0: worldX - W / 2, x1: worldX + W / 2, y0: this.h, y1: this.h + h };
   }
 
-  // Un obstacle rouge est traversable pendant le dash.
+  // Mur rouge : fissuré, il se brise quand Robin le traverse en dash.
+  // Barrière : porte de couleur, on la traverse si on a sa couleur.
   ignores(o) {
+    if (o.broken) return true;
+    if (o.type === 'barrier') return o.color === this.color;
     return o.color === 'red' && this.dashing;
   }
 
