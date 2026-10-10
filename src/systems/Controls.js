@@ -3,6 +3,7 @@
 
 import Phaser from 'phaser';
 import { SPEED } from '../config.js';
+import { getKey } from './KeyBindings.js';
 
 const K = Phaser.Input.Keyboard.KeyCodes;
 
@@ -12,18 +13,18 @@ export class Controls {
     this.scene = scene;
     this.actions = actions;
     const kb = scene.input.keyboard;
-    kb.addCapture([K.SPACE, K.UP, K.DOWN, K.LEFT, K.RIGHT]);
+    // Touches choisies par le joueur (par défaut Z, Espace, A, S, Q, D).
+    const key = (id) => getKey(id).code;
+    kb.addCapture([K.SPACE, K.UP, K.DOWN, K.LEFT, K.RIGHT, ...['jump', 'air', 'switchColor', 'fastFall', 'slow', 'fast'].map(key)]);
 
     this.bindings = {
-      [K.Z]: 'jump',
       [K.UP]: 'jump',
-      [K.SPACE]: 'air', // double saut (bleu) / dash (rouge)
-      [K.S]: 'fastFall',
       [K.DOWN]: 'fastFall',
-      // A : changer de couleur (Maj appuyée 5 fois ouvre les "touches
-      // rémanentes" de Windows). F : compteur d'images par seconde.
-      [K.A]: 'switchColor',
-      [K.F]: 'fps',
+      [key('jump')]: 'jump',
+      [key('air')]: 'air', // double saut (bleu) / dash (rouge)
+      [key('fastFall')]: 'fastFall',
+      [key('switchColor')]: 'switchColor',
+      [K.F]: 'fps', // compteur d'images par seconde
       [K.R]: 'restart',
       [K.E]: 'editor',
       [K.H]: 'hitboxes',
@@ -32,10 +33,10 @@ export class Controls {
     };
 
     // Touches maintenues pour la vitesse.
-    this.slowKeys = [kb.addKey(K.Q, false), kb.addKey(K.LEFT, false)];
-    this.fastKeys = [kb.addKey(K.D, false), kb.addKey(K.RIGHT, false)];
-    this.jumpKeys = [kb.addKey(K.Z, false), kb.addKey(K.UP, false)];
-    this.airKeys = [kb.addKey(K.SPACE, false)];
+    this.slowKeys = [kb.addKey(key('slow'), false), kb.addKey(K.LEFT, false)];
+    this.fastKeys = [kb.addKey(key('fast'), false), kb.addKey(K.RIGHT, false)];
+    this.jumpKeys = [kb.addKey(key('jump'), false), kb.addKey(K.UP, false)];
+    this.airKeys = [kb.addKey(key('air'), false)];
 
     kb.on('keydown', (event) => {
       if (event.repeat) return;

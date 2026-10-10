@@ -45,6 +45,9 @@ Exemple : `http://localhost:5173/?beat=80&color=red`
 | Espace (en l'air) | Bleu : double saut / Rouge : dash — plus on tient, plus c'est haut / long |
 | S (ou ↓) | En l'air : fast-fall (redescendre très vite). Au sol : glissade (passe sous les passages bas ; plus on va vite, plus elle va loin). Il faut un nouvel appui : rester appuyé après un fast-fall ne glisse pas |
 | A | Changer de couleur bleu ⇄ rouge |
+
+Toutes les touches de jeu se changent dans **Réglages > Touches** (Entrée sur une action, puis la nouvelle touche ; une touche déjà prise est échangée). Les flèches marchent toujours en plus.
+
 | F | Afficher les images par seconde (fluidité) |
 | Q (ou ←) maintenu | Robin ralentit, la musique aussi |
 | D (ou →) maintenu | Robin accélère, la musique aussi (sauts plus longs) |

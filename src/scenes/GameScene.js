@@ -20,6 +20,7 @@ import { Hitboxes } from '../systems/Hitboxes.js';
 import { Settings } from '../systems/Settings.js';
 import { Metronome } from '../systems/Metronome.js';
 import { Progress } from '../systems/Progress.js';
+import { controlsHelp, getKey } from '../systems/KeyBindings.js';
 import TILES from '../gfx/tiles.js';
 
 export class GameScene extends Phaser.Scene {
@@ -145,8 +146,7 @@ export class GameScene extends Phaser.Scene {
     const p = Progress.get(this.levelId);
     const lines = [
       this.audio.isPlaceholder ? '(musique de remplacement)\n' : '',
-      'Z saut   ESPACE double saut / dash   A couleur',
-      'S glissade / fast-fall   Q D vitesse',
+      ...controlsHelp(),
     ].filter(Boolean);
     // Les nombres vont dans l'en-tête (police Silkscreen, chiffres plus lisibles).
     const kicker = [
@@ -158,7 +158,7 @@ export class GameScene extends Phaser.Scene {
       kicker: kicker.join(' · '),
       color: this.player.color,
       hints: [
-        ['Z', 'jouer'],
+        [getKey('jump').name, 'jouer'],
         ['ÉCHAP', 'menu'],
       ],
     });
@@ -353,7 +353,7 @@ export class GameScene extends Phaser.Scene {
     const line = (c, label) => (this.coins.totalOf(c) ? `Pièces ${label} : ${this.coins.count(c)} / ${this.coins.totalOf(c)}` : '');
     const lines = [line('blue', 'bleues'), line('red', 'rouges'), `${this.attempts} essai${this.attempts > 1 ? 's' : ''}`];
     if (record) lines.push('', got === total ? '★ TOUTES LES PIÈCES ★' : '★ Nouveau record ★');
-    const hints = this.mode === 'edit' ? [['ENTRÉE', 'éditeur']] : [['Z', 'rejouer'], ['ÉCHAP', 'menu']];
+    const hints = this.mode === 'edit' ? [['ENTRÉE', 'éditeur']] : [[getKey('jump').name, 'rejouer'], ['ÉCHAP', 'menu']];
     this.hud.showMessage('TERMINÉ', lines.filter((l, i) => l || i > 2).join('\n'), { kicker: this.levelKicker, color: 'gold', hints, numeric: true });
   }
 

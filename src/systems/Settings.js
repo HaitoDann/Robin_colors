@@ -7,6 +7,7 @@ const DEFAULTS = {
   keepPitch: false, // garder la tonalité quand la vitesse change (mode 'music')
   hitboxes: false,
   latencyMs: 0, // décalage audio/vidéo : + si le son arrive en retard
+  keys: {}, // touches choisies par le joueur (voir KeyBindings.js)
   quality: 'high', // 'high' : rendu 2x plus fin ; 'low' : rendu 1x (PC portables)
 };
 

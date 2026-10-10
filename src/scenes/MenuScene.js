@@ -12,6 +12,7 @@ import { Background } from '../systems/Background.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { Settings } from '../systems/Settings.js';
 import { Progress } from '../systems/Progress.js';
+import { ACTIONS, RESERVED, getKey, setKey, resetKeys, keyName } from '../systems/KeyBindings.js';
 import { UI, accent, text, keyHints, drawDiamond, drawWoodPanel, FONT_TEXT } from '../ui/theme.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
 import TILES from '../gfx/tiles.js';
@@ -239,6 +240,7 @@ export class MenuScene extends Phaser.Scene {
           value: () => (Settings.keepPitch ? 'Conservée' : 'Libre'),
           adjust: () => ((Settings.keepPitch = !Settings.keepPitch), save()),
         },
+        { label: 'Touches', value: () => 'Modifier ▸', action: () => this.show('keys') },
         back,
       ];
       this.layout = 'settings';
@@ -246,6 +248,21 @@ export class MenuScene extends Phaser.Scene {
       this.keep(text(this, WIDTH / 2, 148, 'RÉGLAGES', { size: 14, title: true, color: '#e6d6b8', letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
     }
 
+    if (screen === 'keys') {
+      // Une ligne par action : Entrée, puis la nouvelle touche.
+      this.items = [
+        ...ACTIONS.map((a) => ({
+          label: a.label,
+          value: () => (this.capturing === a.id ? 'Appuie sur une touche…' : getKey(a.id).name),
+          action: () => (this.capturing = a.id),
+        })),
+        { label: 'Touches par défaut', value: () => '', action: () => resetKeys() },
+        { label: 'Retour', action: () => this.show('settings', 5), back: true },
+      ];
+      this.layout = 'settings';
+      hints.splice(1, 1, ['ENTRÉE', 'changer']);
+      this.keyNote = this.keep(text(this, WIDTH / 2, 148, 'TOUCHES', { size: 14, title: true, color: '#e6d6b8', letterSpacing: 4 }).setOrigin(0.5).setDepth(20));
+    }
     this.keep(...keyHints(this, WIDTH / 2, HEIGHT - 30, hints, 30));
     this.buildItems();
     this.refresh();
@@ -382,6 +399,7 @@ export class MenuScene extends Phaser.Scene {
 
   onKey(e) {
     if (!this.items || this.leaving) return;
+    if (this.capturing) return this.captureKey(e);
     const item = this.items[this.index];
     const cards = this.layout === 'cards';
     switch (e.keyCode) {
@@ -411,12 +429,27 @@ export class MenuScene extends Phaser.Scene {
         else item.action?.();
         break;
       case K.ESC:
-        if (this.screen !== 'main') this.show('main', this.lastMain ?? 0);
+        if (this.screen === 'keys') this.show('settings', 5);
+        else if (this.screen !== 'main') this.show('main', this.lastMain ?? 0);
         break;
       default:
         return;
     }
     if (this.screen) this.refresh();
+  }
+
+  // Écran Touches : la touche pressée devient celle de l'action choisie.
+  captureKey(e) {
+    const id = this.capturing;
+    this.capturing = null;
+    if (e.keyCode === K.ESC) return this.refresh(); // annuler
+    if (RESERVED.has(e.keyCode)) {
+      this.keyNote?.setText('TOUCHE RÉSERVÉE (ÉCHAP, ENTRÉE, R, E, H, F, M)');
+      this.time.delayedCall(1800, () => this.keyNote?.active && this.keyNote.setText('TOUCHES'));
+      return this.refresh();
+    }
+    setKey(id, e.keyCode, keyName(e));
+    this.refresh();
   }
 
   // Petit fondu avant de lancer le jeu.
