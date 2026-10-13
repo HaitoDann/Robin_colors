@@ -18,7 +18,8 @@ export class LevelSystem {
     this.bpm = data.bpm ?? 120;
     this.music = data.music ?? null;
     this.offset = data.offset ?? 0; // secondes avant le beat 0 dans le fichier audio
-    this.end = data.end ?? null; // beat de fin (facultatif : sinon fin de la musique)
+    this.end = data.end ?? null;
+    this.background = data.background ?? null; // décor en images (ex. 'medieval') // beat de fin (facultatif : sinon fin de la musique)
     this.obstacles = (data.obstacles ?? []).map((o) => ({ ...o }));
     this.sortObstacles();
   }
@@ -135,6 +136,7 @@ export class LevelSystem {
       music: this.music,
       offset: this.offset,
       ...(this.end ? { end: this.end } : {}),
+      ...(this.background ? { background: this.background } : {}),
       obstacles: this.obstacles.map((o) => {
         const out = { beat: o.beat, type: o.type };
         if (o.color && o.color !== 'gray') out.color = o.color;

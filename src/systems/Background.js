@@ -207,6 +207,33 @@ function makeTextures(scene) {
   });
 }
 
+// Décors en images (tools/process_backgrounds.py) : couches, échelle,
+// position du bas (px écran) et vitesse de défilement.
+export const WORLDS = {
+  medieval: {
+    layers: [
+      { name: 'sky', scale: 2.3, bottom: 442, speed: 0.02 },
+      { name: 'far', scale: 1.4, bottom: GROUND_Y - 25, speed: 0.08 },
+      { name: 'mid', scale: 1.2, bottom: GROUND_Y + 20, speed: 0.25 },
+      // Premier plan (medieval_near.png) pas encore utilisé : la découpe
+      // automatique laisse des restes du damier.
+    ],
+    // Légère teinte selon la couleur de Robin (le décor reste lumineux).
+    tint: { blue: 0xe4ebff, red: 0xffe4ec },
+    bg: 0x6a5a9a,
+  },
+};
+
+// Charge les images d'un décor (à appeler dans preload).
+export function preloadWorld(scene, world) {
+  const w = WORLDS[world];
+  if (!w) return;
+  for (const l of w.layers) {
+    const key = `bg_${world}_${l.name}`;
+    if (!scene.textures.exists(key)) scene.load.image(key, `backgrounds/${world}_${l.name}.png`);
+  }
+}
+
 export class Background {
   constructor(scene) {
     this.scene = scene;
@@ -250,8 +277,35 @@ export class Background {
     return out;
   }
 
+  // Remplace la forêt dessinée par un décor en images (si chargé).
+  useWorld(world) {
+    const w = WORLDS[world];
+    if (!w || !w.layers.every((l) => this.scene.textures.exists(`bg_${world}_${l.name}`))) return;
+    for (const o of [this.sky, this.far, this.mid, this.near]) o.setVisible(false);
+    this.flies.setVisible(false);
+    this.world = w;
+    this.worldLayers = w.layers.map((l, i) => {
+      const tex = this.scene.textures.get(`bg_${world}_${l.name}`).getSourceImage();
+      const t = this.scene.add
+        .tileSprite(0, l.bottom - tex.height * l.scale, WIDTH / l.scale + 2, tex.height, `bg_${world}_${l.name}`)
+        .setOrigin(0)
+        .setScale(l.scale)
+        .setDepth(i);
+      t.layer = l;
+      return t;
+    });
+    this.applied = false;
+  }
+
   applyTheme() {
     const c = this.currentColors();
+    if (this.world) {
+      // Décor en images : teinte douce entre bleu et rouge selon Robin.
+      const tint = lerpColor(this.world.tint[this.from === THEMES.red ? 'red' : 'blue'], this.world.tint[this.to === THEMES.red ? 'red' : 'blue'], this.mix.t);
+      this.scene.cameras.main.setBackgroundColor(this.world.bg);
+      for (const t of this.worldLayers) t.setTint(tint);
+      return;
+    }
     this.scene.cameras.main.setBackgroundColor(c.bg);
     this.sky.setTint(c.sky);
     this.far.setTint(c.far);
@@ -261,6 +315,14 @@ export class Background {
 
   // cameraX = position monde de Robin (en px).
   update(cameraX) {
+    if (this.world) {
+      for (const t of this.worldLayers) t.tilePositionX = (cameraX * t.layer.speed) / t.layer.scale;
+      if (this.mix.t < 1 || !this.applied) {
+        this.applyTheme();
+        this.applied = this.mix.t >= 1;
+      }
+      return;
+    }
     this.sky.tilePositionX = (cameraX * 0.02) / PX;
     this.far.tilePositionX = (cameraX * 0.12) / PX;
     this.mid.tilePositionX = (cameraX * 0.3) / PX;

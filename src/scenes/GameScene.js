@@ -11,7 +11,7 @@ import { Player } from '../systems/Player.js';
 import { Obstacles } from '../systems/Obstacles.js';
 import { Coins } from '../systems/Coins.js';
 import { Crystals } from '../systems/Crystals.js';
-import { Background } from '../systems/Background.js';
+import { Background, WORLDS, preloadWorld } from '../systems/Background.js';
 import { Controls } from '../systems/Controls.js';
 import { Hud } from '../systems/Hud.js';
 import { Effects } from '../systems/Effects.js';
@@ -40,6 +40,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    // Décors en images des niveaux (petits fichiers, chargés d'avance).
+    for (const world of Object.keys(WORLDS)) preloadWorld(this, world);
     // Décors pixel art (tools/process_tiles.py). Absents : dessins de secours.
     for (const [name, t] of Object.entries(TILES)) {
       if (!this.textures.exists(`tile_${name}`)) this.load.spritesheet(`tile_${name}`, `tiles/${name}.png`, { frameWidth: t.w, frameHeight: t.h });
@@ -83,6 +85,7 @@ export class GameScene extends Phaser.Scene {
       this.level = await LevelSystem.load(this.levelId, { preferDraft: this.mode === 'edit' });
       // Numéro et titre du niveau (levels/index.json) pour l'interface.
       const meta = (await LevelSystem.list()).find((l) => l.id === this.levelId) ?? {};
+      if (this.level.background) this.background.useWorld(this.level.background);
       this.levelTitle = (meta.title ?? this.level.name).toUpperCase();
       this.levelKicker = meta.number ? `NIVEAU ${String(meta.number).padStart(2, '0')} · ${this.levelTitle}` : this.levelTitle;
       await this.audio.load(this.level);

@@ -3,6 +3,7 @@
   "bpm": 150,
   "music": "First_Light.mp3",
   "offset": 0.02,
+  "background": "medieval",
   "obstacles": [
     { "beat": 7, "type": "spike" },
     { "beat": 7, "type": "coin", "color": "blue", "height": 70 },
