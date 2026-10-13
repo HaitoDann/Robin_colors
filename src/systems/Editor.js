@@ -7,7 +7,7 @@ import { OBSTACLE_TYPES, OBSTACLE_COLORS, PALETTE, buildGeometry } from './Obsta
 
 const SNAPS = [1, 0.5, 0.25, 0.125];
 import { FONT_TEXT as FONT } from '../ui/theme.js';
-const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal', low: 'passage bas', platform: 'plateforme', spring: 'ressort', slope: 'pente', checkpoint: 'checkpoint' };
+const TYPE_LABELS = { spike: 'pic', wall: 'mur', hole: 'trou', ceiling: 'plafond', barrier: 'barrière', coin: 'pièce', crystal: 'cristal', low: 'passage bas', platform: 'plateforme', spring: 'ressort', slope: 'pente', checkpoint: 'checkpoint', boost: 'accélérateur', speedgate: 'porte de vitesse', wind: 'vent', sign: 'panneau' };
 const COLOR_LABELS = { gray: 'gris', blue: 'bleu', red: 'rouge' };
 const MINIMAP_Y = HEIGHT - 14;
 const MINIMAP_X0 = 60;
@@ -170,6 +170,13 @@ export class Editor {
     if (b.last === beat) return;
     b.last = beat;
     const o = this.makeObstacle(beat, b.y);
+    if (o.type === 'sign') {
+      // Panneau : on demande son texte (un seul par clic).
+      this.brush = null;
+      const text = window.prompt('Texte du panneau', '');
+      if (!text) return;
+      o.text = text;
+    }
     const dup = this.level.obstacles.some((x) => x.beat === o.beat && x.type === o.type && (x.height ?? null) === (o.height ?? null));
     if (dup) return;
     this.level.obstacles.push(o);
@@ -190,7 +197,7 @@ export class Editor {
     // Hauteur de la souris au-dessus du sol local (pentes), arrondie à 10 px.
     const ground = this.scene.obstacles?.groundAt(o.beat * PPB).h ?? 0;
     const mouseH = Math.round((GROUND_Y - y - ground) / 10) * 10;
-    if (['crystal', 'spring', 'slope', 'checkpoint'].includes(this.type)) delete o.color;
+    if (['crystal', 'spring', 'slope', 'checkpoint', 'boost', 'speedgate', 'wind', 'sign'].includes(this.type)) delete o.color;
     if (this.type === 'crystal') {
       o.height = Math.max(20, mouseH);
     } else if (this.type === 'coin') {
@@ -200,7 +207,7 @@ export class Editor {
     } else if (this.type === 'slope') {
       o.height = mouseH || 10; // au-dessus du sol : montée, en dessous : descente
     }
-    if (this.length != null && !['coin', 'crystal', 'spring', 'checkpoint'].includes(this.type)) {
+    if (this.length != null && !['coin', 'crystal', 'spring', 'checkpoint', 'boost', 'speedgate', 'sign'].includes(this.type)) {
       o.length = this.length;
     }
     return o;

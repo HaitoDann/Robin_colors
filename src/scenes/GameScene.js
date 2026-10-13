@@ -19,6 +19,7 @@ import { Editor } from '../systems/Editor.js';
 import { Hitboxes } from '../systems/Hitboxes.js';
 import { Settings } from '../systems/Settings.js';
 import { Metronome } from '../systems/Metronome.js';
+import { Sfx } from '../systems/Sfx.js';
 import { Progress } from '../systems/Progress.js';
 import { controlsHelp, getKey } from '../systems/KeyBindings.js';
 import TILES from '../gfx/tiles.js';
@@ -69,6 +70,7 @@ export class GameScene extends Phaser.Scene {
     this.speedFactor = 1;
 
     this.audio = AudioSystem.shared(this.game);
+    this.sfx = Sfx.shared(this.game);
     this.audio.stop();
     this.audio.keepPitch = Settings.keepPitch;
     this.audio.setVolume(Settings.volume / 100);
@@ -115,6 +117,7 @@ export class GameScene extends Phaser.Scene {
       jump: () => this.onJump(),
       air: () => (this.state === 'playing' ? this.player.pressAir() : this.onJump()),
       fastFall: () => this.state === 'playing' && this.player.pressFastFall(),
+      roll: () => this.state === 'playing' && this.player.pressRoll(),
       // En éditeur, A choisit la couleur de départ de Robin.
       switchColor: () => (this.state === 'playing' || this.state === 'editor') && this.player.toggleColor(),
       // R : recommence vraiment du début (oublie le point de contrôle).
@@ -257,7 +260,7 @@ export class GameScene extends Phaser.Scene {
   renderWorld() {
     const cameraX = this.beat * PPB;
     this.background.update(cameraX);
-    this.obstacles.draw(cameraX, this.beat, this.player.color, this.reached);
+    this.obstacles.draw(cameraX, this.beat, this.player.color, this.reached, this.player.speed);
     this.coins.draw(cameraX, this.beat, this.player.color);
     this.crystals.draw(cameraX, this.beat);
     this.player.idle = this.state === 'title' || this.state === 'editor';
@@ -299,6 +302,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   onWallBroken(o) {
+    this.sfx.play('wall');
     const sx = this.obstacles.toScreenX((o.x0 + o.x1) / 2, this.player.x);
     const top = GROUND_Y - Math.min(o.y1, GROUND_Y);
     for (let y = top + 10; y < GROUND_Y - (o.base ?? 0); y += 30) this.effects.burst(sx, y, 0xff5a78, 3, 50, 450);
@@ -311,6 +315,7 @@ export class GameScene extends Phaser.Scene {
     for (const c of this.obstacles.checkpoints) {
       if (this.reached.has(c.data) || this.player.x < (c.x0 + c.x1) / 2) continue;
       this.reached.add(c.data);
+      this.sfx.play('checkpoint');
       this.checkpoint = {
         beat: c.data.beat,
         color: this.player.color,
@@ -322,18 +327,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   onCoin() {
+    this.sfx.play('coin');
     const { x, y } = this.player.sprite;
     this.effects.ring(x, y - 10, this.player.tint, 22);
     this.effects.burst(x, y - 10, this.player.tint, 8, 30, 300);
   }
 
   onCrystal() {
+    this.sfx.play('crystal');
     const { x, y } = this.player.sprite;
     this.effects.ring(x, y, 0x7ff5e6, 34);
     this.effects.burst(x, y, 0x7ff5e6, 12, 45, 350);
   }
 
   onDeath() {
+    this.sfx.play('death');
     this.state = 'dead';
     this.audio.stop();
     // Robin s'effondre (sprites) ou explose en pixels (cube de secours).
@@ -476,6 +484,7 @@ export class GameScene extends Phaser.Scene {
   // --- Retours visuels des actions de Robin ---
 
   onPlayerEvent(name) {
+    this.sfx.play(name, this.player.color);
     const { x, y } = this.player.sprite;
     const tint = this.player.tint;
     if (name === 'color') {
@@ -491,6 +500,12 @@ export class GameScene extends Phaser.Scene {
       this.effects.burst(x, y + 20, 0xffd166, 10, 40, 300);
     } else if (name === 'slide') {
       this.effects.dust(this.player.h);
+    } else if (name === 'roll') {
+      this.effects.burst(x - 12, y + 14, tint, 8, 26, 260);
+      this.effects.dust(this.player.h);
+    } else if (name === 'heavyLand') {
+      this.effects.dust(this.player.h);
+      this.cameras.main.shake(70, 0.003);
     } else if (name === 'land') {
       this.effects.dust(this.player.h);
     }

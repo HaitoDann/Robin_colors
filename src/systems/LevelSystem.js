@@ -18,6 +18,7 @@ export class LevelSystem {
     this.bpm = data.bpm ?? 120;
     this.music = data.music ?? null;
     this.offset = data.offset ?? 0; // secondes avant le beat 0 dans le fichier audio
+    this.end = data.end ?? null; // beat de fin (facultatif : sinon fin de la musique)
     this.obstacles = (data.obstacles ?? []).map((o) => ({ ...o }));
     this.sortObstacles();
   }
@@ -120,6 +121,7 @@ export class LevelSystem {
   // Dernier beat du niveau : la fin de la musique si on la connaît
   // (musicEndBeat, fixé après chargement du mp3), sinon le dernier obstacle + 8.
   get endBeat() {
+    if (this.end) return this.musicEndBeat ? Math.min(this.end, this.musicEndBeat) : this.end;
     if (this.musicEndBeat) return this.musicEndBeat;
     let last = 0;
     for (const o of this.obstacles) last = Math.max(last, o.beat + (o.length ?? 1));
@@ -132,11 +134,13 @@ export class LevelSystem {
       bpm: this.bpm,
       music: this.music,
       offset: this.offset,
+      ...(this.end ? { end: this.end } : {}),
       obstacles: this.obstacles.map((o) => {
         const out = { beat: o.beat, type: o.type };
         if (o.color && o.color !== 'gray') out.color = o.color;
         if (o.length != null) out.length = o.length;
         if (o.height != null) out.height = o.height;
+        if (o.text != null) out.text = o.text;
         return out;
       }),
     };

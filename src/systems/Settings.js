@@ -3,7 +3,8 @@
 const KEY = 'robins-colors:settings';
 
 const DEFAULTS = {
-  volume: 80, // %
+  volume: 80, // % (musique)
+  sfxVolume: 70, // % (bruitages)
   keepPitch: false, // garder la tonalité quand la vitesse change (mode 'music')
   hitboxes: false,
   latencyMs: 0, // décalage audio/vidéo : + si le son arrive en retard

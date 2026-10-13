@@ -72,7 +72,10 @@ export class AudioSystem {
   }
 
   // Volume de 0 à 1.
+  // v de 0 à 1 (réglage linéaire) ; courbe au carré : l'oreille perçoit
+  // mieux les petits volumes.
   setVolume(v) {
+    v = Math.max(0, Math.min(1, v)) ** 2;
     this.gain.gain.value = v;
     if (this.element) this.element.volume = v;
   }

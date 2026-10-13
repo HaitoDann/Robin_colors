@@ -4,7 +4,7 @@
 
 import { PLAYER, PLAYER_X, GROUND_Y, ROBIN_SHEET, PIXELS_PER_BEAT as PPB, SPEED_MODE, musicRateFor, MUSIC_RATE } from '../config.js';
 import { ROBIN_TINTS } from '../gfx/textures.js';
-import { hitsSpike } from './Obstacles.js';
+import { hitsSpike, SPEED_GATE } from './Obstacles.js';
 
 const W = PLAYER.width;
 const H = PLAYER.height;
@@ -40,6 +40,12 @@ export class Player {
     this.slideTotal = 0;
     this.landTimer = 0; // pose d'atterrissage (animation)
     this.getUpTimer = 0; // Robin se relève après une glissade (animation)
+    this.rollTimer = 0; // roulade en cours
+    this.rollBuffer = 0; // D appuyé juste avant un atterrissage lourd
+    this.airBuffer = 0; // Espace appuyé un peu trop tôt
+    this.groundDashCd = 0;
+    this.sinceLand = 99; // beats depuis le dernier atterrissage
+    this.gliding = false;
     this.heavyLand = false;
     this.speedInput = 1; // Q/D lissés (montée progressive)
     this.onGround = true;
@@ -70,6 +76,10 @@ export class Player {
     return this.slideTimer > 0;
   }
 
+  get rolling() {
+    return this.rollTimer > 0;
+  }
+
   setColor(color) {
     this.color = color;
     this.sprite.setTexture(this.textureFor(color), this.useSheet ? ROBIN_SHEET.idle : undefined);
@@ -87,6 +97,7 @@ export class Player {
     if (this.onGround) return;
     this.airJump = true;
     this.fastFalling = false;
+    if (this.airBuffer > 0) this.pressAir(); // Espace appuyé juste avant le cristal
   }
 
   // Z : saut depuis le sol (mémorisé un court instant si on est en l'air).
@@ -95,15 +106,26 @@ export class Player {
     if (this.sliding && this.obstacles && this.blockedAbove(this.obstacles)) return; // sous un passage bas
     if (this.onGround || this.coyote > 0) {
       this.jump();
-      this.onEvent('jump');
     } else {
       this.jumpBuffer = PLAYER.jumpBufferBeats;
     }
   }
 
   // Espace : action aérienne selon la couleur (une seule par saut).
+  // Rouge au sol : dash au sol. Appui trop tôt : mémorisé un court instant.
   pressAir() {
-    if (this.dead || this.onGround || !this.airJump) return;
+    if (this.dead) return;
+    if (this.onGround && this.color === 'red' && this.groundDashCd <= 0) {
+      this.slideTimer = 0;
+      this.rollTimer = 0;
+      this.groundDashCd = PLAYER.groundDashCooldown;
+      return this.dash();
+    }
+    if (this.onGround || !this.airJump) {
+      this.airBuffer = PLAYER.airBufferBeats;
+      return;
+    }
+    this.airBuffer = 0;
     this.airJump = false;
     if (this.color === 'blue') this.doubleJump();
     else this.dash();
@@ -118,6 +140,22 @@ export class Player {
     this.fastFalling = true;
     this.holdActive = false;
     this.vy = Math.min(this.vy, -PLAYER.fastFallVelocity);
+  }
+
+  // D appuyé : roulade si on vient d'atterrir d'un fast-fall (wave dash),
+  // ou mémorisée si on est encore en fast-fall juste au-dessus du sol.
+  pressRoll() {
+    if (this.dead) return;
+    if (this.onGround && this.heavyLand && this.sinceLand <= PLAYER.rollWindowBeats) return this.roll();
+    if (!this.onGround && this.fastFalling) this.rollBuffer = PLAYER.rollWindowBeats;
+  }
+
+  roll() {
+    this.slideTimer = 0;
+    this.heavyLand = false;
+    this.rollTimer = PLAYER.rollBeats;
+    this.speed = Math.max(this.speed, PPB * PLAYER.rollSpeedFactor);
+    this.onEvent('roll');
   }
 
   toggleColor() {
@@ -150,6 +188,7 @@ export class Player {
 
   jump() {
     this.slideTimer = 0;
+    this.rollTimer = 0; // l'élan de la roulade est gardé
     this.getUpTimer = 0;
     this.vy = PLAYER.jumpVelocity;
     this.startHold('jump');
@@ -159,6 +198,7 @@ export class Player {
     this.fastFalling = false;
     this.airJump = true;
     this.squash = 1;
+    this.onEvent('jump');
   }
 
   doubleJump() {
@@ -180,7 +220,7 @@ export class Player {
 
   // Boîte de collision en coordonnées monde.
   getHitbox(worldX) {
-    const h = this.sliding ? PLAYER.slideHeight : H;
+    const h = this.sliding || this.rolling ? PLAYER.slideHeight : H;
     return { x0: worldX - W / 2, x1: worldX + W / 2, y0: this.h, y1: this.h + h };
   }
 
@@ -189,6 +229,7 @@ export class Player {
   ignores(o) {
     if (o.broken) return true;
     if (o.type === 'barrier') return o.color === this.color;
+    if (o.type === 'speedgate') return this.speed >= PPB * SPEED_GATE; // assez vite : on passe
     return o.color === 'red' && this.dashing;
   }
 
@@ -217,8 +258,19 @@ export class Player {
     }
     const worldX = this.x;
     this.coyote = Math.max(0, this.coyote - dt);
+    this.groundDashCd = Math.max(0, this.groundDashCd - dt);
+    this.airBuffer = Math.max(0, this.airBuffer - dt);
+    this.rollBuffer = Math.max(0, this.rollBuffer - dt);
+    this.sinceLand += dt;
+    if (this.rolling) {
+      this.rollTimer = Math.max(0, this.rollTimer - dt);
+      if (!this.rolling && this.blockedAbove(obstacles)) this.rollTimer = dt; // sous un passage bas
+    }
+    // Espace mémorisé : double saut / dash dès que c'est possible.
+    if (this.airBuffer > 0 && !this.onGround && this.airJump) this.pressAir();
     if (this.sliding) {
-      this.slideTimer = Math.max(0, this.slideTimer - dt);
+      // En descente, la glissade continue tant que la pente descend.
+      if (!(this.onGround && (this.groundAngle ?? 0) < 0)) this.slideTimer = Math.max(0, this.slideTimer - dt);
       // On reste couché tant qu'un plafond bas est au-dessus.
       if (!this.sliding && this.blockedAbove(obstacles)) this.slideTimer = dt;
       if (!this.sliding) this.getUpTimer = ROBIN_SHEET.getUpBeats;
@@ -245,12 +297,21 @@ export class Player {
         if (!held || this.vy <= 0 || this.holdTime >= PLAYER.jumpHoldBeats) this.holdActive = false;
       }
       let gravity = PLAYER.gravity;
+      // Vol plané : Z maintenu pendant la chute.
+      this.gliding = this.jumpHeld && this.vy < 0 && !this.fastFalling && !this.holdActive && !this.onGround;
+      if (this.gliding) gravity *= PLAYER.glideGravityMul;
       if (this.holdActive) gravity *= PLAYER.jumpHoldGravityMul;
       if (this.vy < 0) gravity *= PLAYER.fallGravityMul;
       if (Math.abs(this.vy) < PLAYER.apexHangSpeed && !this.fastFalling) gravity *= PLAYER.apexHangMul;
       if (this.fastFalling) gravity *= PLAYER.fastFallGravityMul;
       this.vy -= gravity * dt;
-      const maxFall = this.fastFalling ? PLAYER.fastFallMaxSpeed : PLAYER.maxFallSpeed;
+      // Courant d'air : pousse vers le haut (sauf en fast-fall, pour plonger).
+      if (!this.fastFalling) {
+        const wind = obstacles.query(worldX - W / 2, worldX + W / 2).find((o) => o.isWind && this.h < o.y1);
+        // La poussée faiblit en haut de la colonne : Robin y flotte.
+        if (wind) this.vy = Math.min(this.vy + PLAYER.windAccel * dt * (1 - this.h / wind.y1), PLAYER.windMaxRise * (1 - this.h / wind.y1) + 40);
+      }
+      const maxFall = this.fastFalling ? PLAYER.fastFallMaxSpeed : this.gliding ? PLAYER.glideMaxFall : PLAYER.maxFallSpeed;
       this.vy = Math.max(this.vy, -maxFall);
       this.h += this.vy * dt;
     }
@@ -289,11 +350,20 @@ export class Player {
     } else {
       this.onGround = false;
       this.slideTimer = 0;
+      this.rollTimer = 0;
       if (wasOnGround && this.vy <= 0) {
         this.coyote = PLAYER.coyoteBeats;
         this.airJump = true; // on peut encore agir après avoir quitté un rebord
       }
     }
+
+    // Accélérateur au sol : grosse poussée vers l'avant.
+    const pad = this.onGround && near.find((o) => o.isBoost && worldX > o.x0 && worldX < o.x1);
+    if (pad && pad !== this.lastBoost) {
+      this.speed = Math.max(this.speed, PPB * PLAYER.boostSpeedFactor);
+      this.onEvent('boost');
+    }
+    this.lastBoost = pad || null;
 
     // 2) Collisions mortelles.
     const box = this.getHitbox(worldX);
@@ -346,16 +416,21 @@ export class Player {
     } else {
       // Choix du taux façon Sonic : accélérer, freiner ou simple friction.
       let rate;
-      if (this.speed > PPB * PLAYER.fastFactor) rate = PLAYER.overspeedDecel; // fin de dash
+      // Trop vite (fin de dash, roulade) : on ralentit vite au sol, à peine en l'air.
+      if (this.speed > PPB * PLAYER.fastFactor) rate = this.onGround && !this.rolling ? PLAYER.overspeedDecel : PLAYER.airOverspeedDecel;
       else if (!this.onGround) rate = PLAYER.airAccel;
       else if (speedFactor > 1) rate = this.speed < target ? PLAYER.groundAccel : PLAYER.groundFriction;
       else if (speedFactor < 1) rate = this.speed > target ? PLAYER.groundDecel : PLAYER.groundFriction;
       else rate = PLAYER.groundFriction;
       if (this.sliding) rate = Math.min(rate, PLAYER.groundFriction * 0.5); // on glisse : peu de contrôle
+      if (this.sliding && angle < 0) rate = 0; // glissade en descente : rien ne freine
       const dv = target - this.speed;
       this.speed += Math.sign(dv) * Math.min(Math.abs(dv), rate * dt);
-      // Pente : la gravité freine en montée et accélère en descente.
-      if (this.onGround && angle) this.speed -= PLAYER.slopeFactor * Math.sin(angle) * dt;
+      // Pente : la gravité freine en montée et accélère en descente
+      // (beaucoup plus en glissade : on file comme sur une luge).
+      const slopeMul = this.sliding ? PLAYER.slideSlopeMul : 1;
+      if (this.onGround && angle) this.speed -= PLAYER.slopeFactor * slopeMul * Math.sin(angle) * dt;
+      this.speed = Math.min(this.speed, PPB * 2); // vitesse maximale
     }
     this.vx = this.speed * Math.cos(angle);
   }
@@ -373,11 +448,17 @@ export class Player {
 
   land() {
     if (!this.onGround) {
-      this.onEvent('land');
       // Écrasement plus fort si on arrive vite (fast-fall).
       this.squash = -Math.min(1, 0.5 + Math.abs(this.vy) / 1200);
       this.landTimer = ROBIN_SHEET.landBeats;
       this.heavyLand = this.fastFalling;
+      this.sinceLand = 0;
+      this.onEvent(this.heavyLand ? 'heavyLand' : 'land');
+      if (this.heavyLand && this.rollBuffer > 0) {
+        this.onGround = true;
+        this.fastFalling = false;
+        this.roll(); // D appuyé juste avant de toucher le sol
+      }
     }
     this.flipTimer = 0;
     this.onGround = true;
@@ -406,7 +487,10 @@ export class Player {
     const half = (this.halfHeight * sy) / base;
     this.sprite.setPosition(PLAYER_X + this.offset, GROUND_Y - this.h - half);
 
-    if (this.flipTimer > 0) {
+    if (this.rolling) {
+      // Roulade : Robin tourne en boule.
+      this.angle = 360 * (1 - this.rollTimer / PLAYER.rollBeats);
+    } else if (this.flipTimer > 0) {
       // Salto pendant le double saut.
       this.angle = 360 * (1 - this.flipTimer / PLAYER.flipBeats);
     } else if (!this.onGround && !this.dashing) {
@@ -429,6 +513,8 @@ export class Player {
     const S = ROBIN_SHEET;
     if (this.idle) return loop(S.idleLoop, S.idleFramesPerBeat / 2);
     if (this.dashing) return loop(S.dash, S.dashFramesPerBeat);
+    if (this.rolling) return S.fastFall[1];
+    if (this.gliding) return S.jump[1]; // bras ouverts, on plane
     if (this.sliding) {
       // Entrée, glisse, puis relevé sur la fin.
       // Entrée, puis couché jusqu'au bout.

@@ -24,6 +24,8 @@ export class Controls {
       [key('air')]: 'air', // double saut (bleu) / dash (rouge)
       [key('fastFall')]: 'fastFall',
       [key('switchColor')]: 'switchColor',
+      [key('fast')]: 'roll', // D au moment d'atterrir d'un fast-fall : roulade
+      [K.RIGHT]: 'roll',
       [K.F]: 'fps', // compteur d'images par seconde
       [K.R]: 'restart',
       [K.E]: 'editor',

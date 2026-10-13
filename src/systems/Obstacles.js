@@ -6,15 +6,20 @@ import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } fro
 import { SpritePool } from '../gfx/SpritePool.js';
 import { hasArt, drawGroundArt, drawObstacleArt } from './ObstacleArt.js';
 
-export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal', 'low', 'platform', 'spring', 'slope', 'checkpoint'];
+export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal', 'low', 'platform', 'spring', 'slope', 'checkpoint', 'boost', 'speedgate', 'wind', 'sign'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
 
 export const PALETTE = {
   crystal: { fill: 0x1a5a5a, line: 0x7ff5e6 },
+  gold: { fill: 0x5a4210, line: 0xffd166 },
+  wind: { fill: 0x1a4a5a, line: 0x9fe8ff },
   gray: { fill: 0x4a4a66, line: 0xb4b4d0 },
   blue: { fill: 0x123a7a, line: 0x5aa8ff },
   red: { fill: 0x6a1426, line: 0xff5a78 },
 };
+
+// Vitesse (x vitesse normale) à atteindre pour passer une porte de vitesse.
+export const SPEED_GATE = 1.25;
 
 const SPIKE_W = 26; // largeur d'un pic dessiné
 const SPIKE_H = 24; // hauteur d'un pic dessiné
@@ -38,6 +43,10 @@ const DEFAULTS = {
   spring: { length: 0 },
   slope: { length: 2, height: 60 }, // pente : height = dénivelé (négatif = descente)
   checkpoint: { length: 0 },
+  boost: { length: 0 }, // accélérateur au sol
+  speedgate: { length: 0 }, // porte de vitesse : s'ouvre si Robin va assez vite
+  wind: { length: 2, height: 260 }, // courant d'air ascendant (height = hauteur de la colonne)
+  sign: { length: 0, height: 70 }, // panneau de texte (tutoriel)
 };
 
 const pick = (v, color) => (typeof v === 'object' && v !== null ? v[color] : v);
@@ -159,6 +168,38 @@ export function buildGeometry(o) {
       g.isCheckpoint = true;
       break;
     }
+    case 'boost': {
+      g.x0 = bx - 30;
+      g.x1 = bx + 30;
+      g.y1 = 8;
+      g.isBoost = true;
+      g.color = 'gold';
+      break;
+    }
+    case 'speedgate': {
+      g.x0 = bx - 14;
+      g.x1 = bx + 14;
+      g.y1 = TOP;
+      g.hit = { x0: g.x0 + 4, x1: g.x1 - 4, y0: 0, y1: TOP };
+      g.color = 'gold';
+      break;
+    }
+    case 'wind': {
+      g.x0 = bx;
+      g.x1 = bx + length * PPB;
+      g.y1 = o.height ?? d.height;
+      g.isWind = true;
+      g.color = 'wind';
+      break;
+    }
+    case 'sign': {
+      g.x0 = bx - 6;
+      g.x1 = bx + 6;
+      g.y1 = o.height ?? d.height;
+      g.isSign = true;
+      g.text = o.text ?? '';
+      break;
+    }
     default:
       console.warn('Type d’obstacle inconnu :', o.type);
   }
@@ -270,9 +311,10 @@ export class Obstacles {
   }
 
   // Rendu : cameraX = position monde de Robin.
-  draw(cameraX, beat, playerColor = 'blue', reached = null) {
+  draw(cameraX, beat, playerColor = 'blue', reached = null, playerSpeed = PPB) {
     const g = this.gfx;
     g.clear();
+    this.signsUsed = 0;
     if (this.art) {
       this.groundGfx.clear();
       this.groundPool.begin();
@@ -288,6 +330,22 @@ export class Obstacles {
       const w = o.x1 - o.x0;
       const pal = PALETTE[o.color] ?? PALETTE.gray;
       const gy = GROUND_Y - (o.base ?? 0); // sol local (pentes)
+      if (o.type === 'boost') {
+        drawBoost(g, sx, w, gy, beat);
+        continue;
+      }
+      if (o.type === 'speedgate') {
+        drawSpeedGate(g, sx, w, beat, playerSpeed >= PPB * SPEED_GATE);
+        continue;
+      }
+      if (o.isWind) {
+        drawWind(g, sx, w, gy, o.y1, beat);
+        continue;
+      }
+      if (o.isSign) {
+        this.drawSign(g, sx + w / 2, gy, o);
+        continue;
+      }
       if (this.art && drawObstacleArt(o, this.pool, g, sx, beat, playerColor, reached)) continue;
       if (o.type === 'spike') drawSpikes(g, sx, w, pal, gy);
       else if (o.type === 'wall' && o.color === 'red') {
@@ -301,6 +359,30 @@ export class Obstacles {
       else if (o.type === 'checkpoint') drawCheckpoint(g, sx + w / 2, gy, reached?.has(o.data));
     }
     if (this.art) this.pool.end();
+    for (let i = this.signsUsed; i < (this.signTexts?.length ?? 0); i++) this.signTexts[i].setVisible(false);
+  }
+
+  // Panneau en bois planté dans le sol, avec son texte (tutoriel).
+  drawSign(g, cx, gy, o) {
+    this.signTexts ??= [];
+    let t = this.signTexts[this.signsUsed];
+    if (!t) {
+      t = this.scene.add
+        .text(0, 0, '', { fontFamily: '"Pixelify Sans", monospace', fontSize: '13px', color: '#f6ecd6', align: 'center', resolution: 2, wordWrap: { width: 190 } })
+        .setOrigin(0.5)
+        .setDepth(11);
+      this.signTexts.push(t);
+    }
+    this.signsUsed++;
+    t.setText(o.text).setVisible(true);
+    const w = Math.max(60, t.width + 20);
+    const h = t.height + 14;
+    const top = gy - (o.y1 - (o.base ?? 0)) - h;
+    g.fillStyle(0x3a2418, 1).fillRect(cx - 3, top + h, 6, gy - top - h); // poteau
+    g.fillStyle(0x1e120c, 1).fillRect(cx - w / 2 - 2, top - 2, w + 4, h + 4);
+    g.fillStyle(0x4a3022, 1).fillRect(cx - w / 2, top, w, h);
+    g.fillStyle(0x5b8f2c, 1).fillRect(cx - w / 2, top - 2, w, 3); // mousse
+    t.setPosition(cx, top + h / 2);
   }
 
   drawGround(cameraX, beat) {
@@ -487,4 +569,46 @@ function drawCheckpoint(g, x, gy, reached) {
   g.fillRect(x + 2, gy - 70, 22, 6);
   g.fillRect(x + 2, gy - 64, 16, 6);
   g.fillRect(x + 2, gy - 58, 10, 6);
+}
+
+// Accélérateur : chevrons dorés qui défilent vers l'avant.
+function drawBoost(g, x, w, gy, beat) {
+  g.fillStyle(0x5a4210, 1).fillRect(x, gy - 6, w, 6);
+  const shift = (beat * 40) % 16;
+  for (let k = -16; k < w; k += 16) {
+    const cx = x + k + shift;
+    if (cx < x || cx > x + w - 8) continue;
+    g.fillStyle(0xffd166, 1);
+    for (let r = 0; r < 4; r++) g.fillRect(cx + r * 2, gy - 6 + r, 3, 1).fillRect(cx + r * 2, gy - 1 - r, 3, 1);
+  }
+  g.fillStyle(0xffd166, 0.25).fillRect(x, gy - 14, w, 8);
+}
+
+// Porte de vitesse : barreaux dorés, ouverte (presque invisible) si Robin va assez vite.
+function drawSpeedGate(g, x, w, beat, open) {
+  const flick = 0.6 + 0.4 * Math.abs(Math.sin(beat * Math.PI * 2));
+  if (open) {
+    g.fillStyle(0xffd166, 0.18).fillRect(x, 0, w, GROUND_Y);
+    g.fillStyle(0xffd166, 0.6).fillRect(x, 0, 2, GROUND_Y).fillRect(x + w - 2, 0, 2, GROUND_Y);
+    return;
+  }
+  g.fillStyle(0x5a4210, 0.85).fillRect(x, 0, w, GROUND_Y);
+  g.fillStyle(0xffd166, flick);
+  for (let y = 0; y < GROUND_Y; y += 10) g.fillRect(x + 3, y, w - 6, 3);
+  g.fillStyle(0xffd166, 1).fillRect(x, 0, 3, GROUND_Y).fillRect(x + w - 3, 0, 3, GROUND_Y);
+  // Chevrons ">>" : il faut aller vite.
+  g.fillStyle(0xffffff, 0.9);
+  for (let y = 120; y < GROUND_Y - 20; y += 90) for (let r = 0; r < 5; r++) g.fillRect(x + 6 + r, y + r, 2, 1).fillRect(x + 6 + r, y + 9 - r, 2, 1);
+}
+
+// Courant d'air ascendant : colonne translucide et filets d'air qui montent.
+function drawWind(g, x, w, gy, top, beat) {
+  const y0 = GROUND_Y - top;
+  g.fillStyle(0x9fe8ff, 0.08).fillRect(x, y0, w, gy - y0);
+  for (let k = 0; k < Math.floor(w / 14); k++) {
+    const lx = x + 7 + k * 14;
+    const off = ((beat * 180 + k * 53) % (gy - y0)) | 0;
+    const ly = gy - off;
+    g.fillStyle(0xcff6ff, 0.55).fillRect(lx + Math.sin(beat * 6 + k) * 3, ly - 18, 2, 18);
+  }
 }

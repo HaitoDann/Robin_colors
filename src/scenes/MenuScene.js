@@ -15,6 +15,7 @@ import { Progress } from '../systems/Progress.js';
 import { ACTIONS, RESERVED, getKey, setKey, resetKeys, keyName } from '../systems/KeyBindings.js';
 import { UI, accent, text, keyHints, drawDiamond, drawWoodPanel, FONT_TEXT } from '../ui/theme.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
+import { Sfx } from '../systems/Sfx.js';
 import TILES from '../gfx/tiles.js';
 
 const K = Phaser.Input.Keyboard.KeyCodes;
@@ -216,7 +217,21 @@ export class MenuScene extends Phaser.Scene {
           label: 'Volume',
           value: () => `${Settings.volume} %`,
           gauge: () => Settings.volume / 100,
-          adjust: (d) => ((Settings.volume = Phaser.Math.Clamp(Settings.volume + d * 10, 0, 100)), save()),
+          adjust: (d) => {
+            Settings.volume = Phaser.Math.Clamp(Settings.volume + d * 10, 0, 100);
+            save();
+            this.audio?.setVolume(Settings.volume / 100); // effet immédiat
+          },
+        },
+        {
+          label: 'Bruitages',
+          value: () => `${Settings.sfxVolume} %`,
+          gauge: () => Settings.sfxVolume / 100,
+          adjust: (d) => {
+            Settings.sfxVolume = Phaser.Math.Clamp(Settings.sfxVolume + d * 10, 0, 100);
+            save();
+            Sfx.shared(this.game).play('coin'); // aperçu du volume
+          },
         },
         {
           label: 'Décalage audio',
@@ -257,7 +272,7 @@ export class MenuScene extends Phaser.Scene {
           action: () => (this.capturing = a.id),
         })),
         { label: 'Touches par défaut', value: () => '', action: () => resetKeys() },
-        { label: 'Retour', action: () => this.show('settings', 5), back: true },
+        { label: 'Retour', action: () => this.show('settings', 6), back: true },
       ];
       this.layout = 'settings';
       hints.splice(1, 1, ['ENTRÉE', 'changer']);
@@ -392,6 +407,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   select(i) {
+    Sfx.shared(this.game).play('menu');
     if (this.layout === 'cards') this.index = Phaser.Math.Clamp(i, 0, this.items.length - 1);
     else this.index = Phaser.Math.Wrap(i, 0, this.items.length);
     this.refresh();
@@ -429,7 +445,7 @@ export class MenuScene extends Phaser.Scene {
         else item.action?.();
         break;
       case K.ESC:
-        if (this.screen === 'keys') this.show('settings', 5);
+        if (this.screen === 'keys') this.show('settings', 6);
         else if (this.screen !== 'main') this.show('main', this.lastMain ?? 0);
         break;
       default:

@@ -66,10 +66,29 @@ export const PLAYER = {
   minOffset: -150, // limites de déplacement à l'écran (px)
   maxOffset: 280,
   dashSpeedFactor: 1.6, // le dash propulse vraiment vers l'avant
-  overspeedDecel: 160, // px / beat² : après un dash, retour en douceur à la vitesse de course
+  overspeedDecel: 70, // px / beat² : trop vite (dash, accélérateur, roulade) : l'élan retombe doucement
   // Petites tolérances pour que le jeu reste agréable.
-  coyoteBeats: 0.08, // on peut encore sauter juste après avoir quitté le sol
-  jumpBufferBeats: 0.12, // un appui juste avant l'atterrissage est mémorisé
+  coyoteBeats: 0.12, // coyote time : on peut encore sauter juste après avoir quitté le sol
+  jumpBufferBeats: 0.15, // un appui sur Z juste avant l'atterrissage est mémorisé
+  airBufferBeats: 0.12, // idem pour Espace (double saut / dash dès que possible)
+  // Vol plané : Z maintenu pendant la chute = descente lente.
+  glideGravityMul: 0.3,
+  glideMaxFall: 140, // px / beat
+  // Dash au sol (rouge) : délai avant de pouvoir en refaire un.
+  groundDashCooldown: 0.45,
+  // En l'air, l'élan d'un dash ou d'une roulade se perd lentement
+  // (dash au sol + saut = saut très long).
+  airOverspeedDecel: 35,
+  // Roulade (wave dash) : fast-fall, puis D au moment de toucher le sol.
+  rollWindowBeats: 0.15, // fenêtre après (ou juste avant) l'atterrissage
+  rollBeats: 0.35,
+  rollSpeedFactor: 1.5, // vitesse x1,5 (élan conservé si on saute)
+  // Glissade en pente : la descente accélère fort, et prolonge la glissade.
+  slideSlopeMul: 3,
+  // Courant d'air : pousse vers le haut (s'utilise avec le vol plané).
+  windAccel: 2400, // px / beat²
+  windMaxRise: 330, // vitesse de montée max (px / beat)
+  boostSpeedFactor: 1.9, // accélérateur : vitesse x1,9
   // Salto pendant le double saut.
   flipBeats: 0.5,
   // Rouge : dash horizontal sans gravité, traverse les obstacles rouges.
