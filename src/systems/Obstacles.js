@@ -5,6 +5,7 @@
 import { PIXELS_PER_BEAT as PPB, GROUND_Y, PLAYER_X, WIDTH, HEIGHT, COLORS } from '../config.js';
 import { SpritePool } from '../gfx/SpritePool.js';
 import { hasArt, drawGroundArt, drawObstacleArt } from './ObstacleArt.js';
+import { keyLabel } from './KeyBindings.js';
 
 export const OBSTACLE_TYPES = ['spike', 'wall', 'hole', 'ceiling', 'barrier', 'coin', 'crystal', 'low', 'platform', 'spring', 'slope', 'checkpoint', 'boost', 'speedgate', 'wind', 'sign'];
 export const OBSTACLE_COLORS = ['gray', 'blue', 'red'];
@@ -374,7 +375,8 @@ export class Obstacles {
       this.signTexts.push(t);
     }
     this.signsUsed++;
-    t.setText(o.text).setVisible(true);
+    // {jump}, {air}… : remplacés par les touches choisies par le joueur.
+    t.setText(o.text.replace(/\{(\w+)\}/g, (m, id) => keyLabel(id) ?? m)).setVisible(true);
     const w = Math.max(60, t.width + 20);
     const h = t.height + 14;
     const top = gy - (o.y1 - (o.base ?? 0)) - h;

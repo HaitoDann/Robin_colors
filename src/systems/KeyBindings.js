@@ -30,6 +30,11 @@ export function setKey(id, code, name) {
   Settings.save();
 }
 
+// Nom de la touche d'une action (ou undefined si l'action n'existe pas).
+export function keyLabel(id) {
+  return ACTIONS.some((a) => a.id === id) ? getKey(id).name : undefined;
+}
+
 export function resetKeys() {
   Settings.keys = {};
   Settings.save();
