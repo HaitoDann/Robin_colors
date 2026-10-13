@@ -487,9 +487,11 @@ export class Player {
     const half = (this.halfHeight * sy) / base;
     this.sprite.setPosition(PLAYER_X + this.offset, GROUND_Y - this.h - half);
 
-    if (this.rolling) {
-      // Roulade : Robin tourne en boule.
+    if (this.rolling && !this.useSheet) {
+      // Roulade (cube de secours) : il tourne sur lui-même.
       this.angle = 360 * (1 - this.rollTimer / PLAYER.rollBeats);
+    } else if (this.rolling) {
+      this.angle = 0; // les frames de roulade dessinent la rotation
     } else if (this.flipTimer > 0) {
       // Salto pendant le double saut.
       this.angle = 360 * (1 - this.flipTimer / PLAYER.flipBeats);
@@ -513,7 +515,10 @@ export class Player {
     const S = ROBIN_SHEET;
     if (this.idle) return loop(S.idleLoop, S.idleFramesPerBeat / 2);
     if (this.dashing) return loop(S.dash, S.dashFramesPerBeat);
-    if (this.rolling) return S.fastFall[1];
+    if (this.rolling) {
+      const k = Math.floor((1 - this.rollTimer / PLAYER.rollBeats) * S.roll.length);
+      return S.roll[Math.min(S.roll.length - 1, Math.max(0, k))];
+    }
     if (this.gliding) return S.jump[1]; // bras ouverts, on plane
     if (this.sliding) {
       // Entrée, glisse, puis relevé sur la fin.

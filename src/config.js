@@ -121,6 +121,7 @@ export const ROBIN_SHEET = {
   fastRun: [27, 28, 29, 30, 31, 32], // course avec D
   idleLoop: [33, 34, 35, 36, 37, 38, 39, 40], // tête qui bouge au rythme
   idleFramesPerBeat: 4,
+  roll: [41, 42, 43, 44, 45, 46, 47, 48], // roulade (wave dash), jouée sur sa durée
   landBeats: 0.15, // durée de la pose d'atterrissage
   getUpBeats: 0.12, // durée de la pose "se relève" après la glissade
   runFramesPerBeat: 4, // un pas sur chaque beat

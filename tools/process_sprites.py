@@ -32,7 +32,10 @@ FRAMES = [
     "slide1", "slide2", "slide3", "land1", "land2", "hland1", "hland2",
     "ff1", "ff2", "frun1", "frun2", "frun3", "frun4", "frun5", "frun6",
     "idle1", "idle2", "idle3", "idle4", "idle5", "idle6", "idle7", "idle8",
+    "roll1", "roll2", "roll3", "roll4", "roll5", "roll6", "roll7", "roll8",
 ]
+# 3e planche : roulade (8 frames sur une ligne).
+POSES3 = "robin_roulade.png"
 # 2e planche de poses : glissade, atterrissages, fast-fall, course rapide, idle.
 POSES2 = "robin_glissade_atterissage_fastfall_course rapide_idle.png"
 POSES2_SCALE = 170 / 35  # idle de 170 px source -> 35 px
@@ -226,6 +229,21 @@ def pose2_frames():
     return sprites
 
 
+def roll_frames():
+    """Roulade : 8 poses sur une ligne (titres et légendes ignorés)."""
+    rgb = np.array(Image.open(ART / POSES3).convert("RGB")).astype(int)
+    fg_all = ~background_mask_checker(rgb)
+    y0, y1 = max((b for b in segments(fg_all.sum(1), 3)), key=lambda b: b[1] - b[0])
+    scale = (y1 - y0) / IDLE_HEIGHT  # la pose debout fait la taille de l'idle
+    sprites = []
+    for x0, x1 in merge(segments(fg_all[y0:y1].sum(0), 1), 20):
+        sub = rgb[y0:y1, x0:x1]
+        fg = ~flood_outside(background_mask_checker(sub))
+        sprites.append(crop_alpha(downsample(sub, fg, scale)))
+    assert len(sprites) == 8, f"{len(sprites)} poses de roulade au lieu de 8"
+    return sprites
+
+
 def is_tinted(c, color):
     r, g, b = (int(v) for v in c)
     return b > r + 25 if color == "blue" else r > b + 25
@@ -269,6 +287,7 @@ def main():
     death = [place(d, "center") for d in deaths]
 
     extra = [place(f, "center" if i == 1 else "head") for i, f in enumerate(pose2_frames())]
+    extra += [place(f, "center" if 2 <= i <= 4 else "head") for i, f in enumerate(roll_frames())]
 
     blue = quantize([place(f) for f in runs["blue"]] + poses + [place(idles["blue"])] + death + extra)
     red_own = quantize([place(f) for f in runs["red"]] + [place(idles["red"])])
