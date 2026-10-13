@@ -81,7 +81,7 @@ export const PLAYER = {
   airOverspeedDecel: 35,
   // Roulade (wave dash) : fast-fall, puis D au moment de toucher le sol.
   rollWindowBeats: 0.15, // fenêtre après (ou juste avant) l'atterrissage
-  rollBeats: 0.35,
+  rollBeats: 0.5, // assez long pour bien voir l'animation
   rollSpeedFactor: 1.5, // vitesse x1,5 (élan conservé si on saute)
   // Glissade en pente : la descente accélère fort, et prolonge la glissade.
   slideSlopeMul: 3,
@@ -147,7 +147,10 @@ export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
 //            à cette vitesse : il "court sur la partition", tout reste calé.
 // 'player' : Robin avance / recule à l'écran, la musique reste à x1.
 // 'music'  : Q/D changent directement la vitesse du jeu et de la musique.
-export const SPEED_MODE = 'run';
+// Mode retenu : 'player' — la musique reste toujours à sa vitesse normale
+// (changer sa vitesse donnait des effets sonores bizarres) ; Robin avance ou
+// recule à l'écran quand il va plus ou moins vite que le défilement.
+export const SPEED_MODE = 'player';
 // Vitesse de la musique en mode 'run'. Elle suit la vitesse de Robin, mais
 // atténuée : rate = base + (vitesse de Robin - 1) x follow.
 // Avec base 1 et follow 0,35 : course x1, D x1,07, dash x1,2, Q x0,93.
