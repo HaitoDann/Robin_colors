@@ -60,6 +60,7 @@ export class GameScene extends Phaser.Scene {
     // Coordonnées du jeu en 960x540, affichées en haute résolution.
     this.cameras.main.setZoom(RENDER_SCALE).centerOn(WIDTH / 2, HEIGHT / 2);
     this.leaving = false;
+    this.cameras.main.resetFX();
     this.cameras.main.fadeIn(250, 7, 7, 13);
     createTextures(this);
     this.background = new Background(this);
@@ -92,11 +93,14 @@ export class GameScene extends Phaser.Scene {
       // Vraie musique : le niveau dure jusqu'à la fin du morceau.
       if (!this.audio.isPlaceholder) this.level.musicEndBeat = Math.floor(this.level.timeToBeat(this.audio.duration));
     } catch (e) {
+      if (this.leaving || !this.sys.isActive()) return;
       console.error(e);
       this.hud.showMessage('ERREUR', `${e.message ?? e}`, { color: 'red', hints: [['ÉCHAP', 'menu']] });
       this.input.keyboard.once('keydown-ESC', () => this.scene.start('menu'));
       return;
     }
+    // Échap pendant le chargement : on a déjà quitté la scène, on s'arrête là.
+    if (this.leaving || !this.sys.isActive()) return;
 
     this.obstacles = new Obstacles(this, this.level);
     this.coins = new Coins(this, this.obstacles);
@@ -262,7 +266,13 @@ export class GameScene extends Phaser.Scene {
 
   renderWorld() {
     const cameraX = this.beat * PPB;
-    this.background.update(cameraX);
+    // Vitesse ressentie : en jeu, le décor défile selon la vitesse de Robin
+    // (D, dash, roulade…) ; le niveau, lui, reste calé sur la musique.
+    if (this.state === 'playing' && this.bgX != null) {
+      this.bgX += (cameraX - this.lastCamX) * (this.player.speed / PPB);
+    } else this.bgX = cameraX;
+    this.lastCamX = cameraX;
+    this.background.update(this.bgX);
     this.obstacles.draw(cameraX, this.beat, this.player.color, this.reached, this.player.speed);
     this.coins.draw(cameraX, this.beat, this.player.color);
     this.crystals.draw(cameraX, this.beat);
@@ -403,8 +413,17 @@ export class GameScene extends Phaser.Scene {
     if (this.leaving) return;
     this.leaving = true;
     this.audio.stop();
-    this.cameras.main.fadeOut(200, 7, 7, 13);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('menu'));
+    // Fondu forcé (même si un autre fondu tourne) + filet de sécurité :
+    // on change de scène quoi qu'il arrive.
+    let done = false;
+    const go = () => {
+      if (done) return;
+      done = true;
+      this.scene.start('menu');
+    };
+    this.cameras.main.fade(200, 7, 7, 13, true);
+    this.cameras.main.once('camerafadeoutcomplete', go);
+    setTimeout(go, 600);
   }
 
   // --- Éditeur ---
@@ -508,7 +527,7 @@ export class GameScene extends Phaser.Scene {
       this.effects.dust(this.player.h);
     } else if (name === 'heavyLand') {
       this.effects.dust(this.player.h);
-      this.cameras.main.shake(70, 0.003);
+      this.cameras.main.shake(40, 0.0008); // très léger
     } else if (name === 'land') {
       this.effects.dust(this.player.h);
     }

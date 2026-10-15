@@ -175,6 +175,7 @@ export class Player {
     if (this.sliding) return;
     const ratio = this.speed / PPB;
     this.slideTimer = this.slideTotal = PLAYER.slideBeats * ratio * ratio;
+    this.slideElapsed = 0;
     this.speed *= PLAYER.slideSpeedLoss;
     this.onEvent('slide');
   }
@@ -269,6 +270,7 @@ export class Player {
     // Espace mémorisé : double saut / dash dès que c'est possible.
     if (this.airBuffer > 0 && !this.onGround && this.airJump) this.pressAir();
     if (this.sliding) {
+      this.slideElapsed = (this.slideElapsed ?? 0) + dt;
       // En descente, la glissade continue tant que la pente descend.
       if (!(this.onGround && (this.groundAngle ?? 0) < 0)) this.slideTimer = Math.max(0, this.slideTimer - dt);
       // On reste couché tant qu'un plafond bas est au-dessus.
@@ -523,10 +525,10 @@ export class Player {
     if (this.sliding) {
       // Entrée, glisse, puis relevé sur la fin.
       // Entrée, puis couché jusqu'au bout.
-      return this.slideTotal - this.slideTimer < 0.08 ? S.slide[0] : S.slide[1];
+      return (this.slideElapsed ?? 1) < 0.08 ? S.slide[0] : S.slide[1];
     }
     if (this.onGround && this.getUpTimer > 0) return S.slide[2]; // se relève
-    if (!this.onGround && this.fastFalling) return loop(S.fastFall, 8);
+    if (!this.onGround && this.fastFalling) return S.fastFall[0]; // pose fixe (alterner tremblait)
     if (this.onGround && this.landTimer > 0) {
       const frames = this.heavyLand ? S.heavyLand : S.land;
       return frames[this.landTimer > ROBIN_SHEET.landBeats / 2 ? 0 : 1];

@@ -53,6 +53,7 @@ export class MenuScene extends Phaser.Scene {
 
     this.cameras.main.setZoom(RENDER_SCALE).centerOn(WIDTH / 2, HEIGHT / 2);
     this.leaving = false;
+    this.cameras.main.resetFX();
     this.cameras.main.fadeIn(250, 7, 7, 13);
     createTextures(this);
     this.background = new Background(this);
@@ -82,6 +83,7 @@ export class MenuScene extends Phaser.Scene {
     kb.on('keydown', (e) => this.onKey(e));
 
     this.levels = await LevelSystem.list();
+    if (this.leaving || !this.sys.isActive()) return;
     this.show('main');
   }
 
@@ -471,11 +473,16 @@ export class MenuScene extends Phaser.Scene {
   // Petit fondu avant de lancer le jeu.
   startGame(data) {
     this.leaving = true;
-    this.cameras.main.fadeOut(220, 7, 7, 13);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
+    let done = false;
+    const go = () => {
+      if (done) return;
+      done = true;
       this.audio?.stop();
       this.scene.start('game', data);
-    });
+    };
+    this.cameras.main.fade(220, 7, 7, 13, true);
+    this.cameras.main.once('camerafadeoutcomplete', go);
+    setTimeout(go, 600);
   }
 
   // Crée un niveau vide (brouillon) et ouvre l'éditeur dessus.

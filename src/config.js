@@ -147,17 +147,18 @@ export const SPEED = { slow: 0.8, normal: 1, fast: 1.2 };
 //            à cette vitesse : il "court sur la partition", tout reste calé.
 // 'player' : Robin avance / recule à l'écran, la musique reste à x1.
 // 'music'  : Q/D changent directement la vitesse du jeu et de la musique.
-// Mode retenu : 'player' — la musique reste toujours à sa vitesse normale
-// (changer sa vitesse donnait des effets sonores bizarres) ; Robin avance ou
-// recule à l'écran quand il va plus ou moins vite que le défilement.
-export const SPEED_MODE = 'player';
+// Mode retenu : 'run' — Robin reste fixe à l'écran et toujours calé sur la
+// musique, qui garde sa vitesse normale (follow 0 : faire varier la musique
+// donnait des sons bizarres). Q/D, dash, roulade changent la vitesse "ressentie" :
+// le décor défile plus ou moins vite, sans jamais décaler le rythme.
+export const SPEED_MODE = 'run';
 // Vitesse de la musique en mode 'run'. Elle suit la vitesse de Robin, mais
 // atténuée : rate = base + (vitesse de Robin - 1) x follow.
 // Avec base 1 et follow 0,35 : course x1, D x1,07, dash x1,2, Q x0,93.
 // smoothBeats : la vitesse de la musique glisse doucement vers sa cible
 // (pas de "vinyle" qui grince quand on accélère ou dash).
 // (base 0,95 par exemple = musique un peu plus lente en course normale.)
-export const MUSIC_RATE = { base: 1, follow: 0.35, min: 0.85, max: 1.25, smoothBeats: 0.35 };
+export const MUSIC_RATE = { base: 1, follow: 0, min: 1, max: 1, smoothBeats: 0.35 };
 export function musicRateFor(speedRatio) {
   const r = MUSIC_RATE.base + (speedRatio - 1) * MUSIC_RATE.follow;
   return Math.max(MUSIC_RATE.min, Math.min(MUSIC_RATE.max, r));
